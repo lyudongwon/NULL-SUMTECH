@@ -8,6 +8,7 @@ services:
     environment:
       BACKEND_URL: http://backend:8080
       RELEASE_ID: local
+      KAKAO_MAP_APP_KEY: ${KAKAO_MAP_APP_KEY:-}
       # 화면은 AI를 직접 부르지 않지만, 제출 요건이 app 환경변수로 받으라고 해서 함께 둔다. 실제 호출은 backend가 한다.
       AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
     depends_on:
@@ -23,6 +24,10 @@ services:
       RELEASE_ID: local
       AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
       AI_GATEWAY_BASE_URL: ${AI_GATEWAY_BASE_URL:-https://ai-gateway.vercel.sh/v1}
+      KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY:-}
+      NEARBY_DEFAULT_LAT: ${NEARBY_DEFAULT_LAT:-}
+      NEARBY_DEFAULT_LNG: ${NEARBY_DEFAULT_LNG:-}
+      NEARBY_RADIUS_M: ${NEARBY_RADIUS_M:-1000}
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080'"]
       interval: 3s
