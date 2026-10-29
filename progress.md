@@ -125,5 +125,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: 고치기 전후 백틱 토큰·링크·영어 따옴표 문구·REQ/OPT/R 번호 목록을 뽑아 `diff`로 비교함. 다른 점은 `matched_restrictions` 설명에 `CONFIRMED` 하나를 넣은 것뿐(뜻은 그대로). `git diff`로 바뀐 14줄을 다시 읽음
 - 5회차(2026-10-30) `docs/scenarios.yaml`: 머리 주석 11줄과 platformReason 말투만 다듬음. 시나리오 id·title·features·steps·expected는 손대지 않음
   - 검사: `yaml.safe_load` 통과(시나리오 7개), HEAD와 파싱 결과 비교해 `scenarios`·`platform`·`login` 값이 똑같음, 주석의 REQ/OPT·F번호 대응·파일 경로 토큰 목록 `diff` 동일
-- 남은 문서(순서대로): erd.md · tech-stack.md · folder-structure.md
-- 다음 행동: docs/erd.md 설명 문장 다듬기(테이블·컬럼 이름·관계·열린 질문 내용은 그대로)
+- 6회차(2026-10-30) `docs/erd.md`: 머리말·전제·판정 설명 문장을 다듬고, 굵은 글씨 22곳(목록 머리말·열린 질문 제목)을 뺌. 다이어그램·테이블·컬럼·시드 요구·열린 질문 내용은 그대로
+  - 검사: 고치기 전후 백틱 토큰·링크·REQ/OPT/R/E 번호·따옴표 문구 목록을 뽑아 `diff`로 비교해 똑같음, `git diff --word-diff`로 바뀐 줄을 다시 읽음. "AI가 아니라 코드가 판정"은 tech-stack.md·problem.yaml에 있는 내용
+- 남은 문서(순서대로): tech-stack.md · folder-structure.md
+- 다음 행동: docs/tech-stack.md 설명 칸 말투 다듬기(버전·이름·환경변수·명령은 그대로)
