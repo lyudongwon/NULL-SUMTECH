@@ -9,9 +9,9 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 **Can I Eat? (먹어도 돼?)** 저장
 | 이럴 때 읽는다 | 문서 | 담고 있는 것 | 상태 |
 | --- | --- | --- | --- |
 | 작업을 시작할 때 (항상) | [docs/ai-rules.md](docs/ai-rules.md) | AI 에이전트 작업 규칙, 저장소 약속 | 작성됨(초안) |
-| 기능을 만들거나 고칠 때, 요구사항을 확인할 때 | [docs/problem.yaml](docs/problem.yaml) | 문제정의 캔버스, 경험 사례, 근거 자료, 기능 명세 `features` (REQ-1~7, OPT-1~3) | 작성됨 |
+| 기능을 만들거나 고칠 때, 요구사항을 확인할 때 | [docs/problem.yaml](docs/problem.yaml) | 문제정의 캔버스, 경험 사례, 근거 자료, 기능 명세 `features` (REQ-1~8, OPT-1~3) | 작성됨 |
 | 화면·E2E 흐름을 만들거나 고칠 때 | [docs/scenarios.yaml](docs/scenarios.yaml) | 사용자 핵심 흐름(단계·기대 결과), 주 사용 플랫폼, 로그인 여부 | 작성됨 |
-| API를 만들거나 호출할 때 | [docs/api.md](docs/api.md) | 엔드포인트별 요청·응답·에러·예외 상황, 판정 규칙 R0~R4, 열거형 | 작성됨(레포가 원본) |
+| API를 만들거나 호출할 때 | [docs/api.md](docs/api.md) | 엔드포인트별 요청·응답·에러·예외 상황, 판정 규칙 R0~R4, 열거형, 영어 화면 문구 | 작성됨(레포가 원본) |
 | 커밋·브랜치·PR을 만들 때 | [docs/git-convention.md](docs/git-convention.md) | 브랜치, 커밋 메시지, PR, main 복구, 금지 사항 | 작성됨(초안) |
 | 맡은 역할과 고쳐도 되는 파일을 확인할 때 | [docs/roles.md](docs/roles.md) | 역할 3개(기반·결과 화면 / 사진·판독 / 판정 엔진), 파일 소유권, 작업 순서, 세션 시작 지시문 | 작성됨 |
 | 채팅·회의에서 정한 결정을 남기거나 확인할 때 | [docs/decisions.md](docs/decisions.md) | 날짜별 결정과 문서 반영 상태 | 작성됨 |

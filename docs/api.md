@@ -12,7 +12,8 @@
 | 인증 | 없다. 로그인 없이 쓰고(`scenarios.yaml` `login: false`), 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 처음 접속하면 `POST /api/v1/users`로 받아 브라우저 `localStorage`에 보관한다 |
 | 요청 형식 | `application/json`. 사진 업로드(REQ-1)만 `multipart/form-data` |
 | 응답 필드 | snake_case |
-| 에러 본문 | 모든 에러는 `{ "detail": "<사람이 읽는 한국어 문장>" }` |
+| 화면 언어 | 영어(REQ-8). 사용자에게 보이는 값(프리셋·항목 `name`, `reason`, `detail`)은 영어로 돌려준다. 메뉴·재료는 한국어 원문(`menu_name`·`name`)과 영어 이름(`menu_name_en`·`name_en`)을 함께 준다. 화면 문구는 아래 [화면 문구](#화면-문구-req-8) |
+| 에러 본문 | 모든 에러는 `{ "detail": "<사람이 읽는 영어 문장>" }`. 화면은 `detail`을 그대로 팝업에 보여 줄 수 있다 |
 | 서버 오류 | 모든 엔드포인트에서 서버 내부 오류는 500 Internal Server Error |
 
 ### 엔드포인트 목록
@@ -28,7 +29,7 @@
 | REQ-3, REQ-6 | 위험 정도 3단계 판정 + 근거 상세 | judgment | POST | `/api/v1/judgments` | ③ | 판정 화면 |
 | OPT-1 | 수동 입력 판정 | judgment | POST | `/api/v1/judgments/manual` | ③ | 메뉴 이름 입력칸 |
 | REQ-5 | 숨은 성분 추론 | ingredient | POST | `/api/v1/ingredients/infer` | ③ | 판정 화면(내부 호출) |
-| OPT-2 | 음식점 추천 | restaurant | GET | `/api/v1/restaurants/recommendations` | ① | 다른 식당 보기 |
+| OPT-2 | 음식점 추천 | restaurant | GET | `/api/v1/restaurants/recommendations` | ① | Other restaurants |
 | OPT-3 | 이미지 축소 | client | — | 없음 (브라우저 처리) | ② | 사진 올리기 |
 | REQ-7 | 고지 문구 | client | — | 없음 (공통 레이아웃) | ① | 모든 화면 |
 
@@ -36,18 +37,45 @@
 
 | 필드 | 쓰이는 곳 | 값 |
 | --- | --- | --- |
-| `level` | REQ-3, OPT-1 | `SAFE`(안전) · `CHECK`(확인 필요) · `BLOCKED`(불가) |
+| `level` | REQ-3, OPT-1 | `SAFE`(안전, 화면 "Safe") · `CHECK`(확인 필요, 화면 "Check first") · `BLOCKED`(불가, 화면 "Avoid") |
 | `image_type` | REQ-2 | `MENU_BOARD`(메뉴판, 메뉴 전부) · `FOOD`(음식 사진, `menus` 1개) |
 | `source` (사진) | REQ-1 | `FILE` · `DRAG_DROP` · `CAMERA` |
 | `preset` | REQ-4 | `HALAL`(할랄: 돼지고기·술) · `VEGETARIAN`(채식: 고기·해산물 제외, 계란·유제품 허용) · `VEGAN`(비건: 고기·해산물·계란·유제품 제외) |
 | 제한 항목 `code` | REQ-4, REQ-3, OPT-2 | `meat`(고기) · `pork`(돼지고기) · `beef`(소고기) · `seafood`(해산물) · `egg`(계란) · `dairy`(우유·유제품) · `peanut`(땅콩) · `alcohol`(술) |
-| `evidence` | REQ-5, REQ-6 | `CONFIRMED`(확인: 음식 DB에 등록된 재료) · `INFERRED`(추정) |
-| `confidence` | REQ-5, REQ-6 | `HIGH`(높음) · `MEDIUM`(보통) · `LOW`(낮음) |
+| `evidence` | REQ-5, REQ-6 | `CONFIRMED`(확인: 음식 DB에 등록된 재료, 화면 "Confirmed") · `INFERRED`(추정, 화면 "Estimated") |
+| `confidence` | REQ-5, REQ-6 | `HIGH`(높음, 화면 "High") · `MEDIUM`(보통, 화면 "Medium") · `LOW`(낮음, 화면 "Low") |
 | `basis` | REQ-5, REQ-6 | `DB`(음식 DB) · `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정) · `RECIPE_SEARCH`(만개의 레시피) · `AI_ESTIMATE`(AI 추정) |
 | `rule` | REQ-3, REQ-6 | 아래 [판정 규칙](#판정-규칙)의 `R0`~`R4` |
 
 - 재료 하나는 걸리는 제한 항목 전부에 연결한다(`ingredient_restriction_items`). 돼지고기는 `pork`와 `meat`, 소고기는 `beef`와 `meat`에 걸린다. 그래서 "고기"를 켜도, "돼지고기"만 켜도 돼지고기가 걸린다.
 - 알레르기는 프리셋 없이 `egg`·`dairy`·`peanut`·`seafood` 토글로 고른다.
+
+### 화면 문구 (REQ-8)
+
+화면은 영어다. 시나리오(`scenarios.yaml`)와 E2E는 아래 영어 문구를 그대로 쓴다. 문구를 바꾸면 이 표와 `scenarios.yaml`을 같은 커밋에서 고친다.
+
+| 쓰이는 곳 | 뜻 | 화면 문구 |
+| --- | --- | --- |
+| 첫 화면 | 서비스 이름 | Can I Eat? |
+| 첫 화면 | 하는 일 | Snap a cafeteria menu or dish, and see if it fits your diet: Safe, Check first, or Avoid. |
+| 첫 화면·버튼 | 식단 제한 설정 | Diet settings |
+| 첫 화면·버튼 | 사진 올리기 | Upload photo |
+| 설정 화면 | 프리셋 | Halal · Vegetarian · Vegan |
+| 설정 화면 | 토글 | Meat · Pork · Beef · Seafood · Egg · Dairy · Peanut · Alcohol |
+| 설정 화면·버튼 | 저장 | Save |
+| 입력칸(OPT-1) | 메뉴 이름 입력칸 | Menu name |
+| 입력칸(OPT-1)·버튼 | 판정하기 | Can I eat it? |
+| 판정 화면 | 배지 | Safe · Check first · Avoid |
+| 근거 상세(REQ-6) | 확인/추정 | Confirmed · Estimated |
+| 근거 상세(REQ-6) | 확신도 | High · Medium · Low |
+| 근거 상세(REQ-6) | 적용 규칙 | Rule |
+| 판정 화면·버튼(OPT-2) | 다른 식당 보기 | Other restaurants |
+| 음식점 추천(OPT-2) | 결과 없음 | No restaurants match your diet yet. |
+| 팝업(REQ-3·OPT-1) | 메뉴 이름이 비었음 | Please enter a menu name. |
+| 모든 화면 하단(REQ-7) | 고지 문구 | For guidance only. Please make the final check yourself or with a dietitian. |
+
+- 메뉴·재료는 `영어 이름 (한국어 원문)`으로 보인다. 예: `Bibimbap (비빔밥)`, `Gochujang (고추장)`.
+- 한국어 화면은 만들지 않는다.
 
 ---
 
@@ -89,19 +117,19 @@
 ```json
 {
   "presets": [
-    { "code": "HALAL", "name": "할랄", "items": ["pork", "alcohol"] },
-    { "code": "VEGETARIAN", "name": "채식", "items": ["meat", "seafood"] },
-    { "code": "VEGAN", "name": "비건", "items": ["meat", "seafood", "egg", "dairy"] }
+    { "code": "HALAL", "name": "Halal", "items": ["pork", "alcohol"] },
+    { "code": "VEGETARIAN", "name": "Vegetarian", "items": ["meat", "seafood"] },
+    { "code": "VEGAN", "name": "Vegan", "items": ["meat", "seafood", "egg", "dairy"] }
   ],
   "items": [
-    { "code": "meat", "name": "고기" },
-    { "code": "pork", "name": "돼지고기" },
-    { "code": "beef", "name": "소고기" },
-    { "code": "seafood", "name": "해산물" },
-    { "code": "egg", "name": "계란" },
-    { "code": "dairy", "name": "우유·유제품" },
-    { "code": "peanut", "name": "땅콩" },
-    { "code": "alcohol", "name": "술" }
+    { "code": "meat", "name": "Meat" },
+    { "code": "pork", "name": "Pork" },
+    { "code": "beef", "name": "Beef" },
+    { "code": "seafood", "name": "Seafood" },
+    { "code": "egg", "name": "Egg" },
+    { "code": "dairy", "name": "Dairy" },
+    { "code": "peanut", "name": "Peanut" },
+    { "code": "alcohol", "name": "Alcohol" }
   ]
 }
 ```
@@ -142,7 +170,7 @@
 
 ```json
 {
-  "detail": "저장된 식단 제한이 없습니다."
+  "detail": "No saved diet settings."
 }
 ```
 
@@ -193,7 +221,7 @@
 
 ```json
 {
-  "detail": "다른 요청이 먼저 처리되었습니다. 다시 시도해 주세요."
+  "detail": "Another request was saved first. Please try again."
 }
 ```
 
@@ -203,7 +231,7 @@
 | --- | --- |
 | 같은 사용자의 저장이 동시에 들어옴(`version` 불일치, 처음 저장이 겹침) | 409 Conflict → 클라이언트는 다시 조회한 뒤 재요청 |
 | 존재하지 않는 preset / 토글 코드 | 400 Bad Request |
-| 발급되지 않은 `user_id` | 404 Not Found `{ "detail": "사용자 정보를 찾을 수 없습니다." }` → 클라이언트는 번호를 다시 발급받는다 |
+| 발급되지 않은 `user_id` | 404 Not Found `{ "detail": "User not found." }` → 클라이언트는 번호를 다시 발급받는다 |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
@@ -236,10 +264,10 @@
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| `file` 누락 | 400 Bad Request `{ "detail": "업로드할 사진이 없습니다." }` |
-| 이미지가 아닌 파일 / 지원하지 않는 형식 | 415 Unsupported Media Type `{ "detail": "지원하지 않는 이미지 형식입니다." }` |
-| 10MB 초과 | 413 Payload Too Large `{ "detail": "사진 용량이 너무 큽니다. (최대 10MB)" }` |
-| 잘못된 `source` 값 | 400 Bad Request `{ "detail": "source 값이 올바르지 않습니다." }` |
+| `file` 누락 | 400 Bad Request `{ "detail": "Please choose a photo to upload." }` |
+| 이미지가 아닌 파일 / 지원하지 않는 형식 | 415 Unsupported Media Type `{ "detail": "This image format is not supported." }` |
+| 10MB 초과 | 413 Payload Too Large `{ "detail": "The photo is too large (max 10MB)." }` |
+| 잘못된 `source` 값 | 400 Bad Request `{ "detail": "Invalid source value." }` |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ### 사진 본문 저장 (②가 정함, 2026-10-29)
@@ -269,14 +297,15 @@
   "image_id": "img_8f3a2c",
   "image_type": "MENU_BOARD",
   "menus": [
-    { "index": 0, "name": "제육볶음" },
-    { "index": 1, "name": null },
-    { "index": 2, "name": "미역국" }
+    { "index": 0, "name": "제육볶음", "name_en": "Spicy stir-fried pork" },
+    { "index": 1, "name": null, "name_en": null },
+    { "index": 2, "name": "미역국", "name_en": "Seaweed soup" }
   ]
 }
 ```
 
 - 읽지 못한 항목은 추측하지 않고 `name: null`로 비워 둔다
+- `name`은 메뉴판에 적힌 한국어 원문, `name_en`은 화면에 함께 보일 영어 이름이다(REQ-8)
 - 클라이언트는 `name`이 null이 아닌 항목만 모아 REQ-3에 보낸다
 - **모든 `name`이 null이거나 `menus`가 비었으면** 판정 화면 대신 메뉴 이름 입력칸(OPT-1)을 보여 준다
 
@@ -285,10 +314,10 @@
 | 예외 상황 | 처리 방식 |
 | --- | --- |
 | `image_id` 누락 | 400 Bad Request |
-| 존재하지 않는 `image_id` | 404 Not Found `{ "detail": "이미지를 찾을 수 없습니다." }` |
-| 메뉴판·음식 사진으로 인식되지 않음 | 422 Unprocessable Entity `{ "detail": "메뉴판이나 음식 사진이 아닙니다." }` → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
+| 존재하지 않는 `image_id` | 404 Not Found `{ "detail": "Image not found." }` |
+| 메뉴판·음식 사진으로 인식되지 않음 | 422 Unprocessable Entity `{ "detail": "This doesn't look like a menu or food photo." }` → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
 | 일부 메뉴를 읽지 못함 | 200 OK, 해당 항목 `name: null` |
-| 판독 엔진(AI) 오류·시간 초과(45초) | 500 Internal Server Error `{ "detail": "메뉴를 읽지 못했습니다. 메뉴 이름을 직접 입력해 주세요." }` → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
+| 판독 엔진(AI) 오류·시간 초과(45초) | 500 Internal Server Error `{ "detail": "We couldn't read the menu. Please type the menu name." }` → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
 
 ### 판독 방식 (②가 정함, 2026-10-29)
 
@@ -321,33 +350,36 @@
   "results": [
     {
       "menu_name": "제육볶음",
+      "menu_name_en": "Spicy stir-fried pork",
       "level": "BLOCKED",
-      "reason": "돼지고기가 들어 있어 할랄 기준에 맞지 않습니다.",
+      "reason": "Contains pork, which is not halal.",
       "matched_restrictions": ["pork"],
       "rule": "R1",
       "ingredients": [
-        { "name": "돼지고기", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["pork", "meat"] },
-        { "name": "고추장", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
-        { "name": "양파", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] }
+        { "name": "돼지고기", "name_en": "Pork", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["pork", "meat"] },
+        { "name": "고추장", "name_en": "Gochujang (chili paste)", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
+        { "name": "양파", "name_en": "Onion", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] }
       ]
     },
     {
       "menu_name": "미역국",
+      "menu_name_en": "Seaweed soup",
       "level": "CHECK",
-      "reason": "맛술이 쓰였을 수 있어 할랄 기준을 확인해야 합니다.",
+      "reason": "May contain cooking wine (alcohol). Please check before eating.",
       "matched_restrictions": [],
       "rule": "R2",
       "ingredients": [
-        { "name": "미역", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
-        { "name": "소고기", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["beef", "meat"] },
-        { "name": "맛술", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["alcohol"] }
+        { "name": "미역", "name_en": "Seaweed", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
+        { "name": "소고기", "name_en": "Beef", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["beef", "meat"] },
+        { "name": "맛술", "name_en": "Cooking wine", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["alcohol"] }
       ]
     }
   ]
 }
 ```
 
-- `reason`: 근거 한 줄(배지 옆에 보인다)
+- `reason`: 근거 한 줄, 영어(배지 옆에 보인다)
+- `menu_name`·`ingredients[].name`은 한국어 원문, `menu_name_en`·`ingredients[].name_en`은 영어 이름이다(REQ-8). 음식 DB에 없는 메뉴의 영어 이름은 AI가 만든다
 - `matched_restrictions`: **확인된** 재료로 걸린 제한 항목(`BLOCKED`의 근거)
 - `rule`: 적용된 판정 규칙(REQ-6)
 - `ingredients[].restrictions`: 그 재료가 연결된 제한 항목 코드 전부(사용자와 상관없이 재료에 정해진 값). 어느 항목에도 걸리지 않으면 `[]`
@@ -372,7 +404,7 @@
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| `menu_names`가 비었거나 빈 값·null을 포함 | 400 Bad Request `{ "detail": "입력 값이 없습니다." }` → 클라이언트는 같은 문구로 팝업 |
+| `menu_names`가 비었거나 빈 값·null을 포함 | 400 Bad Request `{ "detail": "Please enter a menu name." }` → 클라이언트는 같은 문구로 팝업 |
 | 미등록 `user_id`(식단 제한 미설정) | `R0`로 판정, 200 OK |
 | 음식 DB에 없는 메뉴 | REQ-5 순서(만개의 레시피 → AI 추정)로 재료를 찾아 판정, 200 OK |
 | 서버 내부 오류 | 500 Internal Server Error |
@@ -399,13 +431,14 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 ```json
 {
   "menu_name": "된장찌개",
+  "menu_name_en": "Soybean paste stew",
   "level": "SAFE",
-  "reason": "할랄 기준에 걸리는 재료를 찾지 못했습니다.",
+  "reason": "No non-halal ingredients found.",
   "matched_restrictions": [],
   "rule": "R4",
   "ingredients": [
-    { "name": "된장", "evidence": "INFERRED", "confidence": "HIGH", "basis": "RECIPE_SEARCH", "restrictions": [] },
-    { "name": "멸치 육수", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "RECIPE_SEARCH", "restrictions": ["seafood"] }
+    { "name": "된장", "name_en": "Doenjang (soybean paste)", "evidence": "INFERRED", "confidence": "HIGH", "basis": "RECIPE_SEARCH", "restrictions": [] },
+    { "name": "멸치 육수", "name_en": "Anchovy broth", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "RECIPE_SEARCH", "restrictions": ["seafood"] }
   ]
 }
 ```
@@ -414,7 +447,7 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| `menu_name` 누락 또는 빈 문자열 | 400 Bad Request `{ "detail": "입력 값이 없습니다." }` → 클라이언트 팝업 |
+| `menu_name` 누락 또는 빈 문자열 | 400 Bad Request `{ "detail": "Please enter a menu name." }` → 클라이언트 팝업 |
 | 음식 DB에 없는 메뉴 | REQ-5 순서로 재료를 찾아 판정, 200 OK (팝업 없음) |
 | 서버 내부 오류 | 500 Internal Server Error |
 
@@ -446,10 +479,11 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 ```json
 {
   "menu_name": "돈가스",
+  "menu_name_en": "Pork cutlet",
   "ingredients": [
-    { "name": "돼지고기", "evidence": "INFERRED", "confidence": "HIGH", "basis": "NAME_KEYWORD", "restrictions": ["pork", "meat"] },
-    { "name": "밀가루", "evidence": "INFERRED", "confidence": "HIGH", "basis": "COOKING_METHOD", "restrictions": [] },
-    { "name": "계란", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["egg"] }
+    { "name": "돼지고기", "name_en": "Pork", "evidence": "INFERRED", "confidence": "HIGH", "basis": "NAME_KEYWORD", "restrictions": ["pork", "meat"] },
+    { "name": "밀가루", "name_en": "Wheat flour", "evidence": "INFERRED", "confidence": "HIGH", "basis": "COOKING_METHOD", "restrictions": [] },
+    { "name": "계란", "name_en": "Egg", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["egg"] }
   ]
 }
 ```
@@ -458,7 +492,7 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| `menu_name` 누락 또는 빈 문자열 | 400 Bad Request `{ "detail": "입력 값이 없습니다." }` |
+| `menu_name` 누락 또는 빈 문자열 | 400 Bad Request `{ "detail": "Please enter a menu name." }` |
 | 1~4 모두 재료를 찾지 못함 | 200 OK, `ingredients: []` → 판정은 `R3`과 같이 `CHECK` |
 | 서버 내부 오류 | 500 Internal Server Error |
 
@@ -466,7 +500,7 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 
 ## OPT-2 음식점 추천
 
-`GET /api/v1/restaurants/recommendations` — 판정 결과에 '안전' 메뉴가 하나도 없을 때 "다른 식당 보기"에서 부른다. 사용자가 켠 제한 항목을 모두 피하는 음식점을 돌려준다.
+`GET /api/v1/restaurants/recommendations` — 판정 결과에 '안전' 메뉴가 하나도 없을 때 "Other restaurants"에서 부른다. 사용자가 켠 제한 항목을 모두 피하는 음식점을 돌려준다.
 
 ### 요청
 
@@ -503,8 +537,8 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 | 예외 상황 | 처리 방식 |
 | --- | --- |
 | `user_id` 누락 | 400 Bad Request |
-| `user_id`가 존재하지 않음 | 404 Not Found `{ "detail": "사용자 정보를 찾을 수 없습니다." }` |
-| 조건에 맞는 음식점 없음 | 200 OK, `restaurants: []` → 화면에 '조건에 맞는 음식점이 없습니다.' |
+| `user_id`가 존재하지 않음 | 404 Not Found `{ "detail": "User not found." }` |
+| 조건에 맞는 음식점 없음 | 200 OK, `restaurants: []` → 화면에 "No restaurants match your diet yet." |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
