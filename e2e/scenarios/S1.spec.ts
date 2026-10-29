@@ -1,3 +1,4 @@
+// docs/scenarios.yaml 흐름 S1 (옛 id scan-menu-board)
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 

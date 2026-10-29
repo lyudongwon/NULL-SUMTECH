@@ -1,15 +1,16 @@
 # app(화면, Next.js)만 3000 포트를 연다. 백엔드와 DB는 내부 네트워크로만 쓴다.
+# app은 루트 Dockerfile로 빌드한다(제출 요건: docker-compose.yml과 같은 위치의 Dockerfile).
 services:
   app:
-    build: ./frontend
+    build: .
     ports:
       - "3000:3000"
     environment:
       BACKEND_URL: http://backend:8080
       RELEASE_ID: local
-      # 채점기는 app 환경변수로 AI 키를 넣는다. 키를 실제로 읽는 쪽은 backend다(아래 backend에도 같은 줄).
-      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
       KAKAO_MAP_APP_KEY: ${KAKAO_MAP_APP_KEY:-}
+      # 화면은 AI를 직접 부르지 않지만, 제출 요건이 app 환경변수로 받으라고 해서 함께 둔다. 실제 호출은 backend가 한다.
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
     depends_on:
       backend:
         condition: service_healthy

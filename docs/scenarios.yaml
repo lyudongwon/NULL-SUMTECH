@@ -7,7 +7,7 @@
 # DB에 없는 메뉴는 만개의 레시피 → AI 추정 순으로 재료를 찾는다(REQ-5). 그래서 S5(manual-input-unknown-menu)의 "된장찌개"는 시드에 넣지 않는다.
 # 만개의 레시피가 막혀도 AI 추정으로 배지가 나오니, 이 흐름은 외부 사이트 상태와 상관없이 통과해야 한다.
 # 프리셋 "Vegetarian"(채식)은 고기·해산물만 빼고 계란·유제품은 허용한다(api.md 코드 VEGETARIAN).
-# S6(halal-bibimbap-gochujang)은 problem.yaml E1(P1)을, S7(peanut-allergy-bibimguksu)은 E2(P2)를 그대로 재현한다.
+# S6(halal-bibimbap-gochujang)은 problem.yaml E1(P1)을, S7(peanut-allergy-bibimguksu)는 E2(P2)를 그대로 재현한다.
 # OPT-3(이미지 축소)은 화면 동작이 아니어서 뺐다.
 # OPT-2(음식점 추천) 흐름 S8(other-restaurants-halal)은 음식점 이름이 아니라 "제한 항목을 쓰는 음식점은 안 보인다"로 확인한다. 음식점 시드(R__20)가 아직 예시 데이터라, 실제 조사 데이터로 바뀌어도 그대로 통과해야 한다.
 

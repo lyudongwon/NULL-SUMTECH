@@ -1,3 +1,4 @@
+// docs/scenarios.yaml 흐름 S7 (옛 id peanut-allergy-bibimguksu)
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 

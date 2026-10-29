@@ -1,3 +1,4 @@
+// docs/scenarios.yaml 흐름 S5 (옛 id manual-input-unknown-menu)
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
