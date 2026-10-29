@@ -33,6 +33,7 @@ backend/src/main/java/<기본 패키지>/
 │   │   └── repository/
 │   ├── menu/             메뉴 판독 (REQ-2)
 │   ├── judgment/         3단계 판정, 수동 입력 판정 (REQ-3, OPT-1)
+│   ├── user/             사용자 번호 발급 (REQ-4)
 │   ├── restriction/      식단 제한 프리셋·저장 (REQ-4)
 │   ├── ingredient/       숨은 성분 추론 (REQ-5, OPT-4)
 │   └── restaurant/       음식점 추천 (OPT-2)

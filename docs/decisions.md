@@ -4,6 +4,7 @@
 
 | 날짜 | 결정 | 이유 | 반영 상태 |
 | --- | --- | --- | --- |
+| 2026-10-29 | (잠정, 역할 ①) 클라이언트는 `POST /api/v1/users`로 `user_id`를 발급받아 브라우저(`localStorage`의 `user_id`)에 보관한다. 서버에 없는 번호로 저장하면 404를 받고 새로 발급받는다 | `user_id`를 서버가 Auto Increment로 발급하기로 해서 발급 방법이 필요했다 | 반영: `api.md` REQ-4 사용자 번호 발급, `erd.md` 열린 질문 2 |
 | 2026-10-29 | (잠정, 역할 ①) `docker compose`의 `app`은 Next.js(3000)다. 브라우저는 같은 출처 `/api/v1/**`을 부르고 Next.js가 `BACKEND_URL`로 백엔드에 넘긴다. API 기본 경로는 `/api/v1` | 화면과 백엔드를 나눠도 키트 조건(`app` 하나가 3000·`/__health`)을 지키고 CORS를 피한다 | 반영: `tech-stack.md` 열린 결정 1·2, `folder-structure.md`, `api.md` 공통, `docker-compose.yml` |
 | 2026-10-29 | (잠정, 역할 ①) 백엔드 뼈대는 Java 21 + Spring Boot 4.1.2 + Gradle 9.8.2 + Spring AI 2.0.1, 기본 패키지 `com.nullteam.foodcheck`. 시드는 Flyway 반복 마이그레이션(`R__`)으로 역할별 파일에 쓴다 | 뼈대를 만들 때 정해야 했다. 팀이 다른 값을 고르면 바꾼다 | 반영: `tech-stack.md`, `folder-structure.md`, `roles.md` |
 | 2026-10-29 | 음식 DB에 없는 메뉴는 만개의 레시피에서 재료를 검색해 판정한다. 이 경로는 흐름 `manual-input-unknown-menu`로 확인한다 | 팀 시나리오 5번의 "DB에 없으면 팝업"을 대신한다 | 반영: `problem.yaml > features > REQ-5`, `scenarios.yaml`. `roles.md`의 "E2E 메뉴는 시드에 넣는다"와 충돌해 확인 필요 |

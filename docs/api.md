@@ -17,6 +17,7 @@
 
 | 기능 ID | 기능 | 도메인 | 메서드 | 경로 | 구분 | 연관 화면 |
 | --- | --- | --- | --- | --- | --- | --- |
+| REQ-4 | 사용자 번호 발급 | user | POST | `/users` | 주요 | 식단 제한 설정 |
 | REQ-4 | 식단 제한 프리셋 목록 조회 | restriction | GET | `/restrictions/presets` | 주요 | 식단 제한 설정 |
 | REQ-4 | 내 식단 제한 조회 | restriction | GET | `/users/{user_id}/restrictions` | 주요 | 식단 제한 설정 |
 | REQ-4 | 식단 제한 저장 | restriction | PATCH | `/users/{user_id}/restrictions` | 주요 | 식단 제한 설정 |
@@ -37,6 +38,31 @@
 | `basis` | OPT-4 | `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정) |
 | `source` | REQ-1 | `FILE` · `DRAG_DROP` · `CAMERA` |
 | `preset` | REQ-4 | `HALAL`(할랄) · `VEGETARIAN`(채식) · `VEGAN`(비건) (REQ-4 프리셋 목록 조회로 받아온다. `VEGETARIAN`은 `scenarios.yaml`의 "채식"을 위해 추가) |
+
+---
+
+## REQ-4 사용자 번호 발급
+
+`POST /users` — 회원가입·로그인 없이 `user_id`를 하나 발급한다. 클라이언트는 받은 번호를 브라우저에 보관하고, 처음 식단 제한을 저장하기 전에 한 번 부른다. (계약 추가, 역할 ①: [erd.md](erd.md) 열린 질문 2번의 답)
+
+### 요청
+
+헤더·바디 없다.
+
+### 응답 201 Created
+
+```json
+{
+  "user_id": 1,
+  "created_at": "2026-10-29T12:00:00+09:00"
+}
+```
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| 서버 내부 오류 | 500 Internal Server Error |
 
 ---
 
@@ -115,7 +141,7 @@
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| 아직 한 번도 저장하지 않은 `user_id` | 404 Not Found → 클라이언트는 기본값(제한 없음) 표시 |
+| 아직 한 번도 저장하지 않았거나 발급되지 않은 `user_id` | 404 Not Found → 클라이언트는 기본값(제한 없음) 표시 |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
@@ -144,8 +170,9 @@
 }
 ```
 
+- `preset`: 키를 보내지 않으면 프리셋을 바꾸지 않는다. 프리셋 코드를 보내면 모든 토글을 끄고 그 프리셋의 항목을 켠 뒤 `toggles`를 덮어쓴다. `null`이면 프리셋 선택만 지우고 토글은 그대로 둔다
 - `toggles`: 바뀐 항목만 보내도 된다(on-click 단위)
-- `version`: 마지막으로 조회한 버전. 처음 저장할 때는 생략한다
+- `version`: 마지막으로 조회한 버전. 처음 저장할 때는 생략한다. 이미 저장한 적이 있는데 생략하면 409
 
 ### 응답 200 OK
 
@@ -175,6 +202,7 @@
 | --- | --- |
 | 같은 요청이 동시에 들어옴(`version` 불일치) | 409 Conflict → 클라이언트는 다시 조회한 뒤 재요청 |
 | 존재하지 않는 preset / 토글 코드 | 400 Bad Request |
+| 발급되지 않은 `user_id` | 404 Not Found `{ "detail": "사용자 정보를 찾을 수 없습니다." }` → 클라이언트는 `POST /users`로 새로 발급받는다 |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---

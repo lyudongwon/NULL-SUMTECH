@@ -151,9 +151,9 @@ E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 
 ## 열린 질문
 
 1. **사진 본문을 어디에 두는가.** 백엔드는 AWS 컨테이너라 재배포하면 컨테이너 디스크가 사라진다. Postgres `bytea`에 넣을지 S3 같은 외부 저장소를 쓸지, 업로드와 판독을 한 요청으로 합칠지 정해야 하고, 보관 기간도 정해야 한다.
-2. **`user_id` 발급 방법.** `user_id`로 통일하고 서버가 Auto Increment로 발급하기로 했다(`decisions.md`). 클라이언트가 처음에 번호를 어떻게 받는지(예: 사용자 생성 API) 정해야 한다.
+2. ~~**`user_id` 발급 방법.**~~ 잠정: 클라이언트가 `POST /api/v1/users`로 번호를 받아 브라우저에 보관한다([api.md](api.md) REQ-4 사용자 번호 발급).
 3. **로그인.** 회원가입과 로그인을 두지 않기로 했다(`decisions.md`).
-4. **프리셋·항목 코드 목록.** 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 쓴다. 전체 목록이 필요하다.
+4. **프리셋·항목 코드 목록.** 잠정으로 프리셋 `HALAL`(할랄)·`VEGETARIAN`(채식)·`VEGAN`(비건), 항목 `meat`(고기)·`pork`·`beef`·`seafood`·`egg`·`dairy`·`peanut`·`alcohol`을 시드(`R__10_seed_restrictions.sql`)에 넣었다. 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 쓴다. 전체 목록이 필요하다.
 5. **메뉴 이름 매칭.** 판독으로 읽은 이름이 DB의 이름과 정확히 같아야 하는가? 띄어쓰기, 표기 차이, 동의어(`돈까스`/`돈가스`)를 어떻게 처리할지 정해야 한다.
 6. **외부 검색 결과의 저장.** REQ-5의 "음식 DB에 없는 메뉴는 만개의 레시피에서 검색"을 DB에 쌓을지, 만개의 레시피에도 없을 때 무엇을 보여 줄지 정해야 한다.
 7. **음식점 데이터.** 출처와 추천 기준이 없다(OPT-2).
