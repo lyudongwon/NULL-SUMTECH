@@ -1,11 +1,13 @@
 import Link from "next/link";
+import { AccountBar } from "@/components/auth/AccountBar";
 import { DietSummary } from "@/components/settings/DietSummary";
 
-// 첫 화면: 로그인 없이 서비스 이름과 하는 일이 보인다(progress.md 5단계).
+// 첫 화면: 로그인 없이 서비스 이름과 하는 일이 보인다(progress.md 5단계). 가입·로그인(OPT-4)은 위쪽에서 선택한다.
 // TODO(확인): 서비스 이름은 팀이 정하지 않아 임시로 "학식 식단 체커"를 쓴다.
 export default function Home() {
   return (
-    <section className="flex flex-col gap-8 pt-6">
+    <section className="flex flex-col gap-8 pt-2">
+      <AccountBar />
       <div className="flex flex-col gap-3">
         <h1 className="text-3xl font-bold">Can I Eat?</h1>
         <p className="text-neutral-700">

@@ -118,6 +118,7 @@
 | 남의 계정(OPT-4) | 다른 사용자의 식단 제한(403 `detail`) | This account belongs to someone else. |
 | 음식점 추천(OPT-5) | 제보 버튼 · 로그인 안 함 | Report an ingredient · Log in to report an ingredient. |
 | 음식점 추천(OPT-5) | 제보 양식 | Which ingredient is used? · Dish name (optional) · Note (optional) · Send · Cancel |
+| 음식점 추천(OPT-5) | 항목을 고르지 않고 보냄 | Please choose an ingredient. |
 | 음식점 추천(OPT-5) | 제보 성공(뒤에 항목 이름) | Thanks! We'll hide this restaurant from people who avoid |
 | 음식점 추천(OPT-5) | 서버가 이유를 주지 않은 오류 | Couldn't send your report. |
 | 팝업(REQ-3·OPT-1) | 메뉴 이름이 비었음 | Please enter a menu name. |
