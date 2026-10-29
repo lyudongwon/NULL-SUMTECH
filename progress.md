@@ -249,6 +249,14 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 미확인(node·docker 없음): `other-restaurants-halal` spec 실행. 화면의 R3 설명 "All ingredients are AI estimates"·`reason` 문구는 이름 단어·조리법 추정만 있는 경우에는 넓게 맞는 말이라 그대로 둠(아래 팀 결정 필요)
   - 건드리지 않은 것: "현재 상태"·3단계 체크리스트는 `docs/e2e-results` 브랜치가 고치는 중이라 그대로 둠
   - 다음: 팀 결정 필요 목록(위험 완화·OPT-2 시드·E2E 증거)을 팀이 정한다. 루프가 혼자 할 수 있는 큰 일은 거의 남지 않았다
+- 6회차(2026-10-30) 지난 심사(75점)의 정합성 지적을 고침. `origin/main`의 measurements.md → problem.yaml 주석 이동을 충돌 없이 합침
+  - R3 문구: 화면 규칙 설명(`labels.ts`, api.md 화면 문구 표)을 "No ingredients from the food database or 10000recipe"로, `JudgmentRules` R3 `reason`을 "Ingredients are only estimated, not from the food database or 10000recipe. Please check before eating."으로 바꿔 5회차의 새 R3 조건과 맞춤. `Rule.R3` 주석도 고침. E2E·테스트는 이 문구를 검사하지 않음(grep 확인)
+  - decisions.md: R3 조건 변경(2e4ab13)과 문구를 새 행으로 남기고, 2026-10-29 판정 규칙 행에 바뀌었다는 표시를 붙임. ③ 확인 대기로 적음
+  - api.md OPT-2 예시 `matched_restrictions`를 `["alcohol", "pork"]`로, 설명 "이름순"을 "`code` 사전순"으로 고침(`RestaurantService`가 `TreeSet`으로 code를 정렬)
+  - 검사: `./gradlew --no-daemon test` 통과(89개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
+  - 미확인(node·docker 없음): `labels.ts` 바뀐 화면 표시. 문자열 한 줄만 바뀌어 타입·import 변화 없음
+  - 건드리지 않은 것: "현재 상태"·3·6단계는 `docs/e2e-results` 브랜치가 고치는 중이라 그대로 둠. E2E 실행 증거는 이 PC에서 만들 수 없음
+  - 다음: 남은 일은 팀 결정(위험 완화 고지·OPT-2 실제 음식점·E2E 결과 병합·R3 ③ 확인·배포 대상)과 node·docker 확인뿐이다
 
 ### 팀 결정 필요
 
@@ -258,6 +266,6 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (E2E·CI) 흐름 E2E 7개를 돌린 기록이 없다. CI에 붙이면 실제 AI 호출로 팀 예산($10)이 준다. 제안: node·docker가 있는 PC에서 `docker compose up` 뒤 `npx playwright test --project=scenarios`를 한 번 돌려 결과를 6단계에 적고, CI에는 수동 실행(`workflow_dispatch`)으로만 붙일지 정한다
 - (위험 완화) 심사가 "위험은 문서에 있으나 완화 조치가 구현되지 않았다"고 본다: 순서대로 매기는 `user_id`로 남의 식단 설정을 읽고 고칠 수 있음, 설정 삭제 방법 없음, 알레르기·종교 정보와 사진 외부 AI 전송에 대한 고지 문구 없음. 모두 `features`에 없는 기능이거나 API·DB를 바꾸는 일이라 루프가 만들지 않는다. 제안: ①시연 범위에서는 첫 화면에 짧은 영어 고지(사진은 판독에만 쓰고 30분 뒤 지움, 외부 AI로 보냄)를 넣을지 정하고 api.md 화면 문구에 먼저 적는다 ②`user_id`를 UUID로 바꿀지는 새 V 마이그레이션과 api.md 변경이 필요해 제출 뒤로 미룰지 정한다
 - (R3 범위, 안전) `api.md > 판정 규칙`의 R3는 "재료가 모두 `AI_ESTIMATE`에서 왔다"이고 `JudgmentRules`도 글자 그대로 `allMatch(AI_ESTIMATE)`다. 그런데 `IngredientInferenceService`는 AI 추정 결과에 이름 단어(`NAME_KEYWORD`)·조리법(`COOKING_METHOD`) 추정을 합친다. 예: DB·만개의 레시피에 없는 "두부조림"을 AI가 [두부, 간장]으로 추정하면 조리법 "조림"이 `맛술`(COOKING_METHOD)을 더해 "모두 AI_ESTIMATE"가 깨지고, 땅콩 알레르기 사용자에게 R4 `SAFE`가 나온다. AI가 실패해 이름 단어 하나(예: "치즈…" → 치즈)만 남아도 같다. 같은 문서 아래 줄("AI 추정만으로는 … 걸리지 않으면 R3로 늘 CHECK")의 뜻과 어긋난다. 제안: R3를 "걸리는 재료가 없고, 음식 DB(`DB`)나 만개의 레시피(`RECIPE_SEARCH`)에서 온 재료가 하나도 없다"로 바꿀지 ③이 정한다. 정하면 `JudgmentRules`·`JudgmentRulesTest`·api.md 표를 함께 고친다 → 5회차에 심사 지적대로 제안안으로 고침(REQ-5 done과 맞춤). ③이 다르게 정하면 2e4ab13을 되돌린다
-- (R3 문구) R3가 이름 단어·조리법 추정만 있는 경우도 덮게 되어, 화면 설명 "All ingredients are AI estimates"와 `reason` "Ingredients are AI estimates only."가 조금 좁다. 제안: "No ingredients confirmed by a database or recipe" 같은 문구로 바꿀지 ①·③이 정하고, 바꾸면 api.md 화면 문구 표·`labels.ts`·`JudgmentRules`를 함께 고친다
+- (R3 문구) R3가 이름 단어·조리법 추정만 있는 경우도 덮게 되어, 화면 설명 "All ingredients are AI estimates"와 `reason` "Ingredients are AI estimates only."가 조금 좁다. 제안: "No ingredients confirmed by a database or recipe" 같은 문구로 바꿀지 ①·③이 정하고, 바꾸면 api.md 화면 문구 표·`labels.ts`·`JudgmentRules`를 함께 고친다 → 6회차에 심사 지적대로 고침(decisions.md에 남김). ①·③이 다른 문구를 정하면 같은 세 곳을 바꾼다
 - (병합과 금지 파일) 심사는 `origin/main` 병합으로 들어온 팀원의 `CLAUDE.md` 변경도 금지 파일 변경으로 감점했다. 루프는 지시대로 main을 합칠 수밖에 없다. 제안: 금지 파일을 고치는 팀 PR은 루프 회차 사이에 합치거나, 심사 기준에 "병합으로 들어온 변경은 제외"를 적을지 정한다
 - (실행 조건) `build.gradle`은 Java 21을 요구한다. 팀원 PC에 JDK 17만 있으면 테스트가 컴파일 단계에서 멈춘다. 제안: README 실행 조건에 "JDK 21"을 분명히 적거나 Gradle toolchain 자동 내려받기를 쓸지 정한다
