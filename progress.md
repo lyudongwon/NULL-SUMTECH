@@ -270,8 +270,16 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `./gradlew --no-daemon test` 통과(91개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
   - 문서: `docs/api.md` 공통 표에 405·415 줄은 아직 없다. api.md는 OPT-2 팀 브랜치가 고치는 중이라 그 브랜치가 합쳐진 뒤 더한다
   - 다음: OPT-2 브랜치 병합 뒤 api.md 공통 에러에 405·415를 적고, OPT-2 새 계약과 코드가 맞는지 본다
+- 9회차(2026-10-30) 지난 심사(71점)는 api.md 공통 에러에 405·415가 없는 것을 어긋남으로 봤다. `docs/api.md`는 아직 `feat/opt2-nearby-restaurants`가 고치는 중이라(`origin/main`은 새 커밋 없음) 이번에도 건드리지 않고 "팀 결정 필요"에 적었다. 대신 심사가 짚은 "시드와 판정 규칙을 함께 보는 테스트 없음"을 채웠다
+  - `SeedJudgmentTest`를 더함: Flyway 시드(`R__10`·`R__30`)의 VALUES 줄을 읽어 `JudgmentRules`에 넣고, `docs/scenarios.yaml` expected와 같은 판정이 나오는지 본다. scan-menu-board(채식: 설렁탕 R1·콩나물국 CHECK·그린샐러드 R4·버섯리조또 R2), diet-toggle-only(Meat → 설렁탕 Avoid), halal-bibimbap-gochujang(R2), peanut-allergy-bibimguksu(R2), manual-input-fallback(할랄 김치찌개 R1), 예시 메뉴 7개가 시드에 있고 된장찌개는 없음, 프리셋 3개가 api.md 열거형과 같음, 시드 재료의 제한 항목이 단어표(`IngredientKeywords`) 결과를 모두 담음
+  - PostgreSQL이 없어 SQL을 실제로 실행하지는 않는다. DB 조회 경로는 흐름 E2E가 맡는다
+  - 검사: `./gradlew --no-daemon test` 통과(100개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). 시드의 비빔밥 `고추장 속 다진 돼지고기`를 잠시 CONFIRMED로 바꾸면 halal-bibimbap 테스트가 실패하는 것을 확인하고 되돌림
+  - 미확인(node·docker 없음): 흐름 E2E 8개 실행
+  - 다음: OPT-2 브랜치 병합 뒤 api.md 공통 에러에 405·415를 적는다
 
 ### 팀 결정 필요
+
+- (api.md 405·415) 8회차가 코드에 넣은 405 "This method is not allowed."·415 "This content type is not supported."가 `docs/api.md` 공통 에러 표에 없다. api.md는 `feat/opt2-nearby-restaurants`가 계약을 바꾸는 중이라 루프가 고치면 충돌한다. 제안: OPT-2 브랜치 담당자가 병합 전에 공통 에러 표에 두 줄을 더하거나, 병합 뒤 루프가 더하게 둔다
 
 - (OPT-2) 코드는 `limit`을 1~20으로 맞추는데(`RestaurantService.MAX_LIMIT`), `docs/api.md > OPT-2`에는 "기본 5"만 있다 → 2회차 반영: api.md 요청 표에 적음
 - (OPT-2 시드) 음식점 시드는 "(예시)" 가짜 5곳이고 주소는 `TODO(확인)`이다. `problem.yaml > OPT-2 > done`은 "팀이 조사한 음식점"을 말한다. 실제 음식점 이름·종류·주소·안 쓰는 재료는 AI가 지어낼 수 없다. 제안: ①이 학교 주변 음식점 5곳 이상을 직접 조사해 `R__20_seed_restaurants.sql`을 바꾸거나, 시연에서 OPT-2를 "예시 데이터"라고 밝히고 보여 준다
