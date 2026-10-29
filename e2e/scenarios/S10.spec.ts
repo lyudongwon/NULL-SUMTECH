@@ -35,6 +35,12 @@ test("가게에 돼지고기가 쓰인다고 제보하면 할랄 사용자의 �
     await expect(page.getByRole("listitem").filter({ hasText: name })).toHaveCount(0);
     await expect(page.getByRole("listitem")).toHaveCount(before - 1);
 
+    // "Undo"로 제보를 되돌리면 그 가게가 다시 보인다.
+    await page.getByRole("button", { name: "Undo" }).click();
+    await expect(page.getByText("Your report was removed.")).toBeVisible();
+    await expect(page.getByRole("listitem").filter({ hasText: name })).toHaveCount(1);
+    await expect(page.getByRole("listitem")).toHaveCount(before);
+
     // 로그인하지 않으면 제보 버튼 대신 로그인 안내가 보인다.
     await page.goto("/");
     await page.getByRole("button", { name: "Log out" }).click();
