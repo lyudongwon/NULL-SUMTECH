@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | 백엔드 언어·프레임워크 | Java 21 + Spring Boot 4.1.2, Gradle 9.8.2(wrapper, Groovy DSL) | 사용 | 뼈대(`backend/`)를 만들 때 넣은 잠정값. 기본 패키지 `com.nullteam.foodcheck`는 `TODO(확인)` |
 | 화면 | TypeScript + Next.js 15.5 (App Router), React 19.1, Tailwind CSS 4 | 사용 | 모바일 웹. `frontend/` |
-| DB | PostgreSQL | 사용 | 호스트(Neon 또는 AWS RDS)는 `미정` |
+| DB | PostgreSQL | 사용 | 배포 DB는 Render Postgres(무료, 만든 뒤 30일 만료). 백엔드는 Render가 주는 `DATABASE_URL`을 시작할 때 JDBC 설정으로 바꾼다 |
 | ORM | JPA(Hibernate) | 사용 | |
 | 마이그레이션 | Flyway | 사용 | 앱이 시작할 때 자동으로 돌아서 시작 명령은 서버 실행 하나로 끝남. `ddl-auto`는 `validate` |
 | AI | Spring AI 2.0.1(구조화 출력) + AI Gateway | 미정 | 메뉴 판독(REQ-2, 비전)과 재료 AI 추정(REQ-5)에만 씀. 판정 규칙은 AI가 아니라 코드가 맡음. 키는 `AI_GATEWAY_API_KEY`. Gateway가 OpenAI 호환 엔드포인트를 주면 Spring AI의 OpenAI 모듈에서 base-url만 바꿔 쓰는데, 되는지는 아직 확인 전. 안 되면 모델사 SDK나 키를 직접 씀 |
@@ -20,7 +20,7 @@
 | API 명세 연동 | springdoc-openapi → TypeScript 타입 생성 | 미정 | 두 언어 사이 어긋남을 줄이자는 제안 |
 | 테스트 | JUnit 5(판정 엔진) + Playwright(E2E) | 사용 | Playwright는 화면 쪽 |
 | 사진 저장 | S3, Postgres `bytea`, 또는 업로드·판독을 한 요청으로 합침 | 미정 | [erd.md](erd.md) 열린 질문 1 |
-| 배포 | 화면은 Vercel, 백엔드는 AWS 컨테이너 | 미정 | 아래 "열린 결정" 1 |
+| 배포 | Render(화면·백엔드 Docker 웹 서비스 + Postgres) | 사용 | 루트 `render.yaml` Blueprint. `docker-compose.yml`과 같은 Dockerfile을 쓰고, `/__health`의 `releaseId`는 Render의 `RENDER_GIT_COMMIT`이다. 채점은 docker compose로 띄운 앱을 본다 |
 
 ## 실행 조건
 
@@ -37,8 +37,8 @@
 1. 어느 서비스가 `app`인가 — 잠정으로 Next.js다. 3000 포트에서 받고 `/__health`(`frontend/src/app/%5F%5Fhealth`)를 준다. 백엔드(`backend`, 8080)와 DB는 `ports` 없이 내부 네트워크로만 쓴다. 팀이 다른 안을 고르면 `docker-compose.yml`과 이 항목을 같이 고친다.
    - 남은 안: Spring Boot가 `app`이 되어 3000 포트에서 받고, 화면은 정적 빌드로 함께 서빙한다.
 
-   배포(Vercel + AWS)도 이 구성에 맞춰 정한다.
-2. 브라우저가 백엔드를 직접 부르는가 — 잠정으로 부르지 않는다. 브라우저는 같은 출처의 `/api/v1/**`을 부르고, Next.js 라우트(`frontend/src/app/api/v1/[...path]/route.ts`)가 실행 시점의 `BACKEND_URL`로 넘겨 준다. 그래서 CORS가 필요 없다. 다만 Vercel에 배포하면 이 프록시를 거치느라 요청 본문 4.5MB 제한이 걸리는데, OPT-3으로 줄인 사진은 이보다 작다.
+   배포는 Render로 정했다(2026-10-30). 화면(`null-sumtech`)과 백엔드(`null-sumtech-api`)를 각각 Docker 웹 서비스로 띄운다. 무료 웹 서비스는 내부 네트워크로 요청을 받지 못해 화면의 `BACKEND_URL`은 백엔드의 공개 주소다.
+2. 브라우저가 백엔드를 직접 부르는가 — 잠정으로 부르지 않는다. 브라우저는 같은 출처의 `/api/v1/**`을 부르고, Next.js 라우트(`frontend/src/app/api/v1/[...path]/route.ts`)가 실행 시점의 `BACKEND_URL`로 넘겨 준다. 그래서 CORS가 필요 없다.
 3. ~~업로드 한도~~ — 10MB로 정했다([api.md](api.md) REQ-1). Spring 기본값 `spring.servlet.multipart.max-file-size` 1MB를 `application.yml`에서 10MB로 올려야 한다(①).
 4. AI 호출 남용 방지 — 로그인이 없고 팀 AI 예산이 $10이라 세션 단위 호출 제한이 필요하다(예: Bucket4j). 방식은 `미정`.
 5. REQ-5의 만개의 레시피 검색 수단 — HTML 파싱이라면 Jsoup이 후보인데, 사이트 차단과 이용약관 문제가 남아 있다. 검색이 실패해도 AI 추정으로 넘어가니 기능이 멈추지는 않는다([api.md](api.md) REQ-5).

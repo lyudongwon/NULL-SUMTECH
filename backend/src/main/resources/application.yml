@@ -28,7 +28,8 @@ server:
   port: ${PORT:8080}
 
 app:
-  release-id: ${RELEASE_ID:}
+  # Render는 배포한 commit을 RENDER_GIT_COMMIT으로 넣어 준다. docker compose 실행에서는 RELEASE_ID를 쓴다.
+  release-id: ${RENDER_GIT_COMMIT:${RELEASE_ID:}}
   auth:
     # HTTPS로 배포할 때 true. 쿠키가 http로는 가지 않게 한다. 로컬 http(localhost)에서는 false여야 로그인이 된다.
     cookie-secure: ${AUTH_COOKIE_SECURE:false}
