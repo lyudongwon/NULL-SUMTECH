@@ -6,6 +6,9 @@ import { clearUserId, readUserId, saveUserId } from "@/lib/userId";
 import * as authService from "@/services/authService";
 import type { AuthUser } from "@/types/auth";
 
+// 머리글(모든 화면에 남음)과 가입·로그인 양식이 각자 이 훅을 쓰므로, 양식이 로그인시키면 머리글에 알린다.
+const CHANGED = "caniet:account-changed";
+
 export type Account = { status: "loading" } | { status: "anonymous" } | { status: "authenticated"; user: AuthUser };
 
 /**
@@ -30,8 +33,14 @@ export function useAccount() {
         // 401(로그인 안 함)이든 서버 오류든 로그인하지 않은 것으로 본다. 이전 번호는 건드리지 않는다.
         if (!cancelled) setAccount({ status: "anonymous" });
       });
+    // 다른 곳(가입·로그인 양식)에서 로그인하면 바로 바꾼다.
+    function onChanged(event: Event) {
+      setAccount({ status: "authenticated", user: (event as CustomEvent<AuthUser>).detail });
+    }
+    window.addEventListener(CHANGED, onChanged);
     return () => {
       cancelled = true;
+      window.removeEventListener(CHANGED, onChanged);
     };
   }, []);
 
@@ -41,6 +50,7 @@ export function useAccount() {
     const user = await authService.signup({ email, password, ...(previous !== null && { user_id: previous }) });
     saveUserId(user.user_id);
     setAccount({ status: "authenticated", user });
+    window.dispatchEvent(new CustomEvent(CHANGED, { detail: user }));
     return user;
   }, []);
 
@@ -48,6 +58,7 @@ export function useAccount() {
     const user = await authService.login({ email, password });
     saveUserId(user.user_id);
     setAccount({ status: "authenticated", user });
+    window.dispatchEvent(new CustomEvent(CHANGED, { detail: user }));
     return user;
   }, []);
 

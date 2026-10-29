@@ -72,7 +72,6 @@
 | 첫 화면 | 배지 설명(Safe · Check first · Avoid 순서) | No restricted ingredient, and hidden ones look unlikely. · Might hide one, like broth or sauce. Ask before you eat. · Contains something your diet excludes. |
 | 첫 화면 | 사진 올리기 카드 보조 문구 | Take a photo · Choose from album |
 | 모든 화면 머리글·링크 | 머리글 메뉴(처음으로 · 식단 제한 설정 · 다른 식당 보기) | Home · Restrictions · Other restaurants |
-| 모든 화면 머리글·링크 | 저장한 식단 제한(뒤에 프리셋 이름이나 켠 항목이 붙음) · 저장 전이거나 켠 항목 없음 | My rules · Not set |
 | 설정 화면 | 프리셋 | Halal · Vegetarian · Vegan |
 | 설정 화면 | 토글 | Meat · Pork · Beef · Seafood · Egg · Dairy · Peanut · Alcohol |
 | 설정 화면·버튼 | 저장 | Save |
@@ -114,7 +113,7 @@
 | 음식점 추천(OPT-2) | 식단 제한을 저장하기 전 | Please set your diet first. |
 | 음식점 추천(OPT-2) | 음식점이 피하는 항목(뒤에 항목 이름이 붙음) | Free of |
 | 음식점 추천(OPT-2) | 서버가 이유를 주지 않은 오류 | Couldn't load recommendations. |
-| 첫 화면·버튼(OPT-4) | 가입 · 로그인 · 로그아웃 | Sign up · Log in · Log out |
+| 모든 화면 머리글 오른쪽 위·버튼(OPT-4, 가입·로그인 화면 제외) | 가입 · 로그인 · 로그아웃 | Sign up · Log in · Log out |
 | 가입·로그인 화면(OPT-4) | 입력칸 | Email · Password (8+ characters) |
 | 가입·로그인 화면(OPT-4) | 진행 중 · 서버가 이유를 주지 않은 오류 | Please wait… · Something went wrong. Please try again. |
 | 가입·로그인 화면(OPT-4) | 다른 화면으로 가는 링크 | Already have an account? Log in · New here? Sign up |
@@ -691,7 +690,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 ## OPT-4 내 계정 조회
 
-`GET /api/v1/auth/me` — 쿠키로 로그인 상태를 확인한다. 첫 화면이 "Log in"을 보일지 이메일과 "Log out"을 보일지 정하는 데 쓴다.
+`GET /api/v1/auth/me` — 쿠키로 로그인 상태를 확인한다. 머리글 오른쪽 위에 "Log in"을 보일지 이메일과 "Log out"을 보일지 정하는 데 쓴다.
 
 ### 응답 200 OK
 

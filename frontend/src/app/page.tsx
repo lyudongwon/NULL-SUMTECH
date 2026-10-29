@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { AccountBar } from "@/components/auth/AccountBar";
 import { PageHead } from "@/components/layout/PageHead";
 import { DietSummary } from "@/components/settings/DietSummary";
 import { Icon } from "@/components/ui/icons";
@@ -7,7 +6,7 @@ import { LevelBadge } from "@/components/ui/LevelBadge";
 import { btnOutline, btnPrimary, card, sectionLabel } from "@/components/ui/styles";
 import type { Level } from "@/types/judgment";
 
-// 첫 화면: 로그인 없이 서비스 이름과 하는 일이 보인다(progress.md 5단계). 가입·로그인(OPT-4)은 제목줄 오른쪽에서 고른다.
+// 첫 화면: 로그인 없이 서비스 이름과 하는 일이 보인다(progress.md 5단계). 가입·로그인(OPT-4)은 머리글 오른쪽 위에 있다.
 const LEGEND: [Level, string][] = [
   ["SAFE", "No restricted ingredient, and hidden ones look unlikely."],
   ["CHECK", "Might hide one, like broth or sauce. Ask before you eat."],
@@ -20,7 +19,6 @@ export default function Home() {
       <PageHead
         title="Can I Eat?"
         lead="Snap a cafeteria menu or dish, and see if it fits your diet: Safe, Check first, or Avoid."
-        actions={<AccountBar />}
       />
       <DietSummary variant="home" />
       <div className="flex flex-1 flex-col gap-6 md:flex-row">

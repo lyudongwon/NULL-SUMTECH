@@ -4,22 +4,24 @@ import Link from "next/link";
 import { btnOutline, btnPrimary } from "@/components/ui/styles";
 import { useAccount } from "@/hooks/useAccount";
 
-/** 첫 화면 제목줄 오른쪽: 로그인하지 않았으면 "Log in"·"Sign up", 로그인했으면 이메일과 "Log out". */
-// 시안의 작은 버튼(.btn-sm)
-const SMALL = "h-10 rounded-[10px] px-3.5 text-[13px]";
+/** 머리글 오른쪽 위: 로그인하지 않았으면 "Log in"·"Sign up", 로그인했으면 이메일과 "Log out". */
+// 시안의 작은 버튼(.btn-sm). 휴대폰 폭에서는 로고와 한 줄에 들어가도록 조금 더 줄인다.
+const SMALL = "h-9 rounded-[10px] px-3 text-[13px] sm:h-10 sm:px-3.5";
 
 export function AccountBar() {
   const { account, logout } = useAccount();
 
   if (account.status === "loading") {
     // 자리를 비워 둬 화면이 밀리지 않게 한다.
-    return <div className="h-10" aria-hidden />;
+    return <div className="h-9 sm:h-10" aria-hidden />;
   }
 
   if (account.status === "authenticated") {
     return (
-      <div className="flex min-w-0 items-center gap-3 text-sm">
-        <span className="truncate text-body">{account.user.email}</span>
+      <div className="flex min-w-0 items-center gap-2 text-sm sm:gap-3">
+        <span title={account.user.email} className="max-w-20 truncate text-[13px] text-body sm:max-w-64">
+          {account.user.email}
+        </span>
         <button
           type="button"
           onClick={async () => {
