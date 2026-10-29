@@ -14,7 +14,6 @@ import com.nullteam.foodcheck.global.exception.ApiException;
 
 /**
  * OPT-2 음식점 추천. 사용자가 켠 제한 항목을 모두 충족하는 음식점만 추천한다.
- * matched_restrictions는 사용자 값이 아니라 음식점이 실제로 피하는 항목 전부다(erd.md restaurant_restriction_items).
  * TODO(확인): "학식을 이용할 수 없는 경우"의 기준과 추천 순서가 정해지지 않아 id 순으로 돌려준다.
  */
 @Service
@@ -41,7 +40,7 @@ public class RestaurantService {
 				.filter(r -> r.getSatisfiedItems().containsAll(enabled))
 				.limit(size)
 				.map(r -> new RecommendationResponse.Item(r.getId(), r.getName(), r.getCategory(), r.getAddress(),
-						List.copyOf(new TreeSet<>(r.getSatisfiedItems()))))
+						List.copyOf(new TreeSet<>(enabled))))
 				.toList();
 		return new RecommendationResponse(items);
 	}

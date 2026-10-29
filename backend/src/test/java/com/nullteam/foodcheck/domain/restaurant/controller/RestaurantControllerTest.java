@@ -65,11 +65,10 @@ class RestaurantControllerTest {
 				.andExpect(jsonPath("$.restaurants[0].name").value("할랄 식당"))
 				.andExpect(jsonPath("$.restaurants[0].category").value("중동식"))
 				.andExpect(jsonPath("$.restaurants[0].address").value("학교 앞"))
-				// 사용자가 켠 값이 아니라 음식점이 피하는 항목 전부(peanut 포함)를 이름순으로 돌려준다
-				.andExpect(jsonPath("$.restaurants[0].matched_restrictions.length()").value(3))
+				// 사용자가 켠 제한 항목을 이름순으로 돌려준다
+				.andExpect(jsonPath("$.restaurants[0].matched_restrictions.length()").value(2))
 				.andExpect(jsonPath("$.restaurants[0].matched_restrictions[0]").value("alcohol"))
-				.andExpect(jsonPath("$.restaurants[0].matched_restrictions[1]").value("peanut"))
-				.andExpect(jsonPath("$.restaurants[0].matched_restrictions[2]").value("pork"));
+				.andExpect(jsonPath("$.restaurants[0].matched_restrictions[1]").value("pork"));
 	}
 
 	@Test
