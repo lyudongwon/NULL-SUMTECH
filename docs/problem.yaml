@@ -55,10 +55,10 @@ canvas:
 personas:
   - id: P1
     description: 종교적 이유로 돼지고기를 먹지 못하는 이슬람 유학생
-    source: 학생 제공 (2026-10-29 채팅), E1 근거
+    source: E1 당사자. 2026-10-23 팀원 김정우가 직접 만남
   - id: P2
     description: 땅콩 알레르기가 있는 외국인 유학생
-    source: 학생 제공 (2026-10-29 채팅)
+    source: E2 당사자. 2026-10-23 팀원 김정우가 직접 만남
 experiences:
   - id: E1
     when: 2026년 6월, 학식당에서 메뉴를 고르던 때
@@ -67,7 +67,7 @@ experiences:
     workaround: 위험을 감수하고 먹을 수 없어 비빔밥 먹기를 포기했다.
     feeling: 실망감
     quote: "먹고 싶었는데 못 먹어서 아쉬웠다."
-    source: 학생 제공 (2026-10-29 채팅), 이슬람 유학생의 경험 (P1). quote는 본인이 한 말을 학생이 전한 것
+    source: 2026-10-23 팀원 김정우가 이슬람 유학생(P1) 본인을 직접 만나 들은 경험. quote는 본인에게 들은 말이다. 같은 자리에서 지난 한 달 포기 횟수도 물었다(canvas > impact 주석)
   - id: E2
     when: 2026년 7월 더운 날, 학식당에서 메뉴를 고르던 때
     what_happened: |-
@@ -75,7 +75,7 @@ experiences:
     workaround: 땅콩 함유 여부를 몰라 식사를 포기했다.
     feeling: 짜증남
     quote: "더운 날이라 먹고 싶었는데 못 먹어서 짜증났다."
-    source: 학생 제공 (2026-10-29 채팅), 땅콩 알레르기가 있는 키르기스스탄 유학생의 경험 (P2). quote는 본인이 한 말을 학생이 전한 것
+    source: 2026-10-23 팀원 김정우가 땅콩 알레르기가 있는 키르기스스탄 유학생(P2) 본인을 직접 만나 들은 경험. quote는 본인에게 들은 말이다. 같은 자리에서 지난 한 달 포기 횟수도 물었다(canvas > impact 주석)
 sources:
   - id: R1
     url: https://www.immigration.go.kr/moj/2412/subview.do
