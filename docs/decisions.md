@@ -4,6 +4,7 @@
 
 | 날짜 | 결정 | 이유 | 반영 상태 |
 | --- | --- | --- | --- |
+| 2026-10-30 | 성공 지표에 판정 정확도를 더했다: 배지를 정해 둔 시나리오 5개에서 5/5 일치, 제한 재료가 확인된 메뉴에 "Safe" 0건. 시나리오 E2E로 잰다 | 성공 지표가 속도·포기 끼니뿐이라 서비스의 약속("같은 기준으로 맞게 판정")을 재지 못했다(B3, progress.md 기획 검토 E) | 반영: `problem.yaml > canvas > impact > measurable` |
 | 2026-10-30 | R2·R5 `url`을 법령 전체 페이지에서 조문·별표를 바로 보여 주는 주소로 바꿨다(R2: 별표 24 원문 PDF, R5: 학교급식법 제16조). 제95조·제4조 주소는 sources 주석에 적었다 | law.go.kr 법령 전체 페이지는 본문을 자바스크립트로 불러와, 평가자가 같은 주소로 원문을 확인하지 못했다(A4) | 반영: `problem.yaml > sources > R2·R5` |
 | 2026-10-30 | `api.md > 화면 문구` 표에 REQ-4 동시 저장 충돌 문구 "Another request was saved first. Please try again."을 더했다. 문구는 이미 `api.md > REQ-4` 409 응답과 백엔드에 있던 것이다 | `problem.yaml > features > REQ-4 > done`이 이 문구를 쓰는데 화면 문구 표에 없어 정합성(C3) 점검에서 걸렸다 | 반영: `api.md > 화면 문구` |
 | 2026-10-30 | R4를 쓴 문장 세 곳(root_problem, five_whys 4단계, solution_paths)의 "일부 학교만 감당한다"를 R4가 말하는 사실("서울대도 2018년에야 식당 한 곳에 들였고 적자로 운영")로 좁혔다. 확인 시간 지표에 측정 방법(사진 선택 → 배지 표시, E1·E2 사진 10회 중 10회 15초 이내)을 적고, 포기 끼니 측정은 해커톤 뒤에 한다고 밝혔다 | progress.md 기획 검토 E에서 R4 인용이 근거보다 넓고, 지표에 측정 조건이 없다고 지적됐다(A4·B3) | 반영: `problem.yaml > canvas > root_problem·impact > measurable`, `five_whys`, `solution_paths` |
