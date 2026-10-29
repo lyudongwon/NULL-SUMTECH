@@ -29,7 +29,8 @@
 | REQ-3, REQ-6 | 위험 정도 3단계 판정 + 근거 상세 | judgment | POST | `/api/v1/judgments` | ③ | 판정 화면 |
 | OPT-1 | 수동 입력 판정 | judgment | POST | `/api/v1/judgments/manual` | ③ | 메뉴 이름 입력칸 |
 | REQ-5 | 숨은 성분 추론 | ingredient | POST | `/api/v1/ingredients/infer` | ③ | 판정 화면(내부 호출) |
-| OPT-2 | 음식점 추천 | restaurant | GET | `/api/v1/restaurants/recommendations` | ① | Other restaurants |
+| OPT-2 | 주변 음식점 지도 | restaurant | GET | `/api/v1/restaurants/nearby` | ① | Other restaurants |
+| OPT-2 | 음식점 제한 보고 | restaurant | PUT | `/api/v1/restaurants/{restaurant_id}/reports` | ① | Other restaurants |
 | OPT-3 | 이미지 축소 | client | — | 없음 (브라우저 처리) | ② | 사진 올리기 |
 | REQ-7 | 고지 문구 | client | — | 없음 (공통 레이아웃) | ① | 모든 화면 |
 
@@ -46,6 +47,7 @@
 | `confidence` | REQ-5, REQ-6 | `HIGH`(높음, 화면 "High") · `MEDIUM`(보통, 화면 "Medium") · `LOW`(낮음, 화면 "Low") |
 | `basis` | REQ-5, REQ-6 | `DB`(음식 DB) · `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정) · `RECIPE_SEARCH`(만개의 레시피) · `AI_ESTIMATE`(AI 추정) |
 | `rule` | REQ-3, REQ-6 | 아래 [판정 규칙](#판정-규칙)의 `R0`~`R4` |
+| `pin` | OPT-2 | `UNKNOWN`(미확인, 회색, 화면 "Not checked") · `SAFE`(안전, 화면 "Looks fine") · `CAUTION`(주의, 화면 "Heads up") |
 
 - 재료 하나는 걸리는 제한 항목 전부에 연결한다(`ingredient_restriction_items`). 돼지고기는 `pork`와 `meat`, 소고기는 `beef`와 `meat`에 걸린다. 그래서 "고기"를 켜도, "돼지고기"만 켜도 돼지고기가 걸린다.
 - 알레르기는 프리셋 없이 `egg`·`dairy`·`peanut`·`seafood` 토글로 고른다.
@@ -91,7 +93,12 @@
 | 근거 상세(REQ-6) | 적용 규칙 설명(R0~R4 순서) | No diet restrictions set · A confirmed ingredient is restricted · An estimated ingredient may be restricted · All ingredients are AI estimates · No restricted ingredients found |
 | 첫 화면·판정 화면·버튼(OPT-2) | 다른 식당 보기 | Other restaurants |
 | 모든 화면·링크 | 처음으로 | Home |
-| 음식점 추천(OPT-2) | 결과 없음 | No restaurants match your diet yet. |
+| 음식점 추천(OPT-2) | 결과 없음 | No restaurants nearby yet. |
+| 음식점 추천(OPT-2) | 핑 상태 | Not checked · Looks fine · Heads up |
+| 음식점 추천(OPT-2) | 보고 수 | Reported by 1 person · Reported by 3 people |
+| 음식점 추천(OPT-2)·설정 | 주의 음식점 숨기기 | Hide "Heads up" spots |
+| 음식점 추천(OPT-2)·버튼 | 제한 보고하기 | Report what it serves |
+| 음식점 추천(OPT-2) | 위치 권한 거부 | Showing spots near Chosun University. |
 | 음식점 추천(OPT-2) | 안내 | Restaurants that fit your diet, for when the cafeteria doesn't. |
 | 음식점 추천(OPT-2) | 식단 제한을 저장하기 전 | Please set your diet first. |
 | 음식점 추천(OPT-2) | 음식점이 피하는 항목(뒤에 항목 이름이 붙음) | Free of |
@@ -523,20 +530,40 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 
 ---
 
-## OPT-2 음식점 추천
+## OPT-2 주변 음식점 지도
 
-`GET /api/v1/restaurants/recommendations` — 첫 화면의 "Other restaurants"와, 판정 결과에 '안전' 메뉴가 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"에서 부른다. 사용자가 켠 제한 항목을 모두 피하는 음식점을 돌려준다.
+`GET /api/v1/restaurants/nearby` — 첫 화면의 "Other restaurants"와, 판정 결과에 '안전' 메뉴가 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"에서 부른다. **주변 음식점을 걸러내지 않고 모두 돌려주고**, 다른 사용자가 남긴 보고를 바탕으로 핑 상태를 함께 준다.
+
+음식점 기본 정보(이름·주소·카테고리·좌표)는 카카오맵에서 가져와 `restaurants`에 쌓는다([tech-stack.md](tech-stack.md) 지도·장소 행). 식단 제한 정보는 카카오맵이 주지 않으므로 사용자 보고로만 쌓인다.
+
+### 핑 상태
+
+사용자가 켠 제한 항목(`RestrictionService.findEnabledItemCodes`)과 그 음식점에 쌓인 보고를 맞대어 정한다.
+
+| `pin` | 조건 | 화면 |
+| --- | --- | --- |
+| `CAUTION` | 내가 켠 항목 중 하나라도 "걸린다" 보고가 있다 | 주의. 테두리 강조색 |
+| `SAFE` | 보고가 1건 이상 있고, 내가 켠 항목에는 걸린다는 보고가 없다 | 안전 |
+| `UNKNOWN` | 이 음식점에 보고가 아직 없다 | 미확인. 회색 |
+
+- **`SAFE`는 안전을 보증하지 않는다.** "보고한 사람들이 내 제한 항목은 걸리지 않는다고 했다"는 뜻일 뿐이다. 보고가 다루지 않은 항목은 알 수 없다. 화면 문구를 "Safe"가 아니라 **"Looks fine"** 으로 둔 이유이고, REQ-7 고지 문구가 그대로 적용된다.
+- `CAUTION`은 **보고 1건부터** 붙인다. 알레르기는 놓치는 쪽이 위험해서 보수적으로 잡고, 대신 `report_count`를 함께 줘서 화면이 무게를 보여 준다.
+- '주의' 음식점을 숨기는 설정은 **화면에만 두고 서버에 저장하지 않는다**(브라우저 `localStorage`). 식단 제한(REQ-4)과 섞이지 않게 하려는 것이다.
 
 ### 요청
 
 | 위치 | key | 필수 | 설명 |
 | --- | --- | --- | --- |
 | Query | `user_id` | O | 사용자 번호 |
-| Query | `limit` | X | 추천 개수 (기본 5) |
+| Query | `lat` | X | 현재 위도. 없으면 기본 좌표(`NEARBY_DEFAULT_LAT`) |
+| Query | `lng` | X | 현재 경도. 없으면 기본 좌표(`NEARBY_DEFAULT_LNG`) |
+| Query | `radius` | X | 반경(m). 기본 `NEARBY_RADIUS_M`, 최대 20000 |
 
 ```text
-GET /api/v1/restaurants/recommendations?user_id=1&limit=5
+GET /api/v1/restaurants/nearby?user_id=1&lat=35.1397&lng=126.9289&radius=1000
 ```
+
+- `lat`·`lng`는 브라우저 geolocation으로 받는다. 사용자가 위치 권한을 거부하면 보내지 않고, 서버가 기본 좌표(시연용 조선대 주변)를 쓴다. 화면은 "Showing spots near Chosun University."를 보여 준다.
 
 ### 응답 200 OK
 
@@ -545,17 +572,25 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
   "restaurants": [
     {
       "restaurant_id": 12,
-      "name": "OO 할랄 식당",
+      "name": "OO 케밥",
+      "name_en": "OO Kebab",
       "category": "중동식",
       "address": "...",
-      "matched_restrictions": ["pork", "alcohol"]
+      "lat": 35.1401,
+      "lng": 126.9275,
+      "distance_m": 180,
+      "pin": "CAUTION",
+      "reported_restrictions": ["pork"],
+      "report_count": 2
     }
   ]
 }
 ```
 
-- `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
-- 음식점 데이터는 팀이 조사한 학교 주변 음식점 시드(`R__20_seed_restaurants.sql`)다
+- `reported_restrictions`: **내가 켠 항목과 겹치는** 보고 항목만 담는다. 겹치는 것이 없으면 빈 배열
+- `report_count`: 이 음식점에 보고를 남긴 사용자 수
+- `distance_m`: 요청 좌표에서의 직선 거리. 가까운 순으로 돌려준다
+- `name_en`은 REQ-8의 영어 이름이다. 카카오맵은 한국어 이름만 주므로, 영어 이름이 없으면 `null`이고 화면은 한국어 원문만 보여 준다
 
 ### 예외 상황
 
@@ -563,7 +598,48 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 | --- | --- |
 | `user_id` 누락 | 400 Bad Request |
 | `user_id`가 존재하지 않음 | 404 Not Found `{ "detail": "User not found." }` |
-| 조건에 맞는 음식점 없음 | 200 OK, `restaurants: []` → 화면에 "No restaurants match your diet yet." |
+| `lat`·`lng` 중 하나만 보냄, 또는 좌표 범위를 벗어남 | 400 Bad Request `{ "detail": "Location is not valid." }` |
+| 주변에 음식점이 없음 | 200 OK, `restaurants: []` → 화면에 "No restaurants nearby yet." |
+| 카카오맵 호출 실패·시간 초과 | 200 OK, 이미 `restaurants`에 쌓인 음식점만 돌려준다. 지도는 비지 않는다 |
+| 서버 내부 오류 | 500 Internal Server Error |
+
+---
+
+## OPT-2 음식점 제한 보고
+
+`PUT /api/v1/restaurants/{restaurant_id}/reports` — 다녀온 사용자가 그 음식점에서 **걸리는 제한 항목**을 토글로 남긴다. 저장은 사용자당 한 묶음이고 다시 보내면 덮어쓴다. 이 보고가 다음 사용자의 핑 상태가 된다.
+
+### 요청
+
+```json
+{
+  "user_id": 1,
+  "items": { "pork": true, "alcohol": false }
+}
+```
+
+- `items`의 키는 제한 항목 `code`다([열거형](#열거형)). `true`는 "이 가게에서 걸린다", `false`는 보고 취소다
+- "괜찮았다"는 따로 받지 않는다. 없는 정보를 안전으로 읽히게 하지 않으려는 것이다
+- 토글을 모두 `false`로 보내면 그 사용자의 보고가 사라진다(`report_count`에서 빠진다)
+
+### 응답 200 OK
+
+```json
+{
+  "restaurant_id": 12,
+  "items": { "pork": true },
+  "report_count": 2
+}
+```
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| `user_id` 누락 또는 존재하지 않음 | 404 Not Found `{ "detail": "User not found." }` |
+| 존재하지 않는 `restaurant_id` | 404 Not Found `{ "detail": "Restaurant not found." }` |
+| 존재하지 않는 항목 `code` | 400 Bad Request |
+| `items`가 비었거나 없음 | 400 Bad Request `{ "detail": "Please choose at least one item." }` |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
