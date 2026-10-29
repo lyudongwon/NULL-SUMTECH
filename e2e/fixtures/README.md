@@ -4,11 +4,11 @@
 
 | 파일 | 내용 | 크기 | 쓰는 흐름 | 상태 |
 | --- | --- | --- | --- | --- |
-| `menu-board.jpg` | 설렁탕·콩나물국·그린샐러드·버섯리조또가 적힌 칠판 메뉴판(가격 포함, 그려서 만듦) | 2000×1500 | `scan-menu-board` | 있음 |
-| `seolleongtang.jpg` | 설렁탕 음식 사진(뚝배기, 옆에 김치·만두·물컵이 함께 보임) | 2000×1500 | `scan-food-photo-single-dish`, `diet-toggle-only` | 있음 |
-| `no-menu.jpg` | 메뉴·음식이 없는 풍경 그림 | 1200×900 | `manual-input-fallback`, `manual-input-unknown-menu` | 있음 |
-| `bibimbap.jpg` | 돌솥비빔밥(고추장·계란 노른자가 보임) | 2000×1335 | `halal-bibimbap-gochujang` | 있음 |
-| `bibimguksu.jpg` | 김치 비빔국수(삶은 계란·상추) | 886×886 | `peanut-allergy-bibimguksu` | 있음 |
+| `menu-board.jpg` | 설렁탕·콩나물국·그린샐러드·버섯리조또가 적힌 칠판 메뉴판(가격 포함, 그려서 만듦) | 2000×1500 | `S1` | 있음 |
+| `seolleongtang.jpg` | 설렁탕 음식 사진(뚝배기, 옆에 김치·만두·물컵이 함께 보임) | 2000×1500 | `S2`, `S3` | 있음 |
+| `no-menu.jpg` | 메뉴·음식이 없는 풍경 그림 | 1200×900 | `S4`, `S5` | 있음 |
+| `bibimbap.jpg` | 돌솥비빔밥(고추장·계란 노른자가 보임) | 2000×1335 | `S6` | 있음 |
+| `bibimguksu.jpg` | 김치 비빔국수(삶은 계란·상추) | 886×886 | `S7` | 있음 |
 
 흐름에는 아직 쓰지 않는 음식 사진이다. 모두 1400px 미만이라 줄이지 않고 올라간다.
 

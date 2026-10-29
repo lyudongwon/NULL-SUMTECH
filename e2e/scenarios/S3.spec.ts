@@ -1,3 +1,4 @@
+// docs/scenarios.yaml 흐름 S3 (옛 id diet-toggle-only)
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 

@@ -1,0 +1,13 @@
+# 루트 Dockerfile(app)의 빌드 맥락에서 뺄 것. frontend/ 밖은 화면 빌드에 쓰지 않는다.
+.git
+.github
+.idea
+**/.env
+**/.env.*
+docs
+e2e
+progress.md
+backend/build
+backend/.gradle
+**/node_modules
+frontend/.next

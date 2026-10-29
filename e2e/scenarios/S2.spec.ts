@@ -1,3 +1,4 @@
+// docs/scenarios.yaml 흐름 S2 (옛 id scan-food-photo-single-dish)
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
