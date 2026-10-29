@@ -110,10 +110,22 @@ E2E는 앱을 따로 띄운 뒤 돌린다(기본 `http://localhost:3000`, 다른
 | 이름 | 쓰는 곳 | 용도 | 설정 위치 |
 | --- | --- | --- | --- |
 | `BACKEND_URL` | 화면 | `/api/v1/**`을 넘길 백엔드 주소 | 배포 환경변수, `docker-compose.yml` |
-| `RELEASE_ID` | 화면·백엔드 | `/__health`가 돌려주는 배포 commit. 없으면 `dev` | 배포 환경변수, `docker compose` 실행 시 셸 환경변수(CI·주최 측 실행이 commit SHA를 넣음) |
+| `RELEASE_ID` | 화면·백엔드 | `/__health`가 돌려주는 배포 commit. 없으면 `dev`. Render에서는 Render가 넣는 `RENDER_GIT_COMMIT`이 우선한다 | `docker compose` 실행 시 셸 환경변수(CI·주최 측 실행이 commit SHA를 넣음) |
+| `DATABASE_URL` | 백엔드 | Render Postgres 접속 주소(`postgresql://...`). `SPRING_DATASOURCE_URL`이 없을 때만 시작할 때 JDBC 설정으로 바꿔 쓴다 | Render(`render.yaml`이 DB에서 연결) |
 | `SPRING_DATASOURCE_URL` | 백엔드 | PostgreSQL 접속 주소(`jdbc:postgresql://...`) | 로컬 `.env`, 배포 환경변수, `docker-compose.yml` |
 | `SPRING_DATASOURCE_USERNAME` | 백엔드 | DB 사용자 | 같은 곳 |
 | `SPRING_DATASOURCE_PASSWORD` | 백엔드 | DB 비밀번호 | 같은 곳 |
 | `AI_GATEWAY_API_KEY` | 백엔드(제출 요건 때문에 `docker-compose.yml`의 app에도 둔다) | 서비스 AI 기능 호출(필요할 때만) | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
 | `AI_GATEWAY_BASE_URL` | 백엔드 | AI Gateway 주소. `/v1`까지 적는다(기본값 `https://ai-gateway.vercel.sh/v1`, 바꿀 때만) | 배포 환경변수 |
 | `AUTH_COOKIE_SECURE` | 백엔드 | 로그인 쿠키에 `Secure`를 붙일지. HTTPS로 배포할 때만 `true`, 로컬 http에서는 비우거나 `false`(기본값 `false`) | 배포 환경변수, `docker-compose.yml` |
+
+## 배포 (Render)
+
+루트 [`render.yaml`](render.yaml) Blueprint가 화면(`null-sumtech`), 백엔드(`null-sumtech-api`), DB(`null-sumtech-db`)를 만든다. 모두 무료 등급, 싱가포르 리전이다.
+
+1. Render에 로그인해 GitHub 계정을 연결하고 이 레포 접근을 허용한다.
+2. Render 대시보드 → New → Blueprint에서 이 레포와 `main`을 고른다.
+3. 입력을 묻는 값을 넣는다: 백엔드 `AI_GATEWAY_API_KEY`, 화면 `BACKEND_URL`(백엔드 공개 주소, 예: `https://null-sumtech-api.onrender.com`). 백엔드 주소가 다르게 만들어지면 화면 서비스 Environment에서 고친다.
+4. 배포가 끝나면 `https://<화면 주소>/__health`가 200과 `releaseId`(배포한 commit SHA)를 돌려주는지 확인하고, 그 주소를 대시보드 우리 팀 → 정보에 배포 URL로 등록한다.
+
+`main`에 합쳐질 때마다 두 서비스가 자동으로 다시 배포된다. 무료 웹 서비스는 15분 동안 요청이 없으면 잠들고 깨는 데 1분쯤 걸리니, 발표 전에 화면과 백엔드를 한 번씩 열어 깨워 둔다.
