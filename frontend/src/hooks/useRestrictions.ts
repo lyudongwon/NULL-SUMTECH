@@ -44,7 +44,7 @@ export function useRestrictions() {
       }
       setStatus("ready");
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.detail : "설정을 불러오지 못했습니다.");
+      setMessage(error instanceof ApiError ? error.detail : "Couldn't load your settings.");
       setStatus("error");
     }
   }, []);
@@ -90,7 +90,7 @@ export function useRestrictions() {
       if (error instanceof ApiError && error.status === 409) {
         await load();
       }
-      setMessage(error instanceof ApiError ? error.detail : "저장하지 못했습니다.");
+      setMessage(error instanceof ApiError ? error.detail : "Couldn't save your settings.");
       return false;
     } finally {
       setSaving(false);

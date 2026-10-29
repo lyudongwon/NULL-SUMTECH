@@ -18,11 +18,11 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
       cache: "no-store",
     });
   } catch {
-    throw new ApiError(0, "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.");
+    throw new ApiError(0, "Can't reach the server. Please try again shortly.");
   }
   const body = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new ApiError(response.status, body?.detail ?? "요청을 처리하지 못했습니다.");
+    throw new ApiError(response.status, body?.detail ?? "Request failed.");
   }
   return body as T;
 }

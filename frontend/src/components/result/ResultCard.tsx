@@ -39,15 +39,15 @@ export function ResultCard({ result, itemNames }: Props) {
       {open && (
         <div id={detailId} className="border-t border-neutral-200 p-4 text-sm">
           <p className="mb-3">
-            <span className="font-semibold">적용된 규칙</span> {result.rule} · {RULE_LABEL[result.rule]}
+            <span className="font-semibold">Rule</span> {result.rule} · {RULE_LABEL[result.rule]}
           </p>
           <table className="w-full text-left">
             <thead className="text-xs text-neutral-500">
               <tr>
-                <th className="pb-1 font-medium">재료</th>
-                <th className="pb-1 font-medium">구분</th>
-                <th className="pb-1 font-medium">확신도</th>
-                <th className="pb-1 font-medium">출처</th>
+                <th className="pb-1 font-medium">Ingredient</th>
+                <th className="pb-1 font-medium">Evidence</th>
+                <th className="pb-1 font-medium">Confidence</th>
+                <th className="pb-1 font-medium">Source</th>
               </tr>
             </thead>
             <tbody>

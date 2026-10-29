@@ -14,7 +14,7 @@ export function JudgmentResults() {
   const state = useJudgment(menus, demo);
 
   if (state.status === "loading") {
-    return <p className="text-neutral-500">판정하는 중…</p>;
+    return <p className="text-neutral-500">Checking…</p>;
   }
 
   if (state.status === "empty") {
@@ -29,7 +29,7 @@ export function JudgmentResults() {
             onClick={() => router.push("/scan")}
             className="w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white"
           >
-            확인
+            OK
           </button>
         </div>
       </div>
@@ -48,7 +48,7 @@ export function JudgmentResults() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-neutral-600">메뉴를 누르면 판정 근거를 자세히 볼 수 있어요.</p>
+      <p className="text-sm text-neutral-600">Tap a menu to see why.</p>
       <ul className="flex flex-col gap-3">
         {state.results.map((result) => (
           <ResultCard key={result.menu_name} result={result} itemNames={state.itemNames} />
@@ -59,7 +59,7 @@ export function JudgmentResults() {
           href="/restaurants"
           className="rounded-lg border border-emerald-600 px-4 py-3 text-center font-semibold text-emerald-700"
         >
-          다른 식당 보기
+          Other restaurants
         </Link>
       )}
     </div>

@@ -33,7 +33,7 @@ function requestJudgments(userId: number, menuNames: string[]) {
   });
 }
 
-export const EMPTY_INPUT_MESSAGE = "입력 값이 없습니다.";
+export const EMPTY_INPUT_MESSAGE = "Please enter a menu name.";
 
 /** /result?menus=<JSON 배열>의 메뉴 이름을 읽는다. 비었거나 형식이 틀리면 빈 배열. */
 export function parseMenus(raw: string | null): string[] {
@@ -84,7 +84,7 @@ export function useJudgment(menuNames: string[], demo: boolean): State {
         if (error instanceof ApiError && error.status === 400 && error.detail === EMPTY_INPUT_MESSAGE) {
           setState({ status: "empty" });
         } else {
-          setState({ status: "error", message: error instanceof ApiError ? error.detail : "판정을 불러오지 못했습니다." });
+          setState({ status: "error", message: error instanceof ApiError ? error.detail : "Couldn't load the results." });
         }
       }
     })();
@@ -102,7 +102,7 @@ function demoResponse(names: string[]): JudgmentResponse {
     {
       menu_name: "",
       level: "BLOCKED",
-      reason: "소고기가 들어 있어 채식 기준에 맞지 않습니다.",
+      reason: "Contains beef (소고기), which is not vegetarian.",
       matched_restrictions: ["meat"],
       rule: "R1",
       ingredients: [
@@ -113,7 +113,7 @@ function demoResponse(names: string[]): JudgmentResponse {
     {
       menu_name: "",
       level: "CHECK",
-      reason: "멸치 육수를 썼을 수 있어 확인이 필요합니다.",
+      reason: "May contain seafood (멸치 육수). Please check first.",
       matched_restrictions: [],
       rule: "R2",
       ingredients: [
@@ -124,7 +124,7 @@ function demoResponse(names: string[]): JudgmentResponse {
     {
       menu_name: "",
       level: "SAFE",
-      reason: "제한에 걸리는 재료가 없습니다.",
+      reason: "No restricted ingredients found.",
       matched_restrictions: [],
       rule: "R4",
       ingredients: [{ name: "양상추", evidence: "CONFIRMED", confidence: "HIGH", basis: "DB", restrictions: [] }],

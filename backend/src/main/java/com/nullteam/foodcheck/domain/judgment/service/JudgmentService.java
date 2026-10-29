@@ -28,7 +28,7 @@ import com.nullteam.foodcheck.global.exception.ApiException;
 @Service
 public class JudgmentService {
 
-	private static final String EMPTY_INPUT = "입력 값이 없습니다.";
+	private static final String EMPTY_INPUT = "Please enter a menu name.";
 
 	private final IngredientInferenceService ingredientInferenceService;
 	private final RestrictionService restrictionService;
@@ -79,7 +79,7 @@ public class JudgmentService {
 		return restrictionService.findEnabledItemCodes(userId).orElseGet(Set::of);
 	}
 
-	/** 근거 한 줄에 "돼지고기"처럼 화면과 같은 이름을 쓰려고 제한 항목 이름을 가져온다. */
+	/** 근거 한 줄에 "Pork"처럼 화면과 같은 영어 이름을 쓰려고 제한 항목 이름을 가져온다. */
 	private Map<String, String> itemNames() {
 		return restrictionService.listPresets().items().stream()
 				.collect(Collectors.toMap(PresetListResponse.Item::code, PresetListResponse.Item::name));

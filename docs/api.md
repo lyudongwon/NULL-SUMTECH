@@ -12,7 +12,7 @@
 | 인증 | 없다. 로그인 없이 쓰고(`scenarios.yaml` `login: false`), 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 처음 접속하면 `POST /api/v1/users`로 받아 브라우저 `localStorage`에 보관한다 |
 | 요청 형식 | `application/json`. 사진 업로드(REQ-1)만 `multipart/form-data` |
 | 응답 필드 | snake_case |
-| 화면 언어 | 영어(REQ-8). 사용자에게 보이는 값(프리셋·항목 `name`, `reason`, `detail`)은 영어로 돌려준다. 메뉴·재료는 한국어 원문(`menu_name`·`name`)과 영어 이름(`menu_name_en`·`name_en`)을 함께 준다. 화면 문구는 아래 [화면 문구](#화면-문구-req-8) |
+| 화면 언어 | 영어(REQ-8). 사용자에게 보이는 값(프리셋·항목 `name`, `reason`, `detail`)은 영어로 돌려준다. 메뉴·재료 이름(`menu_name`·`ingredients[].name`)은 메뉴판에 적힌 한국어 원문 그대로 준다. 화면 문구는 아래 [화면 문구](#화면-문구-req-8) |
 | 에러 본문 | 모든 에러는 `{ "detail": "<사람이 읽는 영어 문장>" }`. 화면은 `detail`을 그대로 팝업에 보여 줄 수 있다 |
 | 서버 오류 | 모든 엔드포인트에서 서버 내부 오류는 500 Internal Server Error |
 
@@ -69,12 +69,13 @@
 | 근거 상세(REQ-6) | 확인/추정 | Confirmed · Estimated |
 | 근거 상세(REQ-6) | 확신도 | High · Medium · Low |
 | 근거 상세(REQ-6) | 적용 규칙 | Rule |
-| 판정 화면·버튼(OPT-2) | 다른 식당 보기 | Other restaurants |
+| 첫 화면·판정 화면·버튼(OPT-2) | 다른 식당 보기 | Other restaurants |
+| 모든 화면·링크 | 처음으로 | Home |
 | 음식점 추천(OPT-2) | 결과 없음 | No restaurants match your diet yet. |
 | 팝업(REQ-3·OPT-1) | 메뉴 이름이 비었음 | Please enter a menu name. |
 | 모든 화면 하단(REQ-7) | 고지 문구 | For guidance only. Please make the final check yourself or with a dietitian. |
 
-- 메뉴·재료는 `영어 이름 (한국어 원문)`으로 보인다. 예: `Bibimbap (비빔밥)`, `Gochujang (고추장)`.
+- 메뉴·재료 이름은 메뉴판에 적힌 한국어 원문 그대로 보인다(예: `비빔밥`, `고추장`). 학식당의 한국어 메뉴판과 대조하고, 직원에게 그대로 보여 줄 수 있어야 하기 때문이다. 판정 근거 문장은 영어이고, 그 안에 재료 이름이 한국어 원문으로 들어간다(예: `May contain 고추장 속 다진 돼지고기. Check for Pork before eating.`).
 - 한국어 화면은 만들지 않는다.
 
 ---
@@ -297,15 +298,15 @@
   "image_id": "img_8f3a2c",
   "image_type": "MENU_BOARD",
   "menus": [
-    { "index": 0, "name": "제육볶음", "name_en": "Spicy stir-fried pork" },
-    { "index": 1, "name": null, "name_en": null },
-    { "index": 2, "name": "미역국", "name_en": "Seaweed soup" }
+    { "index": 0, "name": "제육볶음" },
+    { "index": 1, "name": null },
+    { "index": 2, "name": "미역국" }
   ]
 }
 ```
 
 - 읽지 못한 항목은 추측하지 않고 `name: null`로 비워 둔다
-- `name`은 메뉴판에 적힌 한국어 원문, `name_en`은 화면에 함께 보일 영어 이름이다(REQ-8)
+- `name`은 메뉴판에 적힌 한국어 원문이다(REQ-8)
 - 클라이언트는 `name`이 null이 아닌 항목만 모아 REQ-3에 보낸다
 - **모든 `name`이 null이거나 `menus`가 비었으면** 판정 화면 대신 메뉴 이름 입력칸(OPT-1)을 보여 준다
 
@@ -350,28 +351,26 @@
   "results": [
     {
       "menu_name": "제육볶음",
-      "menu_name_en": "Spicy stir-fried pork",
       "level": "BLOCKED",
-      "reason": "Contains pork, which is not halal.",
+      "reason": "Contains 돼지고기, which is not allowed for your Pork restriction.",
       "matched_restrictions": ["pork"],
       "rule": "R1",
       "ingredients": [
-        { "name": "돼지고기", "name_en": "Pork", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["pork", "meat"] },
-        { "name": "고추장", "name_en": "Gochujang (chili paste)", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
-        { "name": "양파", "name_en": "Onion", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] }
+        { "name": "돼지고기", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["pork", "meat"] },
+        { "name": "고추장", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
+        { "name": "양파", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] }
       ]
     },
     {
       "menu_name": "미역국",
-      "menu_name_en": "Seaweed soup",
       "level": "CHECK",
-      "reason": "May contain cooking wine (alcohol). Please check before eating.",
+      "reason": "May contain 맛술. Check for Alcohol before eating.",
       "matched_restrictions": [],
       "rule": "R2",
       "ingredients": [
-        { "name": "미역", "name_en": "Seaweed", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
-        { "name": "소고기", "name_en": "Beef", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["beef", "meat"] },
-        { "name": "맛술", "name_en": "Cooking wine", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["alcohol"] }
+        { "name": "미역", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
+        { "name": "소고기", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["beef", "meat"] },
+        { "name": "맛술", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["alcohol"] }
       ]
     }
   ]
@@ -379,7 +378,7 @@
 ```
 
 - `reason`: 근거 한 줄, 영어(배지 옆에 보인다)
-- `menu_name`·`ingredients[].name`은 한국어 원문, `menu_name_en`·`ingredients[].name_en`은 영어 이름이다(REQ-8). 음식 DB에 없는 메뉴의 영어 이름은 AI가 만든다
+- `menu_name`·`ingredients[].name`은 한국어 원문이다(REQ-8)
 - `matched_restrictions`: **확인된** 재료로 걸린 제한 항목(`BLOCKED`의 근거)
 - `rule`: 적용된 판정 규칙(REQ-6)
 - `ingredients[].restrictions`: 그 재료가 연결된 제한 항목 코드 전부(사용자와 상관없이 재료에 정해진 값). 어느 항목에도 걸리지 않으면 `[]`
@@ -431,14 +430,13 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 ```json
 {
   "menu_name": "된장찌개",
-  "menu_name_en": "Soybean paste stew",
   "level": "SAFE",
-  "reason": "No non-halal ingredients found.",
+  "reason": "No ingredients conflict with your diet restrictions.",
   "matched_restrictions": [],
   "rule": "R4",
   "ingredients": [
-    { "name": "된장", "name_en": "Doenjang (soybean paste)", "evidence": "INFERRED", "confidence": "HIGH", "basis": "RECIPE_SEARCH", "restrictions": [] },
-    { "name": "멸치 육수", "name_en": "Anchovy broth", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "RECIPE_SEARCH", "restrictions": ["seafood"] }
+    { "name": "된장", "evidence": "INFERRED", "confidence": "HIGH", "basis": "RECIPE_SEARCH", "restrictions": [] },
+    { "name": "멸치 육수", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "RECIPE_SEARCH", "restrictions": ["seafood"] }
   ]
 }
 ```
@@ -479,11 +477,10 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 ```json
 {
   "menu_name": "돈가스",
-  "menu_name_en": "Pork cutlet",
   "ingredients": [
-    { "name": "돼지고기", "name_en": "Pork", "evidence": "INFERRED", "confidence": "HIGH", "basis": "NAME_KEYWORD", "restrictions": ["pork", "meat"] },
-    { "name": "밀가루", "name_en": "Wheat flour", "evidence": "INFERRED", "confidence": "HIGH", "basis": "COOKING_METHOD", "restrictions": [] },
-    { "name": "계란", "name_en": "Egg", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["egg"] }
+    { "name": "돼지고기", "evidence": "INFERRED", "confidence": "HIGH", "basis": "NAME_KEYWORD", "restrictions": ["pork", "meat"] },
+    { "name": "밀가루", "evidence": "INFERRED", "confidence": "HIGH", "basis": "COOKING_METHOD", "restrictions": [] },
+    { "name": "계란", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["egg"] }
   ]
 }
 ```

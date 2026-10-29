@@ -62,22 +62,22 @@ export function PhotoPicker({ disabled, onPick }: Props) {
       }`}
     >
       <p className="text-center text-sm text-neutral-600">
-        메뉴판이나 음식 사진 한 장을 올려 주세요.
-        <span className="hidden sm:inline"> 사진을 여기로 끌어다 놓아도 돼요.</span>
+        Upload one photo of a menu board or a dish.
+        <span className="hidden sm:inline"> You can also drag a photo here.</span>
       </p>
       <div className="flex gap-3">
         <button type="button" disabled={disabled} onClick={() => open("CAMERA")} className={`${button} bg-emerald-600 text-white`}>
-          카메라로 찍기
+          Take a photo
         </button>
         <button type="button" disabled={disabled} onClick={() => open("FILE")} className={`${button} border border-neutral-300`}>
-          앨범에서 고르기
+          Choose from album
         </button>
       </div>
       <input
         ref={inputRef}
         type="file"
         accept={ACCEPT}
-        aria-label="사진 파일"
+        aria-label="Photo file"
         data-testid="scan-file-input"
         className="sr-only"
         tabIndex={-1}

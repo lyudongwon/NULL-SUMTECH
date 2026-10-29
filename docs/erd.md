@@ -119,8 +119,8 @@ erDiagram
 
 | 테이블 | 컬럼 | 설명 |
 | --- | --- | --- |
-| `foods` | `id` PK, `name` UNIQUE, `name_en`, `source` | 음식 DB. `name`은 한국어 원문, `name_en`은 화면에 함께 보일 영어 이름(REQ-8). `source`는 시드(`SEED`), 만개의 레시피(`RECIPE_SEARCH`), AI 추정(`AI_ESTIMATE`)을 구분한다 |
-| `ingredients` | `id` PK, `name` UNIQUE, `name_en` | 재료 사전(예: 돼지고기/Pork, 계란/Egg). `name_en`은 영어 이름(REQ-8) |
+| `foods` | `id` PK, `name` UNIQUE, `source` | 음식 DB. `name`은 메뉴판의 한국어 원문이고 화면에도 그대로 보인다(REQ-8). `source`는 시드(`SEED`), 만개의 레시피(`RECIPE_SEARCH`), AI 추정(`AI_ESTIMATE`)을 구분한다 |
+| `ingredients` | `id` PK, `name` UNIQUE | 재료 사전(예: 돼지고기, 계란). 이름은 한국어 원문 그대로 화면에 보인다(REQ-8) |
 | `food_ingredients` | (`food_id`, `ingredient_id`) PK, `evidence`, `confidence`, `basis` | 음식에 들어 있는 재료. REQ-6의 "확인/추정 구분"이 `evidence`, "확신도"가 `confidence`, `docs/api.md`의 `basis`가 `basis`다 |
 | `ingredient_restriction_items` | (`ingredient_id`, `item_code`) PK | 재료가 걸리는 제한 항목 전부. 돼지고기는 `pork`와 `meat`, 소고기는 `beef`와 `meat`에 걸린다. 그래서 "고기"만 켜도, "돼지고기"만 켜도 걸린다 |
 
@@ -153,9 +153,7 @@ E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 
 
 ## 영어 화면(REQ-8)에 맞춰 바꿀 것
 
-- `foods`·`ingredients`에 `name_en`(text, null 가능) 컬럼을 추가한다(①, 새 `V` 마이그레이션). 시드 음식·재료에는 영어 이름을 넣는다(③).
-- `R__10` 시드의 프리셋·제한 항목 `name`을 영어로 바꾼다(①).
-- 만개의 레시피·AI 추정으로 새로 저장하는 음식·재료의 `name_en`은 AI가 만든다(③).
+- (반영함) `R__10` 시드의 프리셋·제한 항목 `name`을 영어로 바꿨다. 메뉴·재료 이름은 한국어 원문 그대로라 컬럼을 늘리지 않는다.
 
 ## 열린 질문
 

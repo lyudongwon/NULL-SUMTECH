@@ -7,14 +7,14 @@ export function RestaurantRecommendations() {
   const state = useRecommendations();
 
   if (state.status === "loading") {
-    return <p className="text-neutral-500">불러오는 중…</p>;
+    return <p className="text-neutral-500">Loading…</p>;
   }
   if (state.status === "needs-settings") {
     return (
       <div className="flex flex-col gap-3">
-        <p>먼저 식단 제한을 설정해 주세요.</p>
+        <p>Please set your diet first.</p>
         <Link href="/settings" className="self-start rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white">
-          식단 제한 설정
+          Diet settings
         </Link>
       </div>
     );
@@ -27,7 +27,7 @@ export function RestaurantRecommendations() {
     );
   }
   if (state.restaurants.length === 0) {
-    return <p>내 식단 제한에 맞는 음식점이 아직 없어요.</p>;
+    return <p>No restaurants match your diet yet.</p>;
   }
 
   return (
@@ -40,7 +40,7 @@ export function RestaurantRecommendations() {
           </p>
           {r.matched_restrictions.length > 0 && (
             <p className="mt-2 text-xs text-emerald-700">
-              {r.matched_restrictions.map((code) => state.itemNames[code] ?? code).join(", ")} 없음
+              Free of {r.matched_restrictions.map((code) => state.itemNames[code] ?? code).join(", ")}
             </p>
           )}
         </li>

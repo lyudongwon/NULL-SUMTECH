@@ -21,7 +21,7 @@ import com.nullteam.foodcheck.global.exception.ApiException;
 public class ImageService {
 
 	public static final long MAX_BYTES = 10L * 1024 * 1024;
-	private static final String TOO_LARGE = "사진 용량이 너무 큽니다. (최대 10MB)";
+	private static final String TOO_LARGE = "The photo is too large (max 10MB).";
 
 	private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -36,7 +36,7 @@ public class ImageService {
 	@Transactional
 	public ImageUploadResponse upload(MultipartFile file, String source) {
 		if (file == null || file.isEmpty()) {
-			throw ApiException.badRequest("업로드할 사진이 없습니다.");
+			throw ApiException.badRequest("Please choose a photo to upload.");
 		}
 		if (file.getSize() > MAX_BYTES) {
 			throw new ApiException(HttpStatus.CONTENT_TOO_LARGE, TOO_LARGE);
@@ -49,7 +49,7 @@ public class ImageService {
 			throw new IllegalStateException("업로드한 사진을 읽지 못했습니다.", e);
 		}
 		ImageFormat.Info info = ImageFormat.detect(bytes)
-				.orElseThrow(() -> new ApiException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 이미지 형식입니다."));
+				.orElseThrow(() -> new ApiException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "This image format is not supported."));
 
 		Image image = imageRepository.save(Image.create(newId(), info.width(), info.height(),
 				imageSource == null ? null : imageSource.name(), info.mimeType()));
@@ -67,7 +67,7 @@ public class ImageService {
 	}
 
 	private static ApiException notFound() {
-		return ApiException.notFound("이미지를 찾을 수 없습니다.");
+		return ApiException.notFound("Image not found.");
 	}
 
 	private static ImageSource parseSource(String source) {
@@ -77,7 +77,7 @@ public class ImageService {
 		try {
 			return ImageSource.valueOf(source.trim().toUpperCase(Locale.ROOT));
 		} catch (IllegalArgumentException e) {
-			throw ApiException.badRequest("source 값이 올바르지 않습니다.");
+			throw ApiException.badRequest("Invalid source value.");
 		}
 	}
 

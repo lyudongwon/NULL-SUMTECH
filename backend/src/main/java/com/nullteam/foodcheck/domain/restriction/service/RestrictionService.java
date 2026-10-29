@@ -30,7 +30,7 @@ import com.nullteam.foodcheck.global.exception.ApiException;
 @Service
 public class RestrictionService {
 
-	private static final String CONFLICT = "다른 요청이 먼저 처리되었습니다. 다시 시도해 주세요.";
+	private static final String CONFLICT = "Another request was saved first. Please try again.";
 
 	private final RestrictionPresetRepository presetRepository;
 	private final RestrictionItemRepository itemRepository;
@@ -63,7 +63,7 @@ public class RestrictionService {
 
 	@Transactional(readOnly = true)
 	public RestrictionResponse get(Long userId) {
-		return read(userId).orElseThrow(() -> ApiException.notFound("저장된 식단 제한이 없습니다."));
+		return read(userId).orElseThrow(() -> ApiException.notFound("No saved diet settings."));
 	}
 
 	@Transactional
@@ -75,13 +75,13 @@ public class RestrictionService {
 				.collect(Collectors.toCollection(TreeSet::new));
 		for (String code : request.toggles().keySet()) {
 			if (!allItemCodes.contains(code)) {
-				throw ApiException.badRequest("존재하지 않는 토글 항목입니다: " + code);
+				throw ApiException.badRequest("Unknown toggle item: " + code);
 			}
 		}
 		Set<String> presetItems = null;
 		if (request.presetGiven() && request.preset() != null) {
 			RestrictionPreset preset = presetRepository.findById(request.preset())
-					.orElseThrow(() -> ApiException.badRequest("존재하지 않는 프리셋입니다: " + request.preset()));
+					.orElseThrow(() -> ApiException.badRequest("Unknown preset: " + request.preset()));
 			presetItems = Set.copyOf(preset.getItems());
 		}
 

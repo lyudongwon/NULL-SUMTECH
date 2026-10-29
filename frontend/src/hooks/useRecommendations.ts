@@ -33,7 +33,7 @@ export function useRecommendations(): State {
       )
       .catch((error) => {
         if (error instanceof ApiError && error.status === 404) setState({ status: "needs-settings" });
-        else setState({ status: "error", message: error instanceof ApiError ? error.detail : "추천을 불러오지 못했습니다." });
+        else setState({ status: "error", message: error instanceof ApiError ? error.detail : "Couldn't load recommendations." });
       });
   }, []);
 
