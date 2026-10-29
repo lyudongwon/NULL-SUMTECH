@@ -106,6 +106,9 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [ ] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
 - [ ] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
 - 흐름별 E2E 결과(통과 / 실패 단계와 이유): 2026-10-30 로컬에서 `docker compose down -v` → `up -d --build` → `/__health` 200 → `npx playwright test --project=scenarios`(390x844)로 확인했다.
+  - **채점기 재현(2026-10-30, `feat/auth-and-feedback` b3c7199, 흐름 8개로 합친 뒤):** 같은 조건(빈 DB, app `cpus: 2`·`mem_limit: 4g`, 채점기 값)으로 **8/8 통과**(51초, 흐름 하나 최대 9.4초). `build --no-cache` 114초, `up` 시작부터 `/__health` 200까지 16초, releaseId 일치. 없는 주소 404, 모든 화면 가로 스크롤 없음
+    - 합치기 전(dee7942, 흐름 10개): 10/10 통과했지만 형식 게이트에 걸렸다(흐름 3~8개 초과, 옛 S10의 중간 `page.goto`·`try…finally`). 예측 구현 점수 10.7 → 합친 뒤 약 18.4(게이트 통과)
+    - 남은 감점: 음식점 시드의 "(예시)"·"TODO(확인)" 노출(G3), `/result`를 바로 열면 "Please enter a menu name." 팝업(U3), Next 기본 404 본문(D4)
   - **채점기 재현(2026-10-30, main d10fd38):** 빈 DB, app `cpus: 2`·`mem_limit: 4g`, 팀 config 대신 채점기 값(390x844 isMobile·hasTouch, workers 1, retries 0, timeout 120초, expect 10초, ko-KR, Asia/Seoul, service worker 차단)으로 **8/8 통과**(52초). `build --no-cache` 93초, `up` 시작부터 `/__health` 200까지 15초, releaseId 일치. 없는 주소 404, 모든 화면 가로 스크롤 없음. 예측 구현 점수 17.4/20
     - 감점 원인과 고친 PR: D3 spec이 영어 근거·소고기를 확인하지 않음 → #31, G1 근거 상세 표가 390px에서 열이 붙음 → #32, D4 결과 화면 판정 실패 시 다음 행동 없음 → #34, U2·U3 첫 화면·결과 화면에 지금 식단 표시 없음 → #35
     - 네 PR을 각각, 그리고 함께 병합한 상태에서 같은 조건으로 **8/8 통과**(빌드 35~41초, `/__health` 15초). 위 "약한 확인" 중 근거 칸·소고기 확인은 #31이 고친다
