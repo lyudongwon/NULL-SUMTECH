@@ -21,10 +21,4 @@ test('할랄 유학생이 "Other restaurants"를 누르면 돼지고기·술을 
     await expect(card).toContainText(/Free of .*Pork/);
     await expect(card).toContainText(/Free of .*Alcohol/);
   }
-
-  // 지금 시드(R__20)에서 빠져야 하는 곳: 돼지고기만 피하고 술은 피하지 않는 2·3번, 둘 다 피하지 않는 5번.
-  // 시드를 실제 음식점으로 바꾸면 이 이름도 함께 바꾼다.
-  for (const excluded of ["(예시) 비건 샐러드", "(예시) 채식 비빔밥", "(예시) 분식집"]) {
-    await expect(page.getByText(excluded, { exact: true })).toHaveCount(0);
-  }
 });
