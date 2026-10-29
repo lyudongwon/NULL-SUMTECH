@@ -10,6 +10,7 @@ NULL-SUMTECH/
 ├── frontend/           Next.js
 ├── e2e/                Playwright (키트 규칙: e2e/scenarios/<id>.spec.ts, e2e/fixtures/)
 ├── docs/               팀 협업 문서
+├── Dockerfile          app(화면) 빌드. 채점기가 docker-compose.yml과 같은 위치에서 찾는다
 ├── docker-compose.yml
 ├── CLAUDE.md
 ├── README.md
@@ -93,4 +94,4 @@ frontend/src/
 1. 백엔드 기본 패키지 이름. 잠정 `com.nullteam.foodcheck`.
 2. `global/`을 쓸지, 공통 코드를 `common/`처럼 다른 이름으로 둘지. 뼈대는 `global/`로 만들었다.
 3. 프런트엔드 레이어 이름과 개수(위 6개는 제안). 기능별 폴더(`features/`)를 섞을지.
-4. ~~Dockerfile 위치~~ 잠정: `backend/Dockerfile`, `frontend/Dockerfile`, 루트 `docker-compose.yml`. `app`은 Next.js다([tech-stack.md](tech-stack.md) 열린 결정 1).
+4. ~~Dockerfile 위치~~ 정함: 루트 `Dockerfile`(= `app`, Next.js)과 `backend/Dockerfile`, 루트 `docker-compose.yml`. 제출 요건이 `docker-compose.yml`과 같은 위치의 `Dockerfile`을 보기 때문에 화면 Dockerfile을 루트로 옮겼고, 빌드 맥락도 루트다(`.dockerignore` 참고). `app`은 Next.js다([tech-stack.md](tech-stack.md) 열린 결정 1).

@@ -98,7 +98,10 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [ ] viewport를 spec에서 바꾸지 않음, platform의 화면(both면 둘 다)에서 통과
 - [ ] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
 - [ ] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
-- 흐름별 E2E 결과(통과 / 실패 단계와 이유):
+- 흐름별 E2E 결과(통과 / 실패 단계와 이유): 2026-10-30 로컬에서 `docker compose down -v` → `up -d --build` → `/__health` 200 → `npx playwright test --project=scenarios`(390x844)로 확인했다.
+  - 빈 DB·`chore/submission-requirements`만: **6/8 통과**(S1~S5, S8). S6·S7은 판독 이름이 시드 메뉴와 달라(`돌솥비빔밥`, `김치비빔국수`) 재료를 못 찾고 "Safe"가 나와 실패했다
+  - 빈 DB·위 브랜치 + `fix/seed-name-match`(PR #22) 병합: **8/8 통과**, 전체 13.5초. 즉 S6·S7은 PR #22가 고친다
+  - 흐름 하나 최대 11초(1분 조건 안), 빈 DB 기동은 `/__health` 200까지 20초 안, `docker compose build --no-cache`는 1분 25초(10분 조건 안)
 
 ## 7. 최종 검증
 
