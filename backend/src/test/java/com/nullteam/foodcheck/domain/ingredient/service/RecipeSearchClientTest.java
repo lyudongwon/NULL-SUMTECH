@@ -1,6 +1,7 @@
 package com.nullteam.foodcheck.domain.ingredient.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -68,5 +69,17 @@ class RecipeSearchClientTest {
 	@Test
 	void 꺼_두면_검색하지_않고_빈_목록을_돌려준다() {
 		assertTrue(new RecipeSearchClient(false).search("된장찌개").isEmpty());
+	}
+
+	@Test
+	void 레시피_제목에_메뉴_이름이_있어야_쓴다() {
+		String html = """
+				<script type="application/ld+json">{"@type":"Recipe","name":"초간단 된장 찌개 끓이는 법","recipeIngredient":["된장 2T"]}</script>
+				""";
+
+		assertTrue(client.titleMatches(html, "된장찌개"));
+		assertFalse(client.titleMatches(html, "ㅁㄴㅇㄹ"));
+		assertFalse(client.titleMatches(html, "아이스 카페 아메리카노"));
+		assertFalse(client.titleMatches("<html></html>", "된장찌개"));
 	}
 }

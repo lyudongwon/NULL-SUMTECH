@@ -4,7 +4,8 @@ import type { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const HOP_BY_HOP = ["host", "connection", "content-length", "keep-alive", "transfer-encoding", "upgrade"];
+// expect: curl 등이 1MB 넘는 본문에 붙이는 "Expect: 100-continue"를 fetch가 거부해 502가 난다.
+const HOP_BY_HOP = ["host", "connection", "content-length", "keep-alive", "transfer-encoding", "upgrade", "expect"];
 
 async function proxy(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const backend = process.env.BACKEND_URL ?? "http://localhost:8080";
