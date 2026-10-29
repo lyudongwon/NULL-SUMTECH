@@ -14,7 +14,8 @@
 | 응답 필드 | snake_case |
 | 화면 언어 | 영어(REQ-8). 사용자에게 보이는 값(프리셋·항목 `name`, `reason`, `detail`)은 영어로 돌려준다. 메뉴·재료 이름(`menu_name`·`ingredients[].name`)은 메뉴판에 적힌 한국어 원문 그대로 준다. 화면 문구는 아래 [화면 문구](#화면-문구-req-8) |
 | 에러 본문 | 모든 에러는 `{ "detail": "<사람이 읽는 영어 문장>" }`. 화면은 `detail`을 그대로 팝업에 보여 줄 수 있다 |
-| 서버 오류 | 모든 엔드포인트에서 서버 내부 오류는 500 Internal Server Error |
+| 서버 오류 | 모든 엔드포인트에서 서버 내부 오류는 500 Internal Server Error `{ "detail": "Something went wrong on the server." }` |
+| 공통 에러 | 엔드포인트마다 적은 예외에 해당하지 않으면 모든 엔드포인트에서 다음처럼 돌려준다(코드: `GlobalExceptionHandler`). 400 본문이 JSON으로 읽히지 않거나 값의 형식이 틀림 `The request is not in a valid format.` · 400 필수 Query 누락 `<이름> is required.`(예: `user_id is required.`) · 404 없는 경로 `Not found.` · 405 지원하지 않는 메서드 `This method is not allowed.` · 415 지원하지 않는 본문 형식(예: JSON 자리에 `text/plain`) `This content type is not supported.` |
 
 ### 엔드포인트 목록
 

@@ -348,11 +348,18 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 건드리지 않은 것: `docs/api.md`(공통 에러 405·415 줄은 아직 없다. `revert-14-main`이 api.md를 고치고 있어 피함), `RestaurantService.java`(같은 이유)
   - 다음: api.md 405·415(아래 "팀 결정 필요")와 node·docker가 있는 PC에서의 흐름 E2E 8개 실행
 
+- 20회차(2026-10-30) `origin/main`은 새 커밋이 없었다. 지난 심사(73점)의 "가장 먼저 고칠 것" 중 루프가 혼자 할 수 있는 api.md 405·415를 고쳤다. api.md를 고치는 팀 브랜치는 `revert-14-main`(GitHub 자동 되돌리기 브랜치)뿐이고, 그 변경은 공통 표를 건드리지 않아 줄이 겹치지 않는다
+  - `docs/api.md > 공통`: "공통 에러" 줄을 더해 `GlobalExceptionHandler`가 돌려주는 400 `The request is not in a valid format.`·400 `<이름> is required.`·404 `Not found.`·405 `This method is not allowed.`·415 `This content type is not supported.`를 적고, "서버 오류" 줄에 500 `detail` 문구를 적음. 코드는 바꾸지 않았다
+  - `JudgmentControllerTest`에 깨진 JSON → 400 공통 문구 테스트 1개를 더함(405·415·`user_id is required.`는 이미 테스트가 있다)
+  - 검사: `./gradlew --no-daemon test` 통과(121개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
+  - 미확인(node·docker 없음): 흐름 E2E 8개, 빈 PostgreSQL에 V1→V2→V3 적용
+  - 남은 심사 지적: OPT-2 시드 실제 조사(아래 "OPT-2 시드", 루프가 지어낼 수 없다), docker PC에서의 V1→V3·E2E 확인, V2·V3 쌍 정리(아래 "V2·V3 정리")
+
 ### 팀 결정 필요
 
 - (시드 DB 테스트) 심사는 `SeedJudgmentTest`가 실제 DB가 아니라 SQL VALUES 줄을 정규식으로 읽는다고 본다. 이 PC에는 docker가 없어 Testcontainers를 못 쓴다. docker 없이 실제 PostgreSQL을 띄우는 `io.zonky.test:embedded-postgres`(testImplementation)를 쓰면 Flyway 시드 → JPA 조회 → 판정까지 테스트할 수 있으나, `build.gradle`은 ①만 고친다(파일 머리 주석). 제안: ①이 이 의존성을 더할지 정한다. 더하면 루프가 통합 테스트를 쓴다
 
-- (api.md 405·415) 8회차가 코드에 넣은 405 "This method is not allowed."·415 "This content type is not supported."가 `docs/api.md` 공통 에러 표에 없다. api.md는 `feat/opt2-nearby-restaurants`·`fix/seed-name-match`가 고치는 중이라 루프가 고치면 충돌한다. 제안: OPT-2 브랜치 담당자가 병합 전에 공통 에러 표에 두 줄을 더하거나, 병합 뒤 루프가 더하게 둔다
+- (api.md 405·415) 8회차가 코드에 넣은 405 "This method is not allowed."·415 "This content type is not supported."가 `docs/api.md` 공통 에러 표에 없다. api.md는 `feat/opt2-nearby-restaurants`·`fix/seed-name-match`가 고치는 중이라 루프가 고치면 충돌한다. 제안: OPT-2 브랜치 담당자가 병합 전에 공통 에러 표에 두 줄을 더하거나, 병합 뒤 루프가 더하게 둔다 → 20회차: 공통 표에 "공통 에러" 줄로 적음. 이 항목은 끝남
 
 - (OPT-2) 코드는 `limit`을 1~20으로 맞추는데(`RestaurantService.MAX_LIMIT`), `docs/api.md > OPT-2`에는 "기본 5"만 있다 → 2회차 반영: api.md 요청 표에 적음
 - (OPT-2 시드) 음식점 시드는 "(예시)" 가짜 5곳이고 주소는 `TODO(확인)`이다. `problem.yaml > OPT-2 > done`은 "팀이 조사한 음식점"을 말한다. 실제 음식점 이름·종류·주소·안 쓰는 재료는 AI가 지어낼 수 없다. 제안: ①이 학교 주변 음식점 5곳 이상을 직접 조사해 `R__20_seed_restaurants.sql`을 바꾸거나, 시연에서 OPT-2를 "예시 데이터"라고 밝히고 보여 준다
@@ -367,3 +374,4 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (OPT-2 기본 좌표) `NEARBY_DEFAULT_LAT`·`NEARBY_DEFAULT_LNG`가 `TODO(확인)`이라 비어 있다. 위치 권한도 기본 좌표도 없으면 거리를 잴 수 없어, 지금 코드는 좌표가 있는 음식점 전부를 `distance_m: null`로 번호 순에 돌려준다(api.md에는 이 경우가 없다). 제안: 팀이 조선대 주변 좌표를 정해 `.env.example`·`docker-compose.yml`에 넣으면 이 경우는 생기지 않는다. api.md에 이 동작을 적을지도 함께 정한다 → 19회차: 팀이 지도 방식을 하지 않기로 해(decisions.md 2026-10-30) 지도 코드를 지우고 V3로 표를 지움. 이 항목은 끝남
 - (OPT-2 시연 시드) tech-stack.md 열린 결정 8은 음식점과 보고를 시드로 넣어 외부 API가 막혀도 지도가 보이게 한다고 적었다. 실제 가게의 이름·좌표·보고는 루프가 지어낼 수 없어 `R__20`을 바꾸지 않았다(지금 5곳은 좌표가 없어 지도에 나오지 않는다). 제안: 팀이 카카오맵에서 확인한 가게의 `kakao_place_id`·좌표를 시드로 넣는다 → 19회차: 팀이 지도 방식을 하지 않기로 해(decisions.md 2026-10-30) 지도 코드를 지우고 V3로 표를 지움. 이 항목은 끝남
 - (OPT-2 지도 코드 정리) 팀 브랜치 `docs/opt2-back-to-list`는 OPT-2를 목록 방식으로 되돌린다. 합쳐지면 16회차가 더한 `NearbyRestaurantController`(`/restaurants/nearby`·`/restaurants/{id}/reports`)·`NearbyRestaurantService`·`RestaurantReport`와 `V2__restaurant_reports.sql`(이미 적용된 V 파일)은 `features`에 없는 코드가 된다. 루프는 기능을 빼지 않는다. 제안: ①이 두 엔드포인트를 지울지 정한다. 지우면 V2는 고치지 않고 표를 지우는 새 V3를 더하고, `NearbyRestaurantControllerTest`도 함께 지운다. 남겨 둘 거라면 api.md에 "쓰지 않는 실험 API"로 적는다 → 19회차: 팀이 지도 방식을 하지 않기로 해(decisions.md 2026-10-30) 지도 코드를 지우고 V3로 표를 지움. 이 항목은 끝남
+- (V2·V3 정리) 심사는 V2(16회차)가 main에 들어간 적이 없는데 V2 추가 + V3 삭제 쌍을 남겼다고 본다. 이 브랜치를 docker로 띄운 기록이 없으면 두 파일을 함께 지워 main과 같은 V1만 남기는 편이 깔끔하다. 다만 누군가 이 브랜치로 DB를 띄워 V2가 적용됐다면 Flyway 검증이 "적용됐으나 파일 없음"으로 멈춘다. 제안: ①이 이 브랜치로 DB를 띄운 적이 있는지 확인하고, 없으면 V2·V3를 지울지 정한다
