@@ -77,7 +77,7 @@
 
 ## 팀 확인 필요
 
-- 사용자 식별자 이름: `user_id`로 통일했다. 회원·로그인 없이 서버가 Auto Increment로 발급한다(`decisions.md`).
+- 사용자 식별자 이름: `user_id`로 통일했다. 서버가 Auto Increment로 발급하고, 로그인 없이도 쓴다. 회원가입·로그인(OPT-4)은 선택이라 가입하면 같은 `user_id`가 계정에 묶인다(`decisions.md`).
 - 만개의 레시피 검색: 사이트 이용약관과 robots.txt를 확인한다. 막히면 AI 추정으로 넘어가므로 기능은 멈추지 않는다.
 - 음식점 시드: 학교 주변 음식점을 조사해 `R__20_seed_restaurants.sql`에 넣는다(①). 지금은 "(예시)" 가짜 데이터다.
 - 배포 대상: [tech-stack.md](tech-stack.md) 열린 결정 1(화면 Vercel, 백엔드 AWS 컨테이너 후보)과 DB 호스트(Neon 또는 AWS RDS)를 정해야 ①이 배포를 진행한다.
