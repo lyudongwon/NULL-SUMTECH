@@ -1,0 +1,59 @@
+# 루프톤 시나리오 검사(키트 workflows/scenarios.yml). 주최 측 실행과 같은 순서로 docker compose 기동 → /__health 대기 → Playwright 실행.
+# 흐름 E2E는 사진 판독에 실제 AI를 부르므로 팀 예산($10)에서 쓰인다. 그래서 main push와 수동 실행(Actions → Run workflow)에서만 돈다.
+# 학생이 GitHub 저장소 Settings → Secrets and variables → Actions에 AI_GATEWAY_API_KEY를 직접 넣는다(Agent는 키를 다루지 않는다).
+name: scenarios
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  scenarios:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      E2E_BASE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start app and database
+        env:
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+        run: RELEASE_ID="$GITHUB_SHA" docker compose up -d --build
+      - name: Wait for /__health
+        run: |
+          # 주최 측 실행은 기동을 시작한 때부터 2분을 기다린다. 여기서도 같은 시간 안에 떠야 한다.
+          for i in $(seq 1 60); do
+            if body="$(curl -fsS http://localhost:3000/__health)"; then
+              echo "$body"
+              # releaseId가 이 commit인지 확인한다.
+              echo "$body" | jq -e --arg sha "$GITHUB_SHA" '.releaseId == $sha'
+              exit $?
+            fi
+            sleep 2
+          done
+          echo "/__health가 120초 안에 200을 주지 않았다"
+          docker compose logs app backend
+          exit 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - name: Run smoke and scenario E2E
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npx playwright test --forbid-only
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+      - name: Stop containers
+        if: always()
+        run: |
+          docker compose logs app backend --tail 200
+          docker compose down -v

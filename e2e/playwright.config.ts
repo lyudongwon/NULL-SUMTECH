@@ -12,7 +12,8 @@ export default defineConfig({
   reporter: [["list"], ["html", { outputFolder: "playwright-report", open: "never" }]],
   outputDir: "test-results",
   use: {
-    baseURL: process.env.BASE_URL ?? "http://localhost:3000",
+    // 키트·주최 측 실행은 E2E_BASE_URL로 주소를 넘긴다.
+    baseURL: process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? "http://localhost:3000",
     trace: "retain-on-failure",
     ...devices["Pixel 7"],
   },

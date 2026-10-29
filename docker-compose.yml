@@ -1,12 +1,16 @@
 # app(화면, Next.js)만 3000 포트를 연다. 백엔드와 DB는 내부 네트워크로만 쓴다.
+# 주최 측 실행·CI는 RELEASE_ID에 실행하는 commit SHA를 넣고, /__health가 그 값을 releaseId로 돌려준다.
 services:
   app:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        RELEASE_ID: ${RELEASE_ID:-dev}
     ports:
       - "3000:3000"
     environment:
       BACKEND_URL: http://backend:8080
-      RELEASE_ID: local
+      RELEASE_ID: ${RELEASE_ID:-dev}
     depends_on:
       backend:
         condition: service_healthy
@@ -40,3 +44,8 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
