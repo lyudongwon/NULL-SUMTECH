@@ -276,8 +276,19 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `./gradlew --no-daemon test` 통과(100개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). 시드의 비빔밥 `고추장 속 다진 돼지고기`를 잠시 CONFIRMED로 바꾸면 halal-bibimbap 테스트가 실패하는 것을 확인하고 되돌림
   - 미확인(node·docker 없음): 흐름 E2E 8개 실행
   - 다음: OPT-2 브랜치 병합 뒤 api.md 공통 에러에 405·415를 적는다
+- 10회차(2026-10-30) 지난 심사(70점)의 "가장 먼저 고칠 것"은 docker에서 흐름 E2E 8개 실행과 api.md 405·415다. `origin/main`은 새 커밋이 없었다. `docs/api.md`는 `feat/opt2-nearby-restaurants`가 아직 고치는 중이라(마지막 커밋 2026-10-30 02:04) 이번에도 건드리지 않았다. 대신 `docs/e2e-results` 브랜치가 적은 "약한 확인" 네 가지를 spec에서 고쳤다
+  - `diet-toggle-only`: "고기"를 카드 전체에서 찾던 것을 근거 한 줄(`reason`)에 "소고기"와 "Meat"가 있는지로 바꿈
+  - `scan-menu-board`: "소고기"를 카드 전체가 아닌 근거 한 줄에서 찾음
+  - `scan-food-photo-single-dish`: 근거 한 줄이 영어 R1 문장(`Contains …소고기…, which is not allowed for your … restriction.`)인지, 메뉴 이름이 원문 "설렁탕" 그대로인지 확인을 더함
+  - `manual-input-fallback`: 주석의 옛 한국어 이름("메뉴 이름"·"판정하기")을 화면 이름("Menu name"·"Can I eat it?")으로 고침
+  - 기대 문구 근거: `JudgmentRules` R1 reason(재료 이름 최대 2개), 시드 `R__30`의 설렁탕 재료(소고기·소뼈 육수 둘 다 `meat`, 최대 2개 안이라 "소고기"가 늘 들어감), `R__10`의 `meat` 이름 "Meat", `ResultCard.tsx`가 `reason`을 그대로 `data-testid="reason"`에 보임
+  - 검사: 백엔드를 바꾸지 않아 gradle은 돌리지 않았다. spec은 다시 읽어 선택자·import를 확인하고 금지 패턴(route·skip·evaluate)이 없는 것을 grep으로 확인함
+  - 미확인(node·docker 없음): 바뀐 spec 4개 실행
+  - 다음: OPT-2 브랜치 병합 뒤 api.md 공통 에러에 405·415를 적는다. 시드를 실제 PostgreSQL로 확인하는 테스트는 아래 "팀 결정 필요 > 시드 DB 테스트"를 본다
 
 ### 팀 결정 필요
+
+- (시드 DB 테스트) 심사는 `SeedJudgmentTest`가 실제 DB가 아니라 SQL VALUES 줄을 정규식으로 읽는다고 본다. 이 PC에는 docker가 없어 Testcontainers를 못 쓴다. docker 없이 실제 PostgreSQL을 띄우는 `io.zonky.test:embedded-postgres`(testImplementation)를 쓰면 Flyway 시드 → JPA 조회 → 판정까지 테스트할 수 있으나, `build.gradle`은 ①만 고친다(파일 머리 주석). 제안: ①이 이 의존성을 더할지 정한다. 더하면 루프가 통합 테스트를 쓴다
 
 - (api.md 405·415) 8회차가 코드에 넣은 405 "This method is not allowed."·415 "This content type is not supported."가 `docs/api.md` 공통 에러 표에 없다. api.md는 `feat/opt2-nearby-restaurants`가 계약을 바꾸는 중이라 루프가 고치면 충돌한다. 제안: OPT-2 브랜치 담당자가 병합 전에 공통 에러 표에 두 줄을 더하거나, 병합 뒤 루프가 더하게 둔다
 
