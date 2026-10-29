@@ -63,8 +63,3 @@ E2E는 앱을 따로 띄운 뒤 돌린다(기본 `http://localhost:3000`, 다른
 | `SPRING_DATASOURCE_PASSWORD` | 백엔드 | DB 비밀번호 | 같은 곳 |
 | `AI_GATEWAY_API_KEY` | 백엔드 | 서비스 AI 기능 호출(필요할 때만) | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
 | `AI_GATEWAY_BASE_URL` | 백엔드 | AI Gateway 주소. `/v1`까지 적는다(기본값 `https://ai-gateway.vercel.sh/v1`, 바꿀 때만) | 배포 환경변수 |
-| `KAKAO_REST_API_KEY` | 백엔드 | OPT-2 주변 음식점을 카카오 로컬 API에서 가져올 때 쓰는 REST 키 | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
-| `KAKAO_MAP_APP_KEY` | 화면 | 카카오맵 JavaScript SDK 키. 화면이 서버에서 읽어 브라우저로 내려 준다(`NEXT_PUBLIC_`을 쓰지 않는다 — 빌드 시점에 박히면 런타임에 바꿀 수 없다). 브라우저에 노출되므로 비밀값이 아니고, 콘솔에 플랫폼 도메인을 등록해야 한다 | 로컬 `.env`, 배포 환경변수, `docker-compose.yml` |
-| `NEARBY_DEFAULT_LAT` | 백엔드 | 위치 권한을 거부했거나 시연할 때 쓰는 기본 위도(조선대 주변, `TODO(확인)`) | 로컬 `.env`, 배포 환경변수, `docker-compose.yml` |
-| `NEARBY_DEFAULT_LNG` | 백엔드 | 같은 용도의 기본 경도 | 같은 곳 |
-| `NEARBY_RADIUS_M` | 백엔드 | 주변 음식점 검색 반경(m). 기본 1000 | 같은 곳 |
