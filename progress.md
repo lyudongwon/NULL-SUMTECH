@@ -182,8 +182,6 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `docs/`와 `frontend/src`에서 개인정보·동의·보관·삭제·privacy·consent를 찾아 위 사실 외에 정한 내용이 없음을 확인
   - 다음: A~F 모두 마침. 팀이 "팀 결정 필요" 목록을 읽고 정한다
 
-- 15회차(2026-10-30) blocked. `origin/main`에 PR #20(OPT-2를 카카오맵 + 사용자 보고 방식으로 바꾼 계약 변경)이 합쳐졌고, `git merge origin/main`이 `docs/api.md`·`docs/decisions.md`에서 충돌했다. 충돌은 이 브랜치의 R3 조건 변경(2e4ab13, decisions.md 2026-10-30 행·2026-10-29 판정 규칙 행, api.md 판정 규칙·화면 문구)과 main의 OPT-2 변경이 같은 줄 근처를 고쳐서 생긴다. 지시대로 임의로 풀지 않고 `git merge --abort`로 되돌렸다. 코드·테스트는 바꾸지 않았다
-  - 필요한 일: 팀(또는 학생)이 이 브랜치에 main을 합치며 두 파일의 충돌을 푼다. decisions.md는 두 행(R3 조건 변경, OPT-2 방식 변경)을 모두 남기고, 2026-10-29 판정 규칙 행은 "R3 … 2026-10-30에 바뀜" 문구를, OPT-2 행은 "2026-10-30 결정으로 바뀜" 문구를 함께 남기면 된다. api.md는 R3 쪽(이 브랜치)과 OPT-2 쪽(main)을 모두 살린다. 그 뒤 루프가 OPT-2 새 계약과 코드의 어긋남(V2 마이그레이션은 ① 담당)·api.md 405·415를 이어서 본다
 
 ### 팀 결정 필요
 
@@ -311,6 +309,17 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `./gradlew --no-daemon test` 통과(112개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
   - 미확인(node·docker 없음): 흐름 E2E 8개 실행
   - 결론: 루프가 혼자 할 일은 남지 않았다. 남은 일은 아래 "팀 결정 필요"(특히 OPT-2 시드 조사, 팀 브랜치 병합, E2E 결과 반영)와 node·docker가 있는 PC에서의 E2E 실행이다. 팀 브랜치가 main에 합쳐지면 루프를 다시 돌려 api.md 405·415와 "현재 상태"를 맞춘다
+- 15회차(2026-10-30) blocked. `origin/main`에 PR #20(OPT-2를 카카오맵 + 사용자 보고 방식으로 바꾼 계약 변경)이 합쳐졌고, `git merge origin/main`이 `docs/api.md`·`docs/decisions.md`에서 충돌했다. 충돌은 이 브랜치의 R3 조건 변경(2e4ab13, decisions.md 2026-10-30 행·2026-10-29 판정 규칙 행, api.md 판정 규칙·화면 문구)과 main의 OPT-2 변경이 같은 줄 근처를 고쳐서 생긴다. 지시대로 임의로 풀지 않고 `git merge --abort`로 되돌렸다. 코드·테스트는 바꾸지 않았다
+  - 필요한 일: 팀(또는 학생)이 이 브랜치에 main을 합치며 두 파일의 충돌을 푼다. decisions.md는 두 행(R3 조건 변경, OPT-2 방식 변경)을 모두 남기고, 2026-10-29 판정 규칙 행은 "R3 … 2026-10-30에 바뀜" 문구를, OPT-2 행은 "2026-10-30 결정으로 바뀜" 문구를 함께 남기면 된다. api.md는 R3 쪽(이 브랜치)과 OPT-2 쪽(main)을 모두 살린다. 그 뒤 루프가 OPT-2 새 계약과 코드의 어긋남(V2 마이그레이션은 ① 담당)·api.md 405·415를 이어서 본다
+- 16회차(2026-10-30) 지난 심사(60점)의 "가장 먼저 고칠 것"이던 main 병합은 팀이 e7ff95c에서 api.md·decisions.md 충돌을 풀어 끝났다(이번 `git merge origin/main`은 Already up to date). 15회차 기록이 "기획 검토" 절에 잘못 들어가 있어 이 절로 옮겼다. 남은 가장 큰 어긋남은 (나) OPT-2다: `problem.yaml > OPT-2 > done`·`api.md > OPT-2`는 카카오맵 + 사용자 보고(`/restaurants/nearby`, `/restaurants/{restaurant_id}/reports`)인데 코드에는 옛 `/recommendations`만 있었다. 음식점 코드를 고치는 팀 브랜치는 없어 백엔드부터 만들었다
+  - `V2__restaurant_reports.sql`: `restaurants`에 `kakao_place_id`(UNIQUE)·`name_en`·`lat`·`lng`·`source`(기본 `SEED`)를 더하고 `restaurant_reports`·`restaurant_report_items`를 만듦(erd.md 그대로). erd.md가 없앤다고 한 `restaurant_restriction_items`는 옛 화면과 흐름 S8이 아직 써서 이번에는 두었다
+  - `NearbyRestaurantController`·`NearbyRestaurantService`: `GET /api/v1/restaurants/nearby`는 음식점을 거르지 않고 핑(`CAUTION` 내 항목에 걸린다는 보고 1건부터, `SAFE` 보고는 있으나 내 항목엔 없음, `UNKNOWN` 보고 없음)·`reported_restrictions`(내 항목과 겹치는 것만)·`report_count`·`distance_m`(하버사인, 가까운 순)을 돌려준다. 반경 기본 `NEARBY_RADIUS_M`, 최대 20000. 좌표가 하나만 오거나 범위 밖이면 400 "Location is not valid.", 좌표 없는 음식점은 지도에 안 나온다. `PUT …/reports`는 사용자당 한 묶음으로 덮어쓰고, 모두 false면 보고를 지우며, api.md의 404·400 문구를 그대로 쓴다
+  - `NearbyRestaurantControllerTest`(9개): 핑 세 가지·겹치는 항목만·거리와 순서·반경·빈 목록·좌표 오류·user_id 400/404·보고 저장/덮어쓰기/삭제·보고 예외
+  - 검사: `./gradlew --no-daemon test` 통과(121개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). 핑 규칙의 SAFE·UNKNOWN을 잠시 바꾸면 핑 테스트가 실패하는 것을 확인하고 되돌림
+  - 미확인(PostgreSQL·docker 없음): V2가 빈 DB에 적용되고 `ddl-auto: validate`를 통과하는지(복합 키 `@EmbeddedId`·두 컬럼 조인 `@ElementCollection`). docker가 있는 PC에서 `docker compose down -v` → `docker compose up --build`로 확인해야 한다
+  - 아직 안 한 것: 카카오 로컬 API 호출(지금은 api.md의 "카카오맵 호출 실패" 경로처럼 DB에 쌓인 음식점만 돌려준다), 화면(지도·핑·보고 토글·주의 음식점 숨기기), 옛 `/recommendations`·`restaurant_restriction_items` 제거. 아래 "OPT-2 전환"을 본다
+  - 건드리지 않은 것: `docs/api.md`(`fix/seed-name-match`·`revert-14-main`이 고침), `docs/scenarios.yaml`·`e2e/scenarios/S8.spec.ts`(`fix/scenario-ids-for-grader`가 고침), 옛 `RestaurantService`·화면
+  - 다음: 카카오 로컬 API 클라이언트(키가 없거나 실패하면 건너뜀, `kakao_place_id`로 upsert)를 더하고 테스트한다
 
 ### 팀 결정 필요
 
@@ -327,3 +336,6 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (R3 문구) R3가 이름 단어·조리법 추정만 있는 경우도 덮게 되어, 화면 설명 "All ingredients are AI estimates"와 `reason` "Ingredients are AI estimates only."가 조금 좁다. 제안: "No ingredients confirmed by a database or recipe" 같은 문구로 바꿀지 ①·③이 정하고, 바꾸면 api.md 화면 문구 표·`labels.ts`·`JudgmentRules`를 함께 고친다 → 6회차에 심사 지적대로 고침(decisions.md에 남김). ①·③이 다른 문구를 정하면 같은 세 곳을 바꾼다
 - (병합과 금지 파일) 심사는 `origin/main` 병합으로 들어온 팀원의 `CLAUDE.md` 변경도 금지 파일 변경으로 감점했다. 루프는 지시대로 main을 합칠 수밖에 없다. 제안: 금지 파일을 고치는 팀 PR은 루프 회차 사이에 합치거나, 심사 기준에 "병합으로 들어온 변경은 제외"를 적을지 정한다
 - (실행 조건) `build.gradle`은 Java 21을 요구한다. 팀원 PC에 JDK 17만 있으면 테스트가 컴파일 단계에서 멈춘다. 제안: README 실행 조건에 "JDK 21"을 분명히 적거나 Gradle toolchain 자동 내려받기를 쓸지 정한다
+- (OPT-2 전환) 16회차가 새 OPT-2 백엔드(`/nearby`·`/reports`)를 더했지만 화면과 흐름 S8은 아직 옛 계약("돼지고기·술을 쓰지 않는 음식점만 추천", "Free of …")이다. S8의 steps·expected를 새 계약(지도·핑)으로 바꾸는 일은 `docs/scenarios.yaml`·`S8.spec.ts`를 고치는 `fix/scenario-ids-for-grader`가 합쳐진 뒤에 해야 충돌이 없다. 제안: 그 브랜치를 먼저 합치고, ①(또는 루프)이 화면·S8·`restaurant_restriction_items` 제거(V3)를 한 번에 바꾼다. 카카오맵 JS SDK 화면은 node가 없는 이 PC에서 확인할 수 없다
+- (OPT-2 기본 좌표) `NEARBY_DEFAULT_LAT`·`NEARBY_DEFAULT_LNG`가 `TODO(확인)`이라 비어 있다. 위치 권한도 기본 좌표도 없으면 거리를 잴 수 없어, 지금 코드는 좌표가 있는 음식점 전부를 `distance_m: null`로 번호 순에 돌려준다(api.md에는 이 경우가 없다). 제안: 팀이 조선대 주변 좌표를 정해 `.env.example`·`docker-compose.yml`에 넣으면 이 경우는 생기지 않는다. api.md에 이 동작을 적을지도 함께 정한다
+- (OPT-2 시연 시드) tech-stack.md 열린 결정 8은 음식점과 보고를 시드로 넣어 외부 API가 막혀도 지도가 보이게 한다고 적었다. 실제 가게의 이름·좌표·보고는 루프가 지어낼 수 없어 `R__20`을 바꾸지 않았다(지금 5곳은 좌표가 없어 지도에 나오지 않는다). 제안: 팀이 카카오맵에서 확인한 가게의 `kakao_place_id`·좌표를 시드로 넣는다
