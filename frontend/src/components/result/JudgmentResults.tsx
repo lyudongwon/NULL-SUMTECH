@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { PageHead } from "@/components/layout/PageHead";
 import { OtherRestaurantsCta } from "@/components/restaurants/OtherRestaurantsCta";
 import { EmptyInputDialog } from "@/components/scan/ScanFlow";
+import { DietSummary } from "@/components/settings/DietSummary";
 import { LEVEL_LABEL } from "@/components/ui/LevelBadge";
-import { btnPrimary, card } from "@/components/ui/styles";
+import { btnOutline, btnPrimary, card } from "@/components/ui/styles";
 import { parseMenus, useJudgment } from "@/hooks/useJudgment";
-import { useMyRules } from "@/hooks/useMyRules";
 import type { Level } from "@/types/judgment";
 import { ResultCard } from "./ResultCard";
 
@@ -20,15 +20,15 @@ export function JudgmentResults() {
   const menus = parseMenus(params.get("menus"));
   // ③의 판정 API가 나오기 전 화면 개발용. 개발 서버에서만 ?demo=1을 받는다.
   const demo = process.env.NODE_ENV !== "production" && params.get("demo") === "1";
-  const state = useJudgment(menus, demo);
-  const rules = useMyRules();
+  const { state, retry } = useJudgment(menus, demo);
 
   const retake = (
     <Link href="/scan" className={btnPrimary}>
       Retake
     </Link>
   );
-  const head = (title: string, lead?: string) => <PageHead title={title} lead={lead} actions={retake} />;
+  // 제목줄 안내에는 판정에 쓴 식단("Checked for: …")을 모든 상태에서 보여 준다.
+  const head = (title: string) => <PageHead title={title} lead={<DietSummary variant="result" />} actions={retake} />;
 
   if (state.status === "loading") {
     return (
@@ -58,6 +58,10 @@ export function JudgmentResults() {
         <p role="alert" className="rounded-[14px] bg-avoid-bg px-4 py-3 text-sm font-medium text-avoid">
           {state.message}
         </p>
+        {/* 판정이 실패해도(AI 지연·서버 오류) 다시 판정할 수 있게 한다. "Retake"는 제목줄에 있다. */}
+        <button type="button" onClick={retry} className={`${btnOutline} self-start`}>
+          Try again
+        </button>
       </div>
     );
   }
@@ -67,7 +71,7 @@ export function JudgmentResults() {
 
   return (
     <div className="flex flex-col gap-6">
-      {head("Results", rules.label ? `Diet: ${rules.label} · Tap a menu to see why.` : "Tap a menu to see why.")}
+      {head("Results")}
       <div className="grid grid-cols-3 gap-2">
         {(["BLOCKED", "CHECK", "SAFE"] as Level[]).map((level) => (
           <div
@@ -79,6 +83,7 @@ export function JudgmentResults() {
           </div>
         ))}
       </div>
+      <p className="-mb-3 text-[13px] text-muted">Tap a menu to see why.</p>
       <ul className={`${card} overflow-hidden`}>
         {state.results.map((result) => (
           <ResultCard key={result.menu_name} result={result} itemNames={state.itemNames} />

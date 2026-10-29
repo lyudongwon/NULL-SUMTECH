@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMyRules } from "@/hooks/useMyRules";
+import { useDietSummary, type DietSummary } from "@/hooks/useDietSummary";
 import { Icon } from "@/components/ui/icons";
 
 // 링크 이름은 docs/api.md > 화면 문구(머리글 메뉴)를 따른다. E2E가 이름으로 찾으므로 같은 화면에
@@ -15,7 +15,7 @@ const NAV = [
 
 export function AppHeader() {
   const pathname = usePathname();
-  const rules = useMyRules();
+  const summary = useDietSummary();
 
   return (
     <header className="border-b border-line bg-surface">
@@ -50,11 +50,19 @@ export function AppHeader() {
           href="/settings"
           className="order-2 ml-auto flex min-h-10 items-center gap-2 rounded-full border border-edge bg-surface px-3.5 text-[13px] md:order-3 md:ml-0"
         >
-          <span className={`h-2 w-2 rounded-full ${rules.saved ? "bg-olive" : "bg-[#b4bac4]"}`} />
+          <span className={`h-2 w-2 rounded-full ${summary?.status === "set" ? "bg-olive" : "bg-[#b4bac4]"}`} />
           <span className="text-muted">My rules</span>
-          <strong className="font-semibold">{rules.label ?? "Not set"}</strong>
+          <strong className="font-semibold">{rulesLabel(summary)}</strong>
         </Link>
       </div>
     </header>
   );
+}
+
+/** 프리셋 이름, 없으면 켠 항목(세 개까지 + 나머지 수). 저장 전이거나 켠 항목이 없으면 "Not set" */
+function rulesLabel(summary: DietSummary | null) {
+  if (summary?.status !== "set") return "Not set";
+  if (summary.presetName) return summary.presetName;
+  const names = summary.itemNames;
+  return names.length > 3 ? `${names.slice(0, 3).join(" · ")} +${names.length - 3}` : names.join(" · ");
 }

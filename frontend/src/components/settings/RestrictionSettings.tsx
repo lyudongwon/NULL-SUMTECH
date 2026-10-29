@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { btnOutline, btnPrimary, card, sectionLabel } from "@/components/ui/styles";
-import { notifyRulesChanged } from "@/hooks/useMyRules";
+import { notifyDietChanged } from "@/hooks/useDietSummary";
 import { useRestrictions } from "@/hooks/useRestrictions";
 import { PresetPicker } from "./PresetPicker";
 import { ToggleList } from "./ToggleList";
@@ -36,7 +36,7 @@ export function RestrictionSettings() {
       // 저장이 끝나고 첫 화면으로 넘어갈 때까지 머리글 메뉴도 누르지 못하게 막는다.
       // 저장 중에 다른 화면으로 가면 저장 전 설정으로 판정·추천을 받거나, 늦게 온 이동에 첫 화면으로 끌려간다.
       setLeaving(true);
-      notifyRulesChanged();
+      notifyDietChanged();
       router.push("/");
     }
   }

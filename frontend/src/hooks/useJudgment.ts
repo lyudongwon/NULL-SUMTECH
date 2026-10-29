@@ -29,9 +29,13 @@ type State =
   | { status: "error"; message: string }
   | { status: "ready"; results: JudgmentResult[]; itemNames: Record<string, string> };
 
-/** REQ-3·REQ-6 결과 화면 상태. demo가 true면 개발용 예시 데이터를 쓴다(③의 API가 나오기 전). */
-export function useJudgment(menuNames: string[], demo: boolean): State {
+/**
+ * REQ-3·REQ-6 결과 화면 상태. demo가 true면 개발용 예시 데이터를 쓴다(③의 API가 나오기 전).
+ * retry는 판정이 실패했을 때 같은 메뉴로 다시 판정한다.
+ */
+export function useJudgment(menuNames: string[], demo: boolean): { state: State; retry: () => void } {
   const [state, setState] = useState<State>({ status: "loading" });
+  const [attempt, setAttempt] = useState(0);
   const key = JSON.stringify(menuNames);
 
   useEffect(() => {
@@ -65,9 +69,14 @@ export function useJudgment(menuNames: string[], demo: boolean): State {
     return () => {
       cancelled = true;
     };
-  }, [key, demo]);
+  }, [key, demo, attempt]);
 
-  return state;
+  function retry() {
+    setState({ status: "loading" });
+    setAttempt((n) => n + 1);
+  }
+
+  return { state, retry };
 }
 
 // 개발용 예시(api.md REQ-3 예시를 바탕으로 함). 운영 빌드에서는 쓰지 않는다.

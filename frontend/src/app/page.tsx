@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHead } from "@/components/layout/PageHead";
+import { DietSummary } from "@/components/settings/DietSummary";
 import { Icon } from "@/components/ui/icons";
 import { LevelBadge } from "@/components/ui/LevelBadge";
 import { btnOutline, btnPrimary, card, sectionLabel } from "@/components/ui/styles";
@@ -19,6 +20,7 @@ export default function Home() {
         title="Can I Eat?"
         lead="Snap a cafeteria menu or dish, and see if it fits your diet: Safe, Check first, or Avoid."
       />
+      <DietSummary variant="home" />
       <div className="flex flex-1 flex-col gap-6 md:flex-row">
         <Link
           href="/scan"

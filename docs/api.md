@@ -58,13 +58,14 @@
 | --- | --- | --- |
 | 첫 화면 | 서비스 이름 | Can I Eat? |
 | 첫 화면 | 하는 일 | Snap a cafeteria menu or dish, and see if it fits your diet: Safe, Check first, or Avoid. |
+| 첫 화면 | 지금 식단(뒤에 프리셋 이름과 켠 항목이 붙음) · 저장 전 | Your diet: · No diet set yet. |
 | 첫 화면·버튼 | 식단 제한 설정 | Diet settings |
 | 첫 화면·버튼 | 사진 올리기 | Upload photo |
 | 첫 화면 | 배지 설명 제목 | What you'll get for each dish |
 | 첫 화면 | 배지 설명(Safe · Check first · Avoid 순서) | No restricted ingredient, and hidden ones look unlikely. · Might hide one, like broth or sauce. Ask before you eat. · Contains something your diet excludes. |
 | 첫 화면 | 사진 올리기 카드 보조 문구 | Take a photo · Choose from album |
 | 모든 화면 머리글·링크 | 머리글 메뉴(처음으로 · 식단 제한 설정 · 다른 식당 보기) | Home · Restrictions · Other restaurants |
-| 모든 화면 머리글·링크 | 저장한 식단 제한(뒤에 프리셋 이름이나 켠 항목이 붙음) · 저장 전 · 아무것도 켜지 않음 | My rules · Not set · None |
+| 모든 화면 머리글·링크 | 저장한 식단 제한(뒤에 프리셋 이름이나 켠 항목이 붙음) · 저장 전이거나 켠 항목 없음 | My rules · Not set |
 | 설정 화면 | 프리셋 | Halal · Vegetarian · Vegan |
 | 설정 화면 | 토글 | Meat · Pork · Beef · Seafood · Egg · Dairy · Peanut · Alcohol |
 | 설정 화면·버튼 | 저장 | Save |
@@ -88,9 +89,11 @@
 | 입력칸(OPT-1)·버튼 | 판정하기 | Can I eat it? |
 | 판정 화면 | 배지 | Safe · Check first · Avoid |
 | 판정 화면·링크 | 다시 찍기 | Retake |
-| 판정 화면 | 제목 · 안내(앞에 "Diet: <내 식단 제한> · "가 붙을 수 있음) | Results · Tap a menu to see why. |
+| 판정 화면 | 제목 · 안내 | Results · Tap a menu to see why. |
 | 판정 화면 | 판정 중 | Checking… |
+| 판정 화면 | 판정에 쓴 식단(뒤에 켠 항목이 붙음) · 켠 항목 없음 | Checked for: · no diet restrictions |
 | 판정 화면 | 서버가 이유를 주지 않은 오류 | Couldn't load the results. |
+| 판정 화면·버튼 | 판정 실패 뒤 다시 판정 · 사진 다시 고르기 | Try again · Retake |
 | 근거 상세(REQ-6) | 확인/추정 | Confirmed · Estimated |
 | 근거 상세(REQ-6) | 확신도 | High · Medium · Low |
 | 근거 상세(REQ-6) | 적용 규칙 | Rule |
@@ -566,7 +569,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 ```
 
 - `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
-- 음식점 데이터는 팀이 조사한 학교 주변 음식점 시드(`R__20_seed_restaurants.sql`)다
+- 음식점 데이터는 시드(`R__20_seed_restaurants.sql`)다. 지금은 이름 앞에 `(예시)`가 붙은 예시 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다
 
 ### 예외 상황
 
