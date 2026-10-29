@@ -22,6 +22,8 @@ test('땅콩 알레르기 유학생이 비빔국수를 찍으면 양념장 속 �
   await expect(card.getByText("Check first", { exact: true })).toBeVisible(AI_WAIT);
   await expect(card.getByTestId("reason")).toContainText("양념장");
   await expect(card.getByTestId("reason")).toContainText("땅콩");
+  // 근거 한 줄은 영어 문장이고 재료 이름만 한국어 원문이다(docs/api.md > 화면 문구).
+  await expect(card.getByTestId("reason")).toContainText(/^May contain .+\. Check for .+ before eating\.$/);
 
   await card.getByRole("button", { name: /비빔국수/ }).click();
   await expect(card).toContainText("양념장");
