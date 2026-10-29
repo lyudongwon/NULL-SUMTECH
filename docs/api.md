@@ -556,7 +556,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 ```
 
 - `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
-- 음식점 데이터는 팀이 조사한 학교 주변 음식점 시드(`R__20_seed_restaurants.sql`)다
+- 음식점 데이터는 시드(`R__20_seed_restaurants.sql`)다. 지금은 이름 앞에 `(예시)`가 붙은 예시 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다
 
 ### 예외 상황
 
