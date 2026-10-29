@@ -142,7 +142,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [x] A. `problem.yaml > features`: 입력·입력 조건·완료 조건·예외 처리, 관찰 가능한 완료 조건, 구현 방식 섞임
 - [x] B. 문서끼리 일치(problem.yaml ↔ scenarios.yaml ↔ api.md ↔ decisions.md ↔ erd.md)
 - [x] C. 판정 기준 R0~R4와 프로필이 비었을 때·판독 실패 시 동작
-- [ ] D. 해커톤 범위(MVP REQ / 부가 OPT 구분과 이유, 시연 흐름)
+- [x] D. 해커톤 범위(MVP REQ / 부가 OPT 구분과 이유, 시연 흐름)
 - [ ] E. 문제 정의·성공 지표
 - [ ] F. 개인정보·윤리(알레르기·종교 정보, 사진 저장 동의·보관)
 
@@ -164,6 +164,11 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 그대로 둔 것: 규칙 조건·순서, 열거형, 화면 문구 표, scenarios.yaml
   - 검사: `yaml.safe_load` 통과, `git diff`로 API 경로·열거형·scenarios.yaml이 그대로임을 확인
   - 다음: D
+- 4회차(2026-10-30) D 검토: 주요(REQ-1~8)·부가(OPT-1~3) 구분은 주석에만 있고 나눈 이유가 없다. 부가인 OPT-1·OPT-3은 이미 만들어졌고(`ManualMenuInput.tsx`·`resizeImage.ts`), MVP 흐름이 기댄다(REQ-2 실패 → OPT-1 입력칸, 배포 프록시 4.5MB 제한 아래 REQ-1 10MB 한도 → OPT-3). 시연 장면은 E1·E2 흐름(decisions 2026-10-29)으로 정해져 있지만 순서·대체 계획은 없다. 시나리오 7개가 REQ-1~8을 모두 덮고, OPT-2만 흐름이 없다(음식점 시드 대기)
+  - 고친 것(`problem.yaml`): 주요인 REQ-8이 OPT 뒤에 있던 것을 REQ-7 다음으로 옮김(내용 그대로). features 앞 주석에 "주요 REQ-1~8 / 부가 OPT-1~3"과 부가지만 MVP가 기대는 곳 두 가지를 적음(이미 문서에 있던 사실)
+  - 그대로 둔 것: 기능 ID·done·REQ/OPT 표시, scenarios.yaml
+  - 검사: `yaml.safe_load` 통과, features ID 11개 그대로(순서만 REQ-8 이동), `git diff`로 REQ-8 블록 내용이 같음을 확인. 코드에서 features 순서를 읽는 곳 없음
+  - 다음: E
 
 ### 팀 결정 필요
 
@@ -178,3 +183,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (C, REQ-3) 식단 제한이 없을 때(R0) 구현은 근거 한 줄에 "You have no diet restrictions set."을 보인다. A에서 적은 설정 안내 항목은 이 문구로 충분한지, "Diet settings"로 가는 링크를 더할지만 남았다
 - (C, REQ-3·REQ-5) 판정 API가 500을 돌려줄 때 판정 화면이 무엇을 보여 주는지(문구·다시 시도) 정해져 있지 않다. REQ-5에서 AI 추정 호출 자체가 실패했을 때 "재료를 찾지 못함"(`[]` → R3)으로 볼지 500으로 볼지도 없다. 제안: AI 실패는 `[]` → R3로 보고, 500 화면 문구를 `api.md > 화면 문구`에 더할지 ①·③이 정한다
 - (A, 형식) features에 입력 조건·예외를 따로 적을 칸이 없어 `done` 문장이 길다. 제안: `input_condition`·`exceptions` 키를 둘지 대시보드 표시를 확인한 뒤 정한다
+- (D) 주요·부가를 나눈 이유가 어느 문서에도 없다. 제안: "시연 흐름에 꼭 필요하면 REQ, 없어도 문제·해법을 보여 줄 수 있으면 OPT" 같은 기준 한 줄을 `problem.yaml` 주석에 팀이 적는다
+- (D, OPT-1·OPT-3) 앞의 A 항목 두 개(OPT-1·OPT-3을 REQ로 올릴지)를 D에서 다시 봤다. 둘 다 이미 만들어졌고 시나리오 `manual-input-fallback`·`manual-input-unknown-menu`와 배포 업로드가 기댄다. 제안: 둘을 REQ로 올리고 ID는 그대로 둔다(ID를 바꾸면 코드·E2E 주석이 바뀐다)
+- (D, 시연) 발표 시연 순서와 대체 계획이 없다. 시연은 AI 판독·만개의 레시피 같은 외부 호출에 기댄다. 제안: E1(`halal-bibimbap-gochujang`) → E2(`peanut-allergy-bibimguksu`) → 판독 실패 시 수동 입력(`manual-input-fallback`) 순서를 팀이 정하고, 네트워크가 막힐 때 시드 메뉴를 직접 입력하는 대체 장면을 정한다
+- (D, OPT-2) OPT-2는 시나리오 흐름이 없다(음식점 시드 대기). 시연에서 "안전한 메뉴가 없을 때 다른 식당"(`insight.design_decision`)을 보여 줄지, 보여 주면 시드 몇 곳이 필요한지 정한다(`erd.md` 열린 질문 7)
