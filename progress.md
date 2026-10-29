@@ -5,7 +5,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 ## 현재 상태
 
 - 실제 서비스 저장소 폴더: `C:\Users\a4710\NULL-SUMTECH` (안내 폴더: `C:\Users\a4710\loopthon-starter`)
-- 현재 단계 / 다음 행동: 2단계 기획 문서 통일 완료(2026-10-29, `docs/decisions.md`). ①의 뼈대와 REQ-4·OPT-2는 `main`에 올라왔다. 다음은 ②·③이 자기 dto와 `src/types` 파일부터 시작
+- 현재 단계 / 다음 행동: 3단계. docker·/__health·scenarios CI는 연결됨. 첫 배포는 학생의 배포 대상 결정·계정 연결·Secrets 등록 대기(blocked, 3단계 "학생이 할 일")
 - 학생에게 확인할 내용: E1이 언제 겪은 일인지, E2가 누구의 경험인지, 배포 대상(`docs/tech-stack.md > 열린 결정` 1)
 - 참고: 운영진의 검색·AI 사용 허락 받음(학생 확인, 2026-10-29). 조직 이름 `NULL`·`NULL-team`은 이미 다른 계정이 사용 중이고, `NULL-sumtech-team` 조직은 GitHub에서 확인되지 않아 학생 요청으로 개인 계정 레포를 사용함
 
@@ -47,17 +47,23 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 
 ## 3. 최소 화면 docker 실행·CI·첫 배포
 
-- [ ] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만)
-- [ ] docker-compose.example.yml을 docker-compose.yml로 복사: app·db, app만 ports "3000:3000", 앱은 컨테이너 안 3000에서 받음, 앱 설정에 localhost:3000 같은 절대 주소 없음
-- [ ] app 말고는 ports·container_name이 없고, 어느 서비스에도 env_file 없음
-- [ ] 환경변수 이름 그대로(RELEASE_ID·SEED_USER_*·AI_GATEWAY_API_KEY), 시드 계정 값은 `${}` 없이 직접 적음
-- [ ] 빈 DB에서 `docker compose up --build`만으로 앱·시드 데이터가 2분 안에 뜸(docker를 못 쓰면 GitHub Actions 결과로 확인)
-- [ ] README 설치·빌드·실행 안내와 환경변수 표(이름·용도·설정 위치)
-- [ ] GET /__health가 인증·리다이렉트 없이 200 응답(docker 앱·배포 둘 다, Next.js는 app/%5F%5Fhealth), 실제 배포 commit을 releaseId로 제공
-- [ ] 공개 HTTPS URL 첫 배포(발표용, 배포용 DB는 학생 확인 후 무료 등급)
-- [ ] CI 실제 검사(workflows/scenarios.yml 복사)와 성공 뒤 자동 배포 연결, 실제 push로 확인
-- [ ] Agent가 대시보드 배포 URL 저장, UP·배포 commit 일치 확인
-- 배포 URL / CI·배포 링크 / 첫 배포 commit SHA:
+- [x] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만) — `frontend/Dockerfile`(app), `backend/Dockerfile`
+- [x] docker-compose.yml: app·backend·db, app만 ports "3000:3000", 앱은 컨테이너 안 3000에서 받음, 절대 주소 없음(BACKEND_URL은 내부 서비스 이름)
+- [x] app 말고는 ports·container_name이 없고, 어느 서비스에도 env_file 없음. db는 이름 붙은 볼륨 `db-data`
+- [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY). 로그인이 없어(`scenarios.yaml` login: false) SEED_USER_*는 두지 않음
+- [x] 빈 DB에서 `docker compose down -v` → `RELEASE_ID=<HEAD> docker compose up -d --build`로 67초(빌드 포함) 만에 `/__health` 200 (2026-10-30 로컬 Docker Desktop)
+- [x] README 설치·빌드·실행 안내와 환경변수 표
+- [~] GET /__health: docker 앱에서 200, 리다이렉트 없음, `Cache-Control: no-store`, releaseId = 실행 commit 확인. 배포는 아직 없음
+- [ ] 공개 HTTPS URL 첫 배포 — **blocked(학생)**: 아래 "학생이 할 일" 1~3
+- [~] CI 실제 검사: `.github/workflows/scenarios.yml`(키트 복사, releaseId=commit 검사 추가) 추가. 자동 배포 연결은 배포 대상이 정해진 뒤
+- [ ] Agent가 대시보드 배포 URL 저장, UP·배포 commit 일치 확인 — 배포 뒤
+- 로컬 E2E(2026-10-30, 빈 DB docker, AI 키 없음): smoke 4/4·manual-input-fallback·manual-input-unknown-menu 통과, 사진 판독이 필요한 5개 흐름 실패. 원인: 백엔드 로그 `NotFoundException: 404`(Gateway base-url `/v1` 누락, 열린 PR #10이 고침) + 로컬·GitHub Secrets에 AI 키 없음
+- 학생이 할 일(blocked):
+  1. 배포 대상 결정(`docs/tech-stack.md > 열린 결정` 1): 화면 Vercel + 백엔드 컨테이너 호스트(AWS 등) + 무료 Postgres(Neon 등) 중 무엇을 쓸지, 무료 등급 확인
+  2. 고른 플랫폼에 학생 계정으로 로그인해 GitHub 레포 연결, 배포 환경변수(`BACKEND_URL`, `SPRING_DATASOURCE_*`, `AI_GATEWAY_API_KEY`, `RELEASE_ID`는 플랫폼 commit 변수) 직접 입력
+  3. GitHub 레포 Settings → Secrets and variables → Actions에 `AI_GATEWAY_API_KEY` 직접 등록(지금 Secrets 비어 있음)
+  4. PR #10(Gateway `/v1`) 확인·병합
+- 배포 URL / CI·배포 링크 / 첫 배포 commit SHA: 아직 없음
 
 ## 4. 서비스 AI API 설정 (필요할 때만)
 
