@@ -1,5 +1,5 @@
 # 푸시·PR마다 백엔드 테스트, 화면 빌드, docker compose 실행과 스모크 테스트를 확인한다.
-# 흐름 E2E(e2e/scenarios)는 ②의 /scan과 ③의 판정 API가 들어온 뒤 붙인다(docs/roles.md).
+# 흐름 E2E(e2e/scenarios)는 AI 예산을 쓰므로 여기서 돌리지 않고 scenarios.yml이 main push·수동 실행 때 돌린다.
 name: CI
 
 on:
