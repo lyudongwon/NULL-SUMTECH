@@ -296,6 +296,11 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `./gradlew --no-daemon test` 통과(107개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). `TTL`을 31분으로 잠시 바꾸면 만료 테스트가 실패하는 것을 확인하고 되돌림
   - 미확인(node·docker 없음): 흐름 E2E 8개 실행
   - 다음: 남은 일은 팀 결정(아래 목록)과 node·docker 확인뿐이다. 루프가 팀 브랜치를 피해 혼자 할 수 있는 일은 남지 않았다
+- 13회차(2026-10-30) 지난 심사(68점)의 "가장 먼저 고칠 것"은 docker에서 흐름 E2E 8개 실행, ci.yml에 scenarios 붙이기, api.md 405·415다. `origin/main`은 새 커밋이 없었다. E2E는 이 PC에서 못 돌리고, CI에 scenarios를 붙이는 일은 팀 AI 예산을 쓰므로 루프가 하지 않는다(아래 "E2E·CI"). `docs/api.md`는 `feat/opt2-nearby-restaurants`·`fix/seed-name-match`가, "현재 상태"·3~7단계는 `docs/e2e-results`가 아직 고치는 중이라 이번에도 건드리지 않았다. 운영 코드는 고치지 않았다
+  - 시연 중 AI가 실패할 때의 경로에 테스트가 없어 `AiIngredientEstimatorTest`(5개)를 더함: AI 모델 미설정·호출 예외·빈 응답(`null`, 재료 `null`)이면 빈 목록을 돌려줘 판정이 멈추지 않고 R3(Check first)로 간다. 받은 재료는 다듬고 빈 값·중복을 빼고 순서를 지키며 12개까지만 받는다
+  - 검사: `./gradlew --no-daemon test` 통과(112개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). `MAX_INGREDIENTS`를 잠시 13으로 바꾸면 12개 테스트가 실패하는 것을 확인하고 되돌림
+  - 미확인(node·docker 없음): 흐름 E2E 8개 실행
+  - 다음: 팀 브랜치(`docs/e2e-results`·`feat/opt2-nearby-restaurants`)가 main에 합쳐지면 "현재 상태"·api.md 405·415·OPT-2 계약과 코드를 맞춘다. 그 전에는 팀 결정과 node·docker 확인만 남는다
 
 ### 팀 결정 필요
 
