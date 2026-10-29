@@ -21,6 +21,9 @@ import com.nullteam.foodcheck.domain.judgment.dto.Rule;
  */
 public final class JudgmentRules {
 
+	/** 근거는 배지 옆에 한 줄로 보이므로 재료 이름을 앞 두 개까지만 적는다. */
+	private static final int MAX_REASON_NAMES = 2;
+
 	private JudgmentRules() {
 	}
 
@@ -79,7 +82,11 @@ public final class JudgmentRules {
 	}
 
 	private static String names(List<IngredientView> hits) {
-		return String.join(", ", new LinkedHashSet<>(hits.stream().map(IngredientView::name).toList()));
+		List<String> all = List.copyOf(new LinkedHashSet<>(hits.stream().map(IngredientView::name).toList()));
+		if (all.size() <= MAX_REASON_NAMES) {
+			return String.join(", ", all);
+		}
+		return String.join(", ", all.subList(0, MAX_REASON_NAMES)) + " 등";
 	}
 
 	/** 근거 한 줄이 자연스럽게 읽히도록 마지막 글자의 받침을 보고 "이"·"가"를 붙인다. */
