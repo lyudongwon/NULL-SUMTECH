@@ -205,3 +205,23 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (F, REQ-4) 저장한 식단 제한을 지우는 방법(API·버튼)이 없다. 지금은 브라우저 `localStorage`를 지워도 서버 행은 남는다. 제안: 삭제 기능을 더할지, "해커톤이 끝나면 DB를 지운다"는 보관 원칙을 문서에 적을지 정한다(기능 추가라 직접 넣지 않음)
 - (F, REQ-1·REQ-2) 사진 보관 원칙이 잠정 방식(메모리 30분)에만 있고, 목표인 `images.data bytea`로 옮기면 보관 기간이 정해져 있지 않다(`erd.md` 열린 질문 1). 사진이 외부 AI로 간다는 것도 화면에 알리지 않는다. 사진에는 사람 얼굴·학생증 같은 것이 같이 찍힐 수 있다. 제안: "판독이 끝나면 지운다" 또는 "N분 뒤 지운다"를 ②가 정해 `api.md > 사진 본문 저장`에 적고, 업로드 화면에 "Photos are sent to an AI service to read the menu and are not kept." 같은 고지를 둘지 정한다
 - (F, 윤리) 판정은 참고용인데 "Safe" 배지를 그대로 믿을 위험이 있다(앞의 C 항목 R4·R0과 같은 뿌리). 화면에 "최종 확인은 식당에 한다"는 책임 고지가 없다. 제안: 판정 화면에 짧은 고지를 둘지 정한다(화면 문구 추가라 직접 넣지 않음)
+
+## 전체 점검(랄프 루프)
+
+목표: features(REQ-1~8, OPT-1~3)가 동작하고 문서·코드·테스트가 같은 말을 하는 제출·시연 가능 상태. 심사 결과는 `.git/ralph-loop/last-judge.md`를 본다.
+
+### 회차 기록
+
+- 1회차(2026-10-30) 지난 심사(68점) 지적 "컨트롤러·통합 테스트(409, 413·415, 판정 API)가 없다"를 고침
+  - 앞 회차가 커밋하지 못한 컨트롤러 테스트 3개(`ImageControllerTest`·`JudgmentControllerTest`·`RestrictionControllerTest`, 20개)를 검사해 커밋함: 사진 201·400·413·415, 판정 응답 필드·R0·R1·R4·빈 메뉴 400·수동 입력, 식단 제한 PATCH 409 다섯 경우·404·없는 토글 400
+  - `RestaurantControllerTest`(5개)를 더함: OPT-2 필터(켠 제한을 모두 피하는 음식점만), `limit` 기본 5·범위 1~20, 맞는 곳 없음 200 `[]`, `user_id` 누락 400, 없는 사용자 404
+  - 검사: `./gradlew --no-daemon test` 통과(71개, 실패 0, skip 0). 이 PC에는 JDK 17만 있어 `build.gradle`(Java 21)이 컴파일되지 않는다. 저장소 밖(`~/jdks`)에 Temurin 21을 받아 `JAVA_HOME`으로 돌렸다(저장소 파일은 바꾸지 않음)
+  - 건드리지 않은 것: 팀 브랜치 `docs/plan-evidence-fixes`가 `docs/api.md`·`docs/problem.yaml`·`docs/scenarios.yaml`·`docs/decisions.md`·`progress.md`를 고치는 중이라 문서는 고치지 않았다. `progress.md`는 이 절만 맨 아래에 더했다
+  - 미확인(node·docker 없음): 흐름 E2E(`--project=scenarios`)와 `docker compose up`은 이 PC에서 돌릴 수 없다. 심사의 "E2E 실행 증거"는 node·docker가 있는 팀원 PC에서 남겨야 한다
+  - 다음: `docs/plan-evidence-fixes`가 main에 합쳐진 뒤 심사의 consistency 지적(scenarios.yaml OPT-2 "음식점 시드 대기", progress.md "현재 상태")을 고친다. `MenuController`(REQ-2) HTTP 테스트도 아직 없다
+
+### 팀 결정 필요
+
+- (OPT-2) 코드는 `limit`을 1~20으로 맞추는데(`RestaurantService.MAX_LIMIT`), `docs/api.md > OPT-2`에는 "기본 5"만 있다. 제안: api.md 요청 표에 "1~20, 범위 밖은 가까운 값으로 맞춤"을 적는다(팀 브랜치가 api.md를 고치는 중이라 직접 고치지 않음)
+- (E2E·CI) 흐름 E2E 7개를 돌린 기록이 없다. CI에 붙이면 실제 AI 호출로 팀 예산($10)이 준다. 제안: node·docker가 있는 PC에서 `docker compose up` 뒤 `npx playwright test --project=scenarios`를 한 번 돌려 결과를 6단계에 적고, CI에는 수동 실행(`workflow_dispatch`)으로만 붙일지 정한다
+- (실행 조건) `build.gradle`은 Java 21을 요구한다. 팀원 PC에 JDK 17만 있으면 테스트가 컴파일 단계에서 멈춘다. 제안: README 실행 조건에 "JDK 21"을 분명히 적거나 Gradle toolchain 자동 내려받기를 쓸지 정한다
