@@ -1,17 +1,47 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 디자인 토큰: 화면 시안(CanIEat 목업)의 색·글꼴을 그대로 옮겼다. */
+@theme {
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-line: #e3e6ea;
+  --color-divider: #eef0f3;
+  --color-chip: #edf0f3;
+  --color-edge: #d5d9df;
+  --color-ink: #283651;
+  --color-ink-hover: #1d2840;
+  --color-body: #46506a;
+  --color-muted: #5a6378;
+  --color-olive: #657104;
+  --color-olive-dark: #4a5303;
+  --color-olive-tint: #f3f5ea;
+  --color-safe: #4a5303;
+  --color-safe-bg: #e9eedc;
+  --color-check: #7a4a00;
+  --color-check-bg: #fbebc8;
+  --color-avoid: #a3190f;
+  --color-avoid-bg: #f8deda;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+@layer base {
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  button {
+    cursor: pointer;
+  }
+  :where(a, button, input, textarea):focus-visible {
+    outline: 2px solid var(--color-olive);
+    outline-offset: 2px;
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+@keyframes scan-line {
+  from { top: 8%; }
+  to { top: 92%; }
 }

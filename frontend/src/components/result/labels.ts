@@ -1,17 +1,5 @@
 // 판정 결과 화면의 표시 문구. 코드 값은 docs/api.md 열거형을 따른다.
-import type { JudgmentIngredient, JudgmentLevel, JudgmentResult } from "@/hooks/useJudgment";
-
-export const LEVEL_LABEL: Record<JudgmentLevel, string> = {
-  SAFE: "Safe",
-  CHECK: "Check first",
-  BLOCKED: "Avoid",
-};
-
-export const LEVEL_STYLE: Record<JudgmentLevel, string> = {
-  SAFE: "bg-emerald-100 text-emerald-800 border-emerald-300",
-  CHECK: "bg-amber-100 text-amber-900 border-amber-300",
-  BLOCKED: "bg-red-100 text-red-800 border-red-300",
-};
+import type { JudgmentIngredient, JudgmentResult } from "@/types/judgment";
 
 export const EVIDENCE_LABEL: Record<JudgmentIngredient["evidence"], string> = {
   CONFIRMED: "Confirmed",
