@@ -64,6 +64,16 @@
 | 설정 화면 | 토글 | Meat · Pork · Beef · Seafood · Egg · Dairy · Peanut · Alcohol |
 | 설정 화면·버튼 | 저장 | Save |
 | 설정 화면(REQ-4) | 동시 저장 충돌(409 `detail`) | Another request was saved first. Please try again. |
+| 사진 올리기 화면(REQ-1) | 안내 | Upload one photo of a menu board or a dish. |
+| 사진 올리기 화면(REQ-1) | 끌어 놓기 안내(넓은 화면에서만) | You can also drag a photo here. |
+| 사진 올리기 화면·버튼(REQ-1) | 카메라로 찍기 · 앨범에서 고르기 | Take a photo · Choose from album |
+| 사진 올리기 화면(REQ-1, 화면 읽기 이름) | 사진 파일 입력 | Photo file |
+| 카메라 화면(REQ-1, 화면 읽기 이름) | 카메라 창 · 미리보기 · 방금 찍은 사진 | Camera · Camera preview · Photo you just took |
+| 카메라 화면(REQ-1) | 카메라 켜는 중 | Opening camera… |
+| 카메라 화면·버튼(REQ-1) | 찍기 · 닫기 | Take photo · Cancel |
+| 카메라 화면·버튼(REQ-1) | 다시 찍기 · 이 사진 쓰기 | Retake · Use photo |
+| 사진 올리기 화면(REQ-1·REQ-2) | 진행 상태 | Uploading photo… · Reading the menu… · Opening results… |
+| 사진 올리기 화면(REQ-1·REQ-2) | 서버가 이유를 주지 않은 오류 | Couldn't upload the photo. · Couldn't read the menu. |
 | 입력칸(OPT-1) | 메뉴 이름 입력칸 | Menu name |
 | 입력칸(OPT-1)·버튼 | 판정하기 | Can I eat it? |
 | 판정 화면 | 배지 | Safe · Check first · Avoid |
