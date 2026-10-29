@@ -1,6 +1,8 @@
 # 역할 분배
 
-> 2026-10-29 기준, ①의 뼈대·REQ-4·OPT-2가 `main`에 올라온 뒤 남은 일로 다시 나눴다. 세 사람이 각자 Claude 세션에서 동시에 작업해도 충돌하지 않도록 기능·API·파일을 나눈다. 기능은 [problem.yaml](problem.yaml)의 `features`(REQ-1~7, OPT-1~3), API는 [api.md](api.md), 기술 스택은 [tech-stack.md](tech-stack.md)(Spring Boot 백엔드 + Next.js 화면), 폴더는 [folder-structure.md](folder-structure.md)를 따른다. 아래 경로의 `<pkg>`는 `backend/src/main/java/com/nullteam/foodcheck`(잠정 기본 패키지)다.
+> 화면은 영어다(REQ-8). 화면 문구는 [api.md](api.md) > 화면 문구를 그대로 쓴다.
+>
+> 2026-10-29 기준, ①의 뼈대·REQ-4·OPT-2가 `main`에 올라온 뒤 남은 일로 다시 나눴다. 세 사람이 각자 Claude 세션에서 동시에 작업해도 충돌하지 않도록 기능·API·파일을 나눈다. 기능은 [problem.yaml](problem.yaml)의 `features`(REQ-1~8, OPT-1~3), API는 [api.md](api.md), 기술 스택은 [tech-stack.md](tech-stack.md)(Spring Boot 백엔드 + Next.js 화면), 폴더는 [folder-structure.md](folder-structure.md)를 따른다. 아래 경로의 `<pkg>`는 `backend/src/main/java/com/nullteam/foodcheck`(잠정 기본 패키지)다.
 
 ## 역할
 
@@ -11,7 +13,7 @@
 | **③ 판정 엔진** | REQ-5 숨은 성분 추론(음식 DB → 이름·조리법 → 만개의 레시피 → AI 추정), REQ-3 판정 규칙 R0~R4, REQ-6 근거 데이터, OPT-1 판정 API, 음식·재료 시드 | `POST /ingredients/infer`, `POST /judgments`, `POST /judgments/manual` | 메뉴 이름을 판정과 근거로 바꾼다 |
 
 - 흐름은 ② 사진 → 메뉴 이름, ③ 메뉴 이름 → 판정, ① 판정 → 화면·테스트·배포다. 세 역할이 만나는 곳은 아래 [만나는 지점](#만나는-지점) 두 군데뿐이다.
-- 결과 화면은 처음에 ②가 맡았지만, ②에 사진 업로드·축소·AI 판독·입력칸이 몰려 있어 ①로 옮겼다. ①은 `/restaurants`와 공통 레이아웃을 이미 갖고 있어 "다른 식당 보기"까지 이어서 만든다.
+- 결과 화면은 처음에 ②가 맡았지만, ②에 사진 업로드·축소·AI 판독·입력칸이 몰려 있어 ①로 옮겼다. ①은 `/restaurants`와 공통 레이아웃을 이미 갖고 있어 "Other restaurants"까지 이어서 만든다.
 - E2E 흐름 7개는 모두 "설정 → 사진 → 결과"를 지나가므로, 테스트 틀(Playwright 설정·공통 도우미)과 spec은 ① 한 사람이 만든다.
 - 판정 규칙은 단위 테스트가 필요한 곳([ai-rules.md](ai-rules.md) 7번)이라 ③이 화면 없이 백엔드 로직과 데이터에 집중한다.
 
@@ -19,7 +21,7 @@
 
 먼저 고정하고, 바꿀 때는 이 문서와 [api.md](api.md)를 같은 커밋에서 고친다.
 
-1. **② → ①: 화면 이동 주소.** 판독이 끝나거나 OPT-1 입력칸에 이름을 넣고 "판정하기"를 누르면, ②가 `/result?menus=<JSON 배열>`로 이동시킨다. 예: `/result?menus=["설렁탕","콩나물국"]`(URL 인코딩). 결과 화면(①)이 이 목록과 `user_id`로 `POST /judgments`를 부른다.
+1. **② → ①: 화면 이동 주소.** 판독이 끝나거나 OPT-1 입력칸에 이름을 넣고 "Can I eat it?"를 누르면, ②가 `/result?menus=<JSON 배열>`로 이동시킨다. 예: `/result?menus=["설렁탕","콩나물국"]`(URL 인코딩). 결과 화면(①)이 이 목록과 `user_id`로 `POST /judgments`를 부른다.
 2. **③ → ①: 판정 결과 타입.** ③이 첫 커밋으로 `frontend/src/types/judgment.ts`와 `frontend/src/services/judgmentService.ts`를 올린다. 형식은 [api.md](api.md) REQ-3 응답(`level`, `reason`, `matched_restrictions`, `rule`, `ingredients[]`의 `evidence`·`confidence`·`basis`·`restrictions`) 그대로다. ①은 판정 API가 나오기 전까지 이 타입으로 만든 예시 데이터로 결과 화면을 만든다.
 
 ## 파일 소유권
@@ -63,11 +65,11 @@
 
 **① 기반·결과 화면**
 
-> CLAUDE.md, docs/ai-rules.md, docs/git-convention.md, docs/roles.md를 먼저 읽어. 나는 역할 ①(기반·결과 화면)이야. feat/base-settings 브랜치에서 application.yml의 업로드 한도를 10MB로 먼저 올리고, /result 화면을 만들어: ③의 src/types/judgment.ts 기준으로 `/result?menus=<JSON 배열>`의 메뉴를 POST /api/v1/judgments로 판정해 배지·근거 한 줄·메뉴를 누르면 보이는 REQ-6 상세(확인/추정, 확신도, 적용 규칙)·이름이 비었을 때 '입력 값이 없습니다.' 팝업·'안전'이 하나도 없을 때 "다른 식당 보기"(/restaurants)를 보여 줘. 판정 API가 나오기 전에는 예시 데이터로 개발해. '등록되지 않은 메뉴' 팝업은 만들지 않아. 그다음 e2e/에 Playwright 설정과 docs/scenarios.yaml 흐름 7개 spec을 만들고, Docker 확인·CI·배포를 준비해. 내 담당 파일만 고쳐.
+> CLAUDE.md, docs/ai-rules.md, docs/git-convention.md, docs/roles.md를 먼저 읽어. 나는 역할 ①(기반·결과 화면)이야. feat/base-settings 브랜치에서 application.yml의 업로드 한도를 10MB로 먼저 올리고, /result 화면을 만들어: ③의 src/types/judgment.ts 기준으로 `/result?menus=<JSON 배열>`의 메뉴를 POST /api/v1/judgments로 판정해 배지·근거 한 줄·메뉴를 누르면 보이는 REQ-6 상세(확인/추정, 확신도, 적용 규칙)·이름이 비었을 때 "Please enter a menu name." 팝업·'안전'이 하나도 없을 때 "Other restaurants"(/restaurants)를 보여 줘. 판정 API가 나오기 전에는 예시 데이터로 개발해. '등록되지 않은 메뉴' 팝업은 만들지 않아. 그다음 e2e/에 Playwright 설정과 docs/scenarios.yaml 흐름 7개 spec을 만들고, Docker 확인·CI·배포를 준비해. 내 담당 파일만 고쳐.
 
 **② 사진·판독**
 
-> CLAUDE.md, docs/ai-rules.md, docs/git-convention.md, docs/roles.md를 먼저 읽어. 나는 역할 ②(사진·판독)야. feat/photo-scan 브랜치에서 첫 커밋으로 backend domain/image·menu의 dto와 frontend src/types/image.ts·menu.ts를 올리고, docs/api.md 기준으로 REQ-1(/scan 화면, 파일 선택·드래그·카메라, POST /api/v1/images), OPT-3(src/lib/resizeImage.ts, 긴 변 1400px, JPEG 0.85, 1400 미만은 그대로), REQ-2(POST /api/v1/menus/recognize, Spring AI 구조화 출력, 못 읽으면 비움)를 만들어. 메뉴를 하나도 못 읽거나 422·500이면 OPT-1 메뉴 이름 입력칸과 "판정하기"를 보여 줘. 판독이 끝나거나 "판정하기"를 누르면 `/result?menus=<JSON 배열>`로 이동시켜(결과 화면은 ①이 만든다). E2E용 테스트 사진은 e2e/fixtures/에 넣어. 내 담당 파일만 고치고, 필요한 라이브러리나 DB 표는 ①에게 요청해.
+> CLAUDE.md, docs/ai-rules.md, docs/git-convention.md, docs/roles.md를 먼저 읽어. 나는 역할 ②(사진·판독)야. feat/photo-scan 브랜치에서 첫 커밋으로 backend domain/image·menu의 dto와 frontend src/types/image.ts·menu.ts를 올리고, docs/api.md 기준으로 REQ-1(/scan 화면, 파일 선택·드래그·카메라, POST /api/v1/images), OPT-3(src/lib/resizeImage.ts, 긴 변 1400px, JPEG 0.85, 1400 미만은 그대로), REQ-2(POST /api/v1/menus/recognize, Spring AI 구조화 출력, 못 읽으면 비움)를 만들어. 메뉴를 하나도 못 읽거나 422·500이면 OPT-1 메뉴 이름 입력칸과 "Can I eat it?"를 보여 줘. 판독이 끝나거나 "Can I eat it?"를 누르면 `/result?menus=<JSON 배열>`로 이동시켜(결과 화면은 ①이 만든다). E2E용 테스트 사진은 e2e/fixtures/에 넣어. 내 담당 파일만 고치고, 필요한 라이브러리나 DB 표는 ①에게 요청해.
 
 **③ 판정 엔진**
 

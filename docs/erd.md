@@ -101,8 +101,8 @@ erDiagram
 | `users` | `id` bigint PK(Auto Increment), `created_at` | 회원 정보 없이 사용자를 구분하는 번호(`user_id`) |
 | `user_restrictions` | `user_id` PK·FK, `preset_code` FK(null 가능), `version` int, `updated_at` | 사용자당 한 행. 마지막으로 고른 프리셋과 낙관적 락용 `version` |
 | `user_restriction_items` | (`user_id`, `item_code`) PK, `enabled` | 토글 하나당 한 행. 프리셋을 고르면 그 프리셋의 항목이 켜진다 |
-| `restriction_presets` | `code` PK, `name` | 프리셋 목록(예: 할랄, 채식). `GET /restrictions/presets`의 `presets` |
-| `restriction_items` | `code` PK, `name` | 개별 토글 항목(예: 돼지고기, 술). `GET /restrictions/presets`의 `items` |
+| `restriction_presets` | `code` PK, `name` | 프리셋 목록. `name`은 화면에 보일 영어 이름(Halal, Vegetarian, Vegan, REQ-8). `GET /restrictions/presets`의 `presets` |
+| `restriction_items` | `code` PK, `name` | 개별 토글 항목. `name`은 영어 이름(Meat, Pork, … Alcohol, REQ-8). `GET /restrictions/presets`의 `items` |
 | `preset_items` | (`preset_code`, `item_code`) PK | 프리셋이 켜는 항목 |
 
 - **동시 요청(REQ-4):** 저장은 `UPDATE ... WHERE version = :요청한 version`으로 하고, 0행이 바뀌면 409를 준다. 처음 저장(`version` 생략)에서 같은 `user_id`가 동시에 들어오면 PK 충돌을 409로 돌려준다. 409 응답은 `docs/api.md`를 따른다.
@@ -119,8 +119,8 @@ erDiagram
 
 | 테이블 | 컬럼 | 설명 |
 | --- | --- | --- |
-| `foods` | `id` PK, `name` UNIQUE, `source` | 음식 DB. `source`는 시드(`SEED`), 만개의 레시피(`RECIPE_SEARCH`), AI 추정(`AI_ESTIMATE`)을 구분한다 |
-| `ingredients` | `id` PK, `name` UNIQUE | 재료 사전(예: 돼지고기, 계란) |
+| `foods` | `id` PK, `name` UNIQUE, `name_en`, `source` | 음식 DB. `name`은 한국어 원문, `name_en`은 화면에 함께 보일 영어 이름(REQ-8). `source`는 시드(`SEED`), 만개의 레시피(`RECIPE_SEARCH`), AI 추정(`AI_ESTIMATE`)을 구분한다 |
+| `ingredients` | `id` PK, `name` UNIQUE, `name_en` | 재료 사전(예: 돼지고기/Pork, 계란/Egg). `name_en`은 영어 이름(REQ-8) |
 | `food_ingredients` | (`food_id`, `ingredient_id`) PK, `evidence`, `confidence`, `basis` | 음식에 들어 있는 재료. REQ-6의 "확인/추정 구분"이 `evidence`, "확신도"가 `confidence`, `docs/api.md`의 `basis`가 `basis`다 |
 | `ingredient_restriction_items` | (`ingredient_id`, `item_code`) PK | 재료가 걸리는 제한 항목 전부. 돼지고기는 `pork`와 `meat`, 소고기는 `beef`와 `meat`에 걸린다. 그래서 "고기"만 켜도, "돼지고기"만 켜도 걸린다 |
 
@@ -134,7 +134,7 @@ erDiagram
 | `restaurants` | `id` PK, `name`, `category`, `address` | 팀이 조사한 학교 주변 음식점(`R__20_seed_restaurants.sql`) |
 | `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
 
-- 추천은 판정 결과에 '안전'이 하나도 없을 때 "다른 식당 보기"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
+- 추천은 판정 결과에 '안전'이 하나도 없을 때 "Other restaurants"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
 
 ## 시드 데이터 최소 요구
 
@@ -150,6 +150,12 @@ E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 
 - **사진 판독:** 메뉴판 사진에서 읽힌 이름이 `foods.name`과 일치해야 한다.
 
 음식별 재료 값은 ③이 정한다.
+
+## 영어 화면(REQ-8)에 맞춰 바꿀 것
+
+- `foods`·`ingredients`에 `name_en`(text, null 가능) 컬럼을 추가한다(①, 새 `V` 마이그레이션). 시드 음식·재료에는 영어 이름을 넣는다(③).
+- `R__10` 시드의 프리셋·제한 항목 `name`을 영어로 바꾼다(①).
+- 만개의 레시피·AI 추정으로 새로 저장하는 음식·재료의 `name_en`은 AI가 만든다(③).
 
 ## 열린 질문
 
