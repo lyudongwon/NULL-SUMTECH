@@ -15,6 +15,8 @@ export default defineConfig({
     baseURL: process.env.BASE_URL ?? "http://localhost:3000",
     trace: "retain-on-failure",
     ...devices["Pixel 7"],
+    // 채점기와 같은 휴대폰 화면으로 맞춘다: 390x844, isMobile, hasTouch(Pixel 7의 기본은 412x915다).
+    viewport: { width: 390, height: 844 },
   },
   projects: [
     { name: "smoke", testDir: "./smoke" },
