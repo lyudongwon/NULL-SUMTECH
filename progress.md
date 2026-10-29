@@ -219,9 +219,19 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 건드리지 않은 것: 팀 브랜치 `docs/plan-evidence-fixes`가 `docs/api.md`·`docs/problem.yaml`·`docs/scenarios.yaml`·`docs/decisions.md`·`progress.md`를 고치는 중이라 문서는 고치지 않았다. `progress.md`는 이 절만 맨 아래에 더했다
   - 미확인(node·docker 없음): 흐름 E2E(`--project=scenarios`)와 `docker compose up`은 이 PC에서 돌릴 수 없다. 심사의 "E2E 실행 증거"는 node·docker가 있는 팀원 PC에서 남겨야 한다
   - 다음: `docs/plan-evidence-fixes`가 main에 합쳐진 뒤 심사의 consistency 지적(scenarios.yaml OPT-2 "음식점 시드 대기", progress.md "현재 상태")을 고친다. `MenuController`(REQ-2) HTTP 테스트도 아직 없다
+- 2회차(2026-10-30) 지난 심사(65점)의 consistency·tests 지적을 고침. `origin/main`을 충돌 없이 합침(`docs/plan-evidence-fixes`가 main에 들어와 scenarios.yaml OPT-2 머리 주석·흐름 `other-restaurants-halal`은 이미 고쳐짐)
+  - `docs/api.md > OPT-2`: `limit` 요청 칸에 "기본 5, 1~20, 범위 밖은 가까운 끝값"을 코드(`RestaurantService.MAX_LIMIT`, `Math.clamp`)대로 적음. "팀이 조사한 음식점 시드"를 사실대로 "지금은 '(예시)' 예시 데이터 5곳"으로 고치고, 추천 순서가 번호 순(기준 미정)임을 적음
+  - `e2e/scenarios/other-restaurants-halal.spec.ts`를 더함: scenarios.yaml 단계(Diet settings → Halal → Save → Other restaurants) 그대로, 목록이 1곳 이상이고 모든 카드에 이름·종류와 "Free of … Pork", "Free of … Alcohol"이 보이는지 확인. 시드 기준 기대 결과는 1·4번 2곳
+  - `MenuControllerTest`(6개)를 더함: REQ-2 응답 snake_case(`image_id`·`image_type`·`menus[].index·name`), 못 읽은 칸 `name: null`, FOOD는 1개, `image_id` 누락 400, 없는 사진 404 "Image not found.", NOT_MENU 422, AI 오류 500 "We couldn't read the menu. Please type the menu name."
+  - 검사: `./gradlew --no-daemon test` 통과(77개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). spec은 기존 spec·`RestaurantRecommendations.tsx`·`RestrictionSettings.tsx`(Save 뒤 `/`로 이동)를 다시 읽어 선택자·import를 맞춤
+  - 미확인(node·docker 없음): 새 spec 실행. 팀 브랜치 `docs/e2e-results`의 progress.md 3단계에 "로컬 E2E 흐름 7/7 통과 2회"가 적혀 있으나 아직 main에 없고, 새 spec(8번째 흐름)은 그 뒤에 생겨 돌린 적이 없다
+  - 건드리지 않은 것: `docs/e2e-results`가 바꾸는 `.github/workflows/scenarios.yml`·`docker-compose.yml`·`e2e/playwright.config.ts`·`frontend/Dockerfile`·`frontend/src/app/%5F%5Fhealth`·README.md. `progress.md`는 이 절만 고침
+  - 다음: `docs/e2e-results`가 main에 합쳐지면 8개 흐름을 다시 돌린 결과를 6단계에 옮겨 적을지 확인. 판정 규칙 R0~R4가 Flyway 시드(`R__30_seed_foods`)와 맞는지 보는 DB 통합 테스트는 docker(Testcontainers)가 없어 여기서 못 돌린다
 
 ### 팀 결정 필요
 
-- (OPT-2) 코드는 `limit`을 1~20으로 맞추는데(`RestaurantService.MAX_LIMIT`), `docs/api.md > OPT-2`에는 "기본 5"만 있다. 제안: api.md 요청 표에 "1~20, 범위 밖은 가까운 값으로 맞춤"을 적는다(팀 브랜치가 api.md를 고치는 중이라 직접 고치지 않음)
+- (OPT-2) 코드는 `limit`을 1~20으로 맞추는데(`RestaurantService.MAX_LIMIT`), `docs/api.md > OPT-2`에는 "기본 5"만 있다 → 2회차 반영: api.md 요청 표에 적음
+- (OPT-2 시드) 음식점 시드는 "(예시)" 가짜 5곳이고 주소는 `TODO(확인)`이다. `problem.yaml > OPT-2 > done`은 "팀이 조사한 음식점"을 말한다. 실제 음식점 이름·종류·주소·안 쓰는 재료는 AI가 지어낼 수 없다. 제안: ①이 학교 주변 음식점 5곳 이상을 직접 조사해 `R__20_seed_restaurants.sql`을 바꾸거나, 시연에서 OPT-2를 "예시 데이터"라고 밝히고 보여 준다
+- (E2E 증거) `docs/e2e-results` 브랜치의 로컬 E2E 결과(흐름 7/7 2회)를 main에 합칠지 정한다. 합친 뒤 새 흐름 `other-restaurants-halal`까지 8개를 한 번 더 돌려 적으면 심사의 "E2E 실행 증거"가 채워진다
 - (E2E·CI) 흐름 E2E 7개를 돌린 기록이 없다. CI에 붙이면 실제 AI 호출로 팀 예산($10)이 준다. 제안: node·docker가 있는 PC에서 `docker compose up` 뒤 `npx playwright test --project=scenarios`를 한 번 돌려 결과를 6단계에 적고, CI에는 수동 실행(`workflow_dispatch`)으로만 붙일지 정한다
 - (실행 조건) `build.gradle`은 Java 21을 요구한다. 팀원 PC에 JDK 17만 있으면 테스트가 컴파일 단계에서 멈춘다. 제안: README 실행 조건에 "JDK 21"을 분명히 적거나 Gradle toolchain 자동 내려받기를 쓸지 정한다
