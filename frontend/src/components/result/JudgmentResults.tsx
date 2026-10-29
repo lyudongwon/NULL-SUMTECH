@@ -42,6 +42,23 @@ export function JudgmentResults() {
     );
   }
 
+  // 판독 없이 /result를 바로 열었을 때(메뉴 값 자체가 없음)는 오류가 아니라 빈 화면 안내를 보여 준다.
+  // 메뉴 이름을 비워 보낸 경우만 "Please enter a menu name." 대화상자를 띄운다(api.md REQ-3 입력 값 없음).
+  if (state.status === "empty" && params.get("menus") === null) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHead title="Results" lead={<DietSummary variant="result" />} />
+        <div className={`${card} flex flex-col items-start gap-3 p-6`}>
+          <p className="text-[17px] font-semibold">No results yet</p>
+          <p className="text-[15px] text-body">Upload a photo of a menu board or a dish, and we&apos;ll check each menu for you.</p>
+          <Link href="/scan" className={btnPrimary}>
+            Upload photo
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (state.status === "empty") {
     return (
       <div className="flex flex-col gap-6">
