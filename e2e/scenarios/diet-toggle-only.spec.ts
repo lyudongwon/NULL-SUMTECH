@@ -23,5 +23,8 @@ test("프리셋 없이 토글만으로 식단 제한을 정해 판정받는다",
 
   const card = page.getByRole("listitem").filter({ hasText: "설렁탕" });
   await expect(card.getByText("Avoid", { exact: true })).toBeVisible();
-  await expect(card).toContainText("고기");
+  // 근거 한 줄에 걸린 재료 "소고기"와 켠 제한 "Meat"가 함께 나온다(R1 reason).
+  const reason = card.getByTestId("reason");
+  await expect(reason).toContainText("소고기");
+  await expect(reason).toContainText("Meat");
 });

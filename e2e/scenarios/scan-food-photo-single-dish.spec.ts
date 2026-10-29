@@ -19,6 +19,9 @@ test("음식 사진 한 장을 올리면 요리명 1개와 판정, 근거 상세
   await expect(cards).toHaveCount(1);
   const card = cards.filter({ hasText: "설렁탕" });
   await expect(card.getByText("Avoid", { exact: true })).toBeVisible();
+  // 영어 근거 한 줄(R1 reason). 재료 이름만 메뉴판 원문(한국어)으로 들어간다.
+  await expect(card.getByTestId("reason")).toHaveText(/^Contains .*소고기.*, which is not allowed for your .+ restriction\.$/);
+  await expect(card.getByText("설렁탕", { exact: true })).toBeVisible();
 
   await card.getByRole("button", { name: /설렁탕/ }).click();
   const beefRow = card.getByRole("row").filter({ hasText: "소고기" }).first();

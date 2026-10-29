@@ -24,5 +24,5 @@ test("메뉴판 사진을 올리면 메뉴마다 3단계 판정 배지와 근거
   }
   const seolleongtang = cards.filter({ hasText: "설렁탕" });
   await expect(seolleongtang.getByText("Avoid", { exact: true })).toBeVisible();
-  await expect(seolleongtang).toContainText("소고기");
+  await expect(seolleongtang.getByTestId("reason")).toContainText("소고기");
 });

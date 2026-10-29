@@ -15,7 +15,7 @@ test("사진에서 메뉴를 하나도 못 읽으면 이름을 직접 입력해 
   await page.getByRole("button", { name: "Save" }).click();
   await uploadPhoto(page, "no-menu.jpg");
 
-  // 입력칸 이름 "메뉴 이름"과 버튼 "판정하기"는 ②의 /scan 화면 이름이다(docs/scenarios.yaml).
+  // 입력칸 이름 "Menu name"과 버튼 "Can I eat it?"은 ②의 /scan 화면 이름이다(docs/scenarios.yaml).
   const input = page.getByLabel("Menu name");
   await expect(input).toBeVisible();
   await input.fill("김치찌개");
