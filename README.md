@@ -62,4 +62,4 @@ E2E는 앱을 따로 띄운 뒤 돌린다(기본 `http://localhost:3000`, 다른
 | `SPRING_DATASOURCE_USERNAME` | 백엔드 | DB 사용자 | 같은 곳 |
 | `SPRING_DATASOURCE_PASSWORD` | 백엔드 | DB 비밀번호 | 같은 곳 |
 | `AI_GATEWAY_API_KEY` | 백엔드 | 서비스 AI 기능 호출(필요할 때만) | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
-| `AI_GATEWAY_BASE_URL` | 백엔드 | AI Gateway 주소(기본값 있음, 바꿀 때만) | 배포 환경변수 |
+| `AI_GATEWAY_BASE_URL` | 백엔드 | AI Gateway 주소. `/v1`까지 적는다(기본값 `https://ai-gateway.vercel.sh/v1`, 바꿀 때만) | 배포 환경변수 |
