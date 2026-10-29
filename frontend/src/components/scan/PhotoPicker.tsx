@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { cameraSupported } from "@/hooks/useCamera";
 import type { ImageSource } from "@/types/image";
+import { CameraCapture } from "./CameraCapture";
 
 type Props = { disabled: boolean; onPick: (file: File, source: ImageSource) => void };
 
@@ -9,12 +11,14 @@ const ACCEPT = "image/jpeg,image/png,image/webp";
 
 /**
  * REQ-1 사진 고르기: 카메라 촬영, 앨범·파일 선택, 드래그 앤 드롭.
+ * 촬영은 화면 안 카메라(CameraCapture)를 먼저 열고, 쓸 수 없으면(허용 거부·카메라 없음·http 접속) 기기 기본 카메라로 넘어간다.
  * 파일 입력은 하나만 두고 버튼에 따라 capture를 붙였다 뗀다(E2E가 input[type="file"] 하나를 찾는다).
  */
 export function PhotoPicker({ disabled, onPick }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const sourceRef = useRef<ImageSource>("FILE");
   const [dragging, setDragging] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
 
   function open(source: "FILE" | "CAMERA") {
     const input = inputRef.current;
@@ -28,6 +32,17 @@ export function PhotoPicker({ disabled, onPick }: Props) {
       input.removeAttribute("capture");
     }
     input.click();
+  }
+
+  function takePhoto() {
+    if (disabled) return;
+    if (cameraSupported()) setCameraOpen(true);
+    else open("CAMERA");
+  }
+
+  function closeCamera(reason?: "unavailable") {
+    setCameraOpen(false);
+    if (reason === "unavailable") open("CAMERA");
   }
 
   function onChange(event: ChangeEvent<HTMLInputElement>) {
@@ -66,13 +81,22 @@ export function PhotoPicker({ disabled, onPick }: Props) {
         <span className="hidden sm:inline"> You can also drag a photo here.</span>
       </p>
       <div className="flex gap-3">
-        <button type="button" disabled={disabled} onClick={() => open("CAMERA")} className={`${button} bg-emerald-600 text-white`}>
+        <button type="button" disabled={disabled} onClick={takePhoto} className={`${button} bg-emerald-600 text-white`}>
           Take a photo
         </button>
         <button type="button" disabled={disabled} onClick={() => open("FILE")} className={`${button} border border-neutral-300`}>
           Choose from album
         </button>
       </div>
+      {cameraOpen && (
+        <CameraCapture
+          onUse={(file) => {
+            setCameraOpen(false);
+            onPick(file, "CAMERA");
+          }}
+          onClose={closeCamera}
+        />
+      )}
       <input
         ref={inputRef}
         type="file"
