@@ -43,6 +43,8 @@ jobs:
     # 빈 DB에서 docker compose up --build만으로 2분 안에 뜨는지 확인한다(progress.md 3단계).
     runs-on: ubuntu-latest
     needs: [backend, frontend]
+    env:
+      AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - name: Build images

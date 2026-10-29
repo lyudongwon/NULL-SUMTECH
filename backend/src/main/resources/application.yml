@@ -29,3 +29,11 @@ server:
 
 app:
   release-id: ${RELEASE_ID:}
+  # OPT-2 주변 음식점 지도. 키가 없으면 카카오 호출을 건너뛰고 DB에 쌓인 음식점만 돌려준다
+  kakao:
+    rest-api-key: ${KAKAO_REST_API_KEY:}
+  nearby:
+    # TODO(확인): 조선대 주변 기본 좌표를 팀이 정한다(docs/tech-stack.md 열린 결정 8)
+    default-lat: ${NEARBY_DEFAULT_LAT:}
+    default-lng: ${NEARBY_DEFAULT_LNG:}
+    radius-m: ${NEARBY_RADIUS_M:1000}

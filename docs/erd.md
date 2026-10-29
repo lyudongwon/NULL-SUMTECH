@@ -22,8 +22,10 @@ erDiagram
     ingredients ||--o{ food_ingredients : "참조"
     ingredients ||--o{ ingredient_restriction_items : "해당 제한"
     restriction_items ||--o{ ingredient_restriction_items : "참조"
-    restaurants ||--o{ restaurant_restriction_items : "충족"
-    restriction_items ||--o{ restaurant_restriction_items : "참조"
+    restaurants ||--o{ restaurant_reports : "보고"
+    users ||--o{ restaurant_reports : "보고한 사람"
+    restaurant_reports ||--o{ restaurant_report_items : "걸리는 항목"
+    restriction_items ||--o{ restaurant_report_items : "참조"
 
     users {
         bigint id PK "Auto Increment"
@@ -82,12 +84,23 @@ erDiagram
     }
     restaurants {
         int id PK
+        text kakao_place_id UK "카카오맵 장소 id"
         text name
+        text name_en "nullable"
         text category
         text address
+        double lat
+        double lng
+        text source "KAKAO, SEED"
     }
-    restaurant_restriction_items {
+    restaurant_reports {
         int restaurant_id PK, FK
+        bigint user_id PK, FK
+        timestamptz updated_at
+    }
+    restaurant_report_items {
+        int restaurant_id PK, FK
+        bigint user_id PK, FK
         text item_code PK, FK
     }
 ```
@@ -131,10 +144,14 @@ erDiagram
 
 | 테이블 | 컬럼 | 설명 |
 | --- | --- | --- |
-| `restaurants` | `id` PK, `name`, `category`, `address` | 팀이 조사한 학교 주변 음식점(`R__20_seed_restaurants.sql`) |
-| `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
+| `restaurants` | `id` PK, `kakao_place_id` UNIQUE, `name`, `name_en`(null 가능), `category`, `address`, `lat`, `lng`, `source` | 카카오맵에서 가져온 음식점. `source`는 카카오 호출로 쌓인 것(`KAKAO`)과 시연용 시드(`SEED`)를 구분한다 |
+| `restaurant_reports` | (`restaurant_id`, `user_id`) PK, `updated_at` | 사용자 한 명이 한 음식점에 남긴 보고 한 묶음. `report_count`는 이 표의 행 수다 |
+| `restaurant_report_items` | (`restaurant_id`, `user_id`, `item_code`) PK | 그 보고에서 "이 가게에서 걸린다"고 고른 제한 항목 |
 
-- 추천은 첫 화면의 "Other restaurants"와, 판정 결과에 '안전'이 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
+- **`restaurant_restriction_items`는 없앤다.** 그 표는 "음식점이 충족하는(쓰지 않는) 항목"이라는 반대 의미였고, 새 방향은 "걸리는 항목"을 사용자 보고로 쌓는다.
+- 핑 상태(`UNKNOWN`·`SAFE`·`CAUTION`)는 **저장하지 않는다.** 사용자가 켠 제한 항목과 보고를 맞대어 요청마다 계산한다([api.md](api.md) OPT-2 핑 상태). 사람마다 다른 값이라 저장할 수가 없다.
+- 카카오맵은 식단 제한 정보를 주지 않는다. 그래서 `restaurants`는 기본 정보만 담고, 제한 정보는 보고 두 표에만 쌓인다.
+- `kakao_place_id`를 자연키로 두어 같은 가게를 여러 번 가져와도 한 행으로 쌓인다(upsert).
 
 ## 시드 데이터 최소 요구
 
