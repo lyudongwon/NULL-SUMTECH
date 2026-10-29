@@ -1,7 +1,7 @@
 # API 명세
 
-> 2026-10-29 노션 [기능 명세서 > 기능리스트](https://app.notion.com/p/408c4b3d7d9e80c59094ec4995ab33fb)를 옮긴 뒤 문서 통일 때 고쳤다. **이 파일이 API의 원본이다.** 노션 통합 페이지는 이 파일을 옮겨 적은 것이고, 바꿀 때는 이 파일을 먼저 고친다.
-> 기능 ID는 [problem.yaml](problem.yaml)의 `features`를 따른다. 통일하면서 정한 값은 [decisions.md](decisions.md)에 있다.
+> 노션 [기능 명세서 > 기능리스트](https://app.notion.com/p/408c4b3d7d9e80c59094ec4995ab33fb)를 2026-10-29에 옮겨 와 문서 통일 때 손봤다. API는 이 파일이 원본이라, 바꿀 일이 생기면 여기부터 고치고 노션 통합 페이지는 따라 옮긴다.
+> 기능 ID는 [problem.yaml](problem.yaml)의 `features`를 따르고, 통일하며 정한 값은 [decisions.md](decisions.md)에 있다.
 
 ## 공통
 
@@ -274,7 +274,7 @@
 ### 사진 본문 저장 (②가 정함, 2026-10-29)
 
 - 형식은 브라우저가 보낸 Content-Type이 아니라 파일 앞부분(JPEG·PNG·WEBP 서명)으로 판단하고, `width`·`height`도 서버가 사진에서 읽는다.
-- 메타데이터는 `images` 표에, 본문은 **잠정으로 백엔드 메모리**(최대 200장, 30분)에 둔다. 판독(REQ-2)은 업로드 직후 한 번만 하므로 오래 둘 필요가 없다. 서버를 다시 켜면 본문이 사라져 그 뒤의 판독 요청은 404다.
+- 메타데이터는 `images` 표에 두고, 본문은 우선 백엔드 메모리(최대 200장, 30분)에 둔다. 판독(REQ-2)은 업로드 직후 한 번만 하므로 오래 둘 필요가 없다. 서버를 다시 켜면 본문이 사라져 그 뒤의 판독 요청은 404다.
 - 목표는 Postgres `bytea`다. ①에게 `images.data bytea` 컬럼(V 마이그레이션)을 요청했고, 추가되면 DB에 저장하도록 바꾼다. S3는 쓰지 않는다(키·버킷 설정이 늘고, 보관 기간이 짧다).
 
 ---
@@ -308,7 +308,7 @@
 - 읽지 못한 항목은 추측하지 않고 `name: null`로 비워 둔다
 - `name`은 메뉴판에 적힌 한국어 원문이다(REQ-8)
 - 클라이언트는 `name`이 null이 아닌 항목만 모아 REQ-3에 보낸다
-- **모든 `name`이 null이거나 `menus`가 비었으면** 판정 화면 대신 메뉴 이름 입력칸(OPT-1)을 보여 준다
+- 모든 `name`이 null이거나 `menus`가 비었으면 판정 화면 대신 메뉴 이름 입력칸(OPT-1)을 보여 준다
 
 ### 예외 상황
 
@@ -379,7 +379,7 @@
 
 - `reason`: 근거 한 줄, 영어(배지 옆에 보인다)
 - `menu_name`·`ingredients[].name`은 한국어 원문이다(REQ-8)
-- `matched_restrictions`: **확인된** 재료로 걸린 제한 항목(`BLOCKED`의 근거)
+- `matched_restrictions`: 확인된(`CONFIRMED`) 재료 때문에 걸린 제한 항목. `BLOCKED`의 근거다
 - `rule`: 적용된 판정 규칙(REQ-6)
 - `ingredients[].restrictions`: 그 재료가 연결된 제한 항목 코드 전부(사용자와 상관없이 재료에 정해진 값). 어느 항목에도 걸리지 않으면 `[]`
 - 예시는 할랄(`pork`·`alcohol`) 사용자 기준이다
@@ -457,12 +457,12 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 
 ### 찾는 순서
 
-1. **음식 DB**(`foods`): 등록된 재료는 `CONFIRMED`, `basis: DB`. 시드에 함께 넣은 숨은 재료(육수, 젓갈, 맛술 등)는 `INFERRED`, `basis: COOKING_METHOD`
-2. **이름 속 재료 단어·조리법**: 이름의 재료 단어(예: "돈" → 돼지고기)는 `NAME_KEYWORD`, 조리법(예: "튀김" → 밀가루·계란)은 `COOKING_METHOD`. 모두 `INFERRED`
-3. **만개의 레시피 검색**(1에 없을 때): 찾은 재료는 `INFERRED`, `basis: RECIPE_SEARCH`
-4. **AI 추정**(3이 실패하거나 결과가 없을 때): `INFERRED`, `basis: AI_ESTIMATE`, `confidence`는 최대 `MEDIUM`
+1. 음식 DB(`foods`): 등록된 재료는 `CONFIRMED`, `basis: DB`. 시드에 함께 넣은 숨은 재료(육수, 젓갈, 맛술 등)는 `INFERRED`, `basis: COOKING_METHOD`
+2. 이름 속 재료 단어·조리법: 이름의 재료 단어(예: "돈" → 돼지고기)는 `NAME_KEYWORD`, 조리법(예: "튀김" → 밀가루·계란)은 `COOKING_METHOD`. 둘 다 `INFERRED`
+3. 만개의 레시피 검색(1에 없을 때): 찾은 재료는 `INFERRED`, `basis: RECIPE_SEARCH`
+4. AI 추정(3이 실패했거나 결과가 없을 때): `INFERRED`, `basis: AI_ESTIMATE`, `confidence`는 최대 `MEDIUM`
 
-3·4에서 찾은 재료는 `foods`(`source`가 `RECIPE_SEARCH` 또는 `AI_ESTIMATE`)에 저장해 다음 요청부터 1에서 찾는다.
+3·4에서 찾은 재료는 `foods`(`source`가 `RECIPE_SEARCH` 또는 `AI_ESTIMATE`)에 저장해 두고, 다음 요청부터는 1에서 바로 찾는다.
 
 ### 요청
 
@@ -556,7 +556,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 ## 열린 질문
 
-1. **`user_id` 보호.** 로그인이 없어 `user_id`만 알면 남의 식단 제한을 조회·수정할 수 있다. 해커톤 범위에서는 그대로 간다([decisions.md](decisions.md)).
-2. **AI 호출 남용.** 로그인이 없고 팀 AI 예산이 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 2.
-3. **메뉴 이름 표기 차이.** 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)를 맞추는 방법은 ③이 정한다([erd.md](erd.md) 열린 질문 5).
-4. **사진 본문 저장 위치.** `images`에는 메타데이터만 있다. ②가 정해 ①에게 표 변경을 요청한다([erd.md](erd.md) 열린 질문 1).
+1. `user_id` 보호: 로그인이 없어서 `user_id`만 알면 남의 식단 제한을 보고 고칠 수 있다. 해커톤에서는 이대로 간다([decisions.md](decisions.md)).
+2. AI 호출 남용: 로그인이 없는데 팀 AI 예산은 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 2에서 다룬다.
+3. 메뉴 이름 표기 차이: 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)를 어떻게 맞출지는 ③이 정한다([erd.md](erd.md) 열린 질문 5).
+4. 사진 본문 저장 위치: `images`에는 메타데이터만 있다. ②가 방식을 정해 ①에게 표 변경을 요청한다([erd.md](erd.md) 열린 질문 1).

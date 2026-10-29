@@ -121,5 +121,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: 고치기 전후 README의 백틱 토큰·`.md` 링크·URL 목록을 뽑아 비교해 똑같음을 확인, 새 링크 `docs/problem.yaml`은 실제 파일
 - 3회차(2026-10-30) `docs/decisions.md`: 머리말을 읽기 쉽게 고치고, 굵은 글씨 2곳을 빼고, 이유 칸의 딱딱한 문장 8곳을 자연스럽게 고침. 결정 21행·날짜·반영 상태·결정 내용은 그대로
   - 검사: 고치기 전후 백틱 토큰·`.md` 링크·REQ/OPT/R 번호 목록을 뽑아 `diff`로 비교해 똑같음, 결정 행 수 21 그대로, `git diff`로 바뀐 9줄을 다시 읽음
-- 남은 문서(순서대로): docs/api.md → docs/scenarios.yaml(steps·expected 제외) · erd.md · tech-stack.md · folder-structure.md
-- 다음 행동: docs/api.md 다듬기(경로·필드·열거형·영어 화면 문구는 그대로, 설명 문장만)
+- 4회차(2026-10-30) `docs/api.md`: 머리말을 짧게 고치고, 굵은 글씨 10곳(판독·추론 순서·열린 질문 제목 등)을 빼고, 설명 문장 몇 곳의 말투를 다듬음. 경로·필드·열거형·예시 JSON·영어 화면 문구·에러 `detail`·판정 규칙 표는 그대로
+  - 검사: 고치기 전후 백틱 토큰·링크·영어 따옴표 문구·REQ/OPT/R 번호 목록을 뽑아 `diff`로 비교함. 다른 점은 `matched_restrictions` 설명에 `CONFIRMED` 하나를 넣은 것뿐(뜻은 그대로). `git diff`로 바뀐 14줄을 다시 읽음
+- 남은 문서(순서대로): docs/scenarios.yaml(steps·expected 제외) · erd.md · tech-stack.md · folder-structure.md
+- 다음 행동: docs/scenarios.yaml의 설명 문장만 다듬기(steps·expected·화면 문구는 그대로, `yaml.safe_load` 검사)
