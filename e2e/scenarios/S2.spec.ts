@@ -22,6 +22,7 @@ test("음식 사진 한 장을 올리면 요리명 1개와 판정, 근거 상세
   await expect(cards).toHaveCount(1, AI_WAIT);
   const card = cards.filter({ hasText: "설렁탕" });
   await expect(card.getByText("Avoid", { exact: true })).toBeVisible();
+  await expect(card.getByTestId("reason")).toContainText(/^Contains .+, which is not allowed for your .+ restriction\.$/);
 
   await card.getByRole("button", { name: /설렁탕/ }).click();
   const beefRow = card.getByRole("row").filter({ hasText: "소고기" }).first();
