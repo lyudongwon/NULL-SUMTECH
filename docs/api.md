@@ -113,6 +113,7 @@
 | 음식점 추천(OPT-2) | 식단 제한을 저장하기 전 | Please set your diet first. |
 | 음식점 추천(OPT-2) | 음식점이 피하는 항목(뒤에 항목 이름이 붙음) | Free of |
 | 음식점 추천(OPT-2) | 서버가 이유를 주지 않은 오류 | Couldn't load recommendations. |
+| 음식점 추천(OPT-2) | 시드가 예시 데이터라는 안내(목록 아래) | Sample list for now. We're still adding real restaurants near campus. |
 | 모든 화면 머리글 오른쪽 위·버튼(OPT-4, 가입·로그인 화면 제외) | 가입 · 로그인 · 로그아웃 | Sign up · Log in · Log out |
 | 가입·로그인 화면(OPT-4) | 입력칸 | Email · Password (8+ characters) |
 | 가입·로그인 화면(OPT-4) | 진행 중 · 서버가 이유를 주지 않은 오류 | Please wait… · Something went wrong. Please try again. |

@@ -79,6 +79,6 @@
 
 - 사용자 식별자 이름: `user_id`로 통일했다. 서버가 Auto Increment로 발급하고, 로그인 없이도 쓴다. 회원가입·로그인(OPT-4)은 선택이라 가입하면 같은 `user_id`가 계정에 묶인다(`decisions.md`).
 - 만개의 레시피 검색: 사이트 이용약관과 robots.txt를 확인한다. 막히면 AI 추정으로 넘어가므로 기능은 멈추지 않는다.
-- 음식점 시드: 학교 주변 음식점을 조사해 `R__20_seed_restaurants.sql`에 넣는다(①). 지금은 "(예시)" 가짜 데이터다.
+- 음식점 시드: 학교 주변 음식점을 조사해 `R__20_seed_restaurants.sql`에 넣는다(①). 지금은 예시 데이터이고, 추천 화면 아래 "Sample list for now. …" 안내로 알린다(이름에는 표시하지 않는다).
 - 배포 대상: [tech-stack.md](tech-stack.md) 열린 결정 1(화면 Vercel, 백엔드 AWS 컨테이너 후보)과 DB 호스트(Neon 또는 AWS RDS)를 정해야 ①이 배포를 진행한다.
 - 잠정값: `docker compose`의 `app`(Next.js), 기본 패키지 `com.nullteam.foodcheck`, Java·Spring Boot 버전([decisions.md](decisions.md)). 팀이 바꾸면 이 문서의 경로도 같이 고친다.
