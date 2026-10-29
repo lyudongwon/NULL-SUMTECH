@@ -15,7 +15,7 @@ export function DietSummary({ variant }: Props) {
   if (variant === "home") {
     const text =
       summary.status === "none"
-        ? "No diet set yet."
+        ? "No diet set yet. Tap Diet settings at the top to choose yours."
         : `Your diet: ${summary.presetName ? `${summary.presetName} (${summary.itemNames.join(", ")})` : summary.itemNames.join(", ")}`;
     return (
       <p className="flex items-center gap-2 rounded-[14px] bg-surface px-4 py-3 text-sm text-body">

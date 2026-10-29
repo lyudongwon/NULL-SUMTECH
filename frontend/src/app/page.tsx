@@ -3,10 +3,11 @@ import { PageHead } from "@/components/layout/PageHead";
 import { DietSummary } from "@/components/settings/DietSummary";
 import { Icon } from "@/components/ui/icons";
 import { LevelBadge } from "@/components/ui/LevelBadge";
-import { btnOutline, btnPrimary, card, sectionLabel } from "@/components/ui/styles";
+import { btnPrimary, card, sectionLabel } from "@/components/ui/styles";
 import type { Level } from "@/types/judgment";
 
 // 첫 화면: 로그인 없이 서비스 이름과 하는 일이 보인다(progress.md 5단계). 가입·로그인(OPT-4)은 머리글 오른쪽 위에 있다.
+// "Diet settings"는 머리글 메뉴에만 둔다(한 화면에 같은 이름의 링크를 두지 않는다, docs/api.md > 화면 문구).
 const LEGEND: [Level, string][] = [
   ["SAFE", "No restricted ingredient, and hidden ones look unlikely."],
   ["CHECK", "Might hide one, like broth or sauce. Ask before you eat."],
@@ -39,7 +40,7 @@ export default function Home() {
           </span>
         </Link>
         <aside className="flex min-w-0 flex-col gap-4 md:flex-1">
-          <section className={`${card} flex flex-1 flex-col gap-[18px] p-6`}>
+          <section className={`${card} flex flex-col gap-[18px] p-6`}>
             <h2 className={sectionLabel}>What you&apos;ll get for each dish</h2>
             {LEGEND.map(([level, text]) => (
               <div key={level} className="flex flex-col items-start gap-1.5">
@@ -47,9 +48,6 @@ export default function Home() {
                 <span className="text-sm leading-normal text-body">{text}</span>
               </div>
             ))}
-            <Link href="/settings" className={`${btnOutline} mt-auto`}>
-              Diet settings
-            </Link>
           </section>
         </aside>
       </div>

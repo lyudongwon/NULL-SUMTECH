@@ -65,13 +65,12 @@
 | --- | --- | --- |
 | 첫 화면 | 서비스 이름 | Can I Eat? |
 | 첫 화면 | 하는 일 | Snap a cafeteria menu or dish, and see if it fits your diet: Safe, Check first, or Avoid. |
-| 첫 화면 | 지금 식단(뒤에 프리셋 이름과 켠 항목이 붙음) · 저장 전 | Your diet: · No diet set yet. |
-| 첫 화면·버튼 | 식단 제한 설정 | Diet settings |
+| 첫 화면 | 지금 식단(뒤에 프리셋 이름과 켠 항목이 붙음) · 저장 전 | Your diet: · No diet set yet. Tap Diet settings at the top to choose yours. |
 | 첫 화면·버튼 | 사진 올리기 | Upload photo |
 | 첫 화면 | 배지 설명 제목 | What you'll get for each dish |
 | 첫 화면 | 배지 설명(Safe · Check first · Avoid 순서) | No restricted ingredient, and hidden ones look unlikely. · Might hide one, like broth or sauce. Ask before you eat. · Contains something your diet excludes. |
 | 첫 화면 | 사진 올리기 카드 보조 문구 | Take a photo · Choose from album |
-| 모든 화면 머리글·링크 | 머리글 메뉴(처음으로 · 식단 제한 설정 · 다른 식당 보기) | Home · Restrictions · Other restaurants |
+| 모든 화면 머리글·링크 | 머리글 메뉴(처음으로 · 식단 제한 설정 · 다른 식당 보기) | Home · Diet settings · Other restaurants |
 | 설정 화면 | 프리셋 | Halal · Vegetarian · Vegan |
 | 설정 화면 | 토글 | Meat · Pork · Beef · Seafood · Egg · Dairy · Peanut · Alcohol |
 | 설정 화면·버튼 | 저장 | Save |
@@ -110,7 +109,7 @@
 | 모든 화면·링크 | 처음으로 | Home |
 | 음식점 추천(OPT-2) | 결과 없음 | No restaurants match your diet yet. |
 | 음식점 추천(OPT-2) | 안내 | Restaurants that fit your diet, for when the cafeteria doesn't. |
-| 음식점 추천(OPT-2) | 식단 제한을 저장하기 전 | Please set your diet first. |
+| 음식점 추천(OPT-2) | 식단 제한을 저장하기 전 · 설정 화면으로 가는 버튼 | Please set your diet first. · Set my diet |
 | 음식점 추천(OPT-2) | 음식점이 피하는 항목(뒤에 항목 이름이 붙음) | Free of |
 | 음식점 추천(OPT-2) | 서버가 이유를 주지 않은 오류 | Couldn't load recommendations. |
 | 음식점 추천(OPT-2) | 시드가 예시 데이터라는 안내(목록 아래) | Sample list for now. We're still adding real restaurants near campus. |
@@ -140,7 +139,7 @@
 
 - 메뉴·재료 이름은 메뉴판에 적힌 한국어 원문 그대로 보인다(예: `비빔밥`, `고추장`). 학식당의 한국어 메뉴판과 대조하고, 직원에게 그대로 보여 줄 수 있어야 하기 때문이다. 판정 근거 문장은 영어이고, 그 안에 재료 이름이 한국어 원문으로 들어간다(예: `May contain 고추장 속 다진 돼지고기. Check for Pork before eating.`).
 - 한국어 화면은 만들지 않는다.
-- 머리글 메뉴는 "Home · Restrictions · Other restaurants"이고, "Upload photo"·"Diet settings" 링크는 첫 화면 본문에만 둔다. E2E가 이름으로 링크를 찾으므로 한 화면에 같은 이름의 링크를 두지 않는다(그래서 첫 화면 본문에는 "Other restaurants"가 없다).
+- 머리글 메뉴는 "Home · Diet settings · Other restaurants"이고, "Upload photo" 링크는 첫 화면 본문에만 둔다. "Diet settings"는 머리글에만 두어 휴대폰 첫 화면에서도 스크롤 없이 보이게 하고, 설정 화면 제목과 같은 이름으로 부른다. E2E가 이름으로 링크를 찾으므로(이름 일부만 같아도 걸린다) 한 화면에 같은 이름의 링크를 두지 않는다(그래서 첫 화면 본문에는 "Other restaurants"·"Diet settings"가 없다).
 - 식단 제한을 저장하면 첫 화면이 열릴 때까지 화면 전체를 막는다. 저장 중에 머리글 메뉴로 다른 화면에 가면 저장 전 설정으로 판정·추천을 받기 때문이다.
 
 ---

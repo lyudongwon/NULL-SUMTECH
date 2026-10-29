@@ -6,13 +6,14 @@ import { AccountBar } from "@/components/auth/AccountBar";
 import { Icon } from "@/components/ui/icons";
 
 // 링크 이름은 docs/api.md > 화면 문구(머리글 메뉴)를 따른다. E2E가 이름으로 찾으므로 같은 화면에
-// 같은 이름의 링크를 두지 않는다("Upload photo"·"Diet settings"는 첫 화면 본문에 있다).
+// 같은 이름의 링크를 두지 않는다("Upload photo"는 첫 화면 본문에 있다). "Diet settings"는 이 머리글에만 두어
+// 휴대폰 첫 화면에서도 스크롤 없이 보이고, 설정 화면 제목과 같은 이름으로 불린다.
 // 가입·로그인 화면에는 양식 안에 같은 이름의 버튼·링크가 있어 머리글의 계정 버튼을 숨긴다.
 const AUTH_PAGES = ["/login", "/signup"];
 
 const NAV = [
   { href: "/", label: "Home" },
-  { href: "/settings", label: "Restrictions" },
+  { href: "/settings", label: "Diet settings" },
   { href: "/restaurants", label: "Other restaurants" },
 ];
 

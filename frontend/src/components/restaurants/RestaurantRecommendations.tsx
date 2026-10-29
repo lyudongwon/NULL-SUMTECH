@@ -35,8 +35,9 @@ export function RestaurantRecommendations() {
     return (
       <div className={`${card} flex flex-col items-start gap-4 p-6`}>
         <p className="text-[15px]">Please set your diet first.</p>
+        {/* 머리글의 "Diet settings"와 이름이 겹치지 않게 다른 문구를 쓴다(docs/api.md > 화면 문구). */}
         <Link href="/settings" className={btnPrimary}>
-          Diet settings
+          Set my diet
         </Link>
       </div>
     );

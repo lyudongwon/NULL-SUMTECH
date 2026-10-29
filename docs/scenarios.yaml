@@ -53,6 +53,8 @@ scenarios:
       - 첫 화면에서 "Diet settings"를 누른다
       - 토글 목록에서 "Meat"를 켠다
       - '"Save"를 누른다'
+      - 첫 화면에서 "Diet settings"를 다시 눌러 "Meat" 토글이 켜져 있는지 본다
+      - '"Home"을 누른다'
       - '"Upload photo"를 누르고 설렁탕 음식 사진(e2e/fixtures/seolleongtang.jpg)을 고른다'
     expected: '"Diet settings" 화면에서 "Meat" 토글이 켜져 있다. 판정 화면에 "설렁탕"과 "Avoid" 배지, "소고기"가 들어 있어 Meat 제한에 걸린다는 영어 근거가 보인다.'
 
