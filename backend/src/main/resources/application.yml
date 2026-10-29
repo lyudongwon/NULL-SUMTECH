@@ -29,3 +29,6 @@ server:
 
 app:
   release-id: ${RELEASE_ID:}
+  auth:
+    # HTTPS로 배포할 때 true. 쿠키가 http로는 가지 않게 한다. 로컬 http(localhost)에서는 false여야 로그인이 된다.
+    cookie-secure: ${AUTH_COOKIE_SECURE:false}
