@@ -4,6 +4,7 @@
 
 | 날짜 | 결정 | 이유 | 반영 상태 |
 | --- | --- | --- | --- |
+| 2026-10-30 | README에 구현 설계 절(핵심 흐름, 저장하는 정보, 실패할 때, 이번에 하지 않는 것, 아직 정하지 않은 것·확인하지 못한 가정)을 더했다. 새로 정한 것은 없고 problem.yaml·api.md·decisions.md·progress.md에 흩어진 결정을 모았다. 테스트 표의 흐름 수를 8개로 고쳤다 | 스타터 키트 2-C가 README에 구현 설계 절을 요구하는데 없었다 | 반영: `README.md > 구현 설계` |
 | 2026-10-30 | 측정 원자료(확인 시간 회차별 값, E1·E2 포기 횟수와 이유)를 `docs/measurements.md`에서 `problem.yaml > canvas > impact` 주석으로 옮기고 그 파일과 `CLAUDE.md` 문서 지도 줄을 지웠다. 값은 그대로다 | 새 문서를 늘리지 않고, 평가자가 숫자와 출처를 한곳에서 보게 한다 | 반영: `problem.yaml > canvas > impact` 주석, `CLAUDE.md` |
 | 2026-10-30 | `api.md > 화면 문구` 표에 설정·판정·근거 상세·음식점 추천 화면에서 빠져 있던 영어 문구를 더했다(설정 안내·묶음 제목·저장 중·오류, 판정 화면 Retake·오류, 근거 상세 열 이름·재료 출처·규칙 설명, 음식점 안내·Free of·오류, OK, Loading…). 모두 화면 코드에 있는 그대로다 | 카메라 문구를 확인하며 화면 코드 전체를 표와 대조했더니 다른 화면 문구도 빠져 있었다. 표를 화면 문구의 원본으로 맞춘다 | 반영: `api.md > 화면 문구` |
 | 2026-10-30 | `api.md > 화면 문구` 표에 사진 올리기·카메라 화면 문구 10줄을 더했다(Take a photo, Choose from album, Take photo, Retake, Use photo, Cancel, Opening camera…, 진행 상태·오류 문구, 화면 읽기 이름 등). 문구는 PR #11 화면 코드(`PhotoPicker`·`CameraCapture`·`ScanFlow`·`useScan`)에 있는 그대로다 | PR #11이 화면에 영어 문구를 더했는데 표는 고치지 않아, "문구를 바꾸면 이 표를 같은 커밋에서 고친다"는 규칙이 어긋났다 | 반영: `api.md > 화면 문구` |
