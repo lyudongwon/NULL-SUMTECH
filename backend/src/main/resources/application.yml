@@ -23,6 +23,13 @@ spring:
       # base-url은 /v1까지 적는다. SDK가 뒤에 chat/completions만 붙여서, /v1이 없으면 404가 난다. 텍스트 호출과 이미지(비전) 호출 모두 이 주소로 동작한다(흐름 E2E S1·S2의 사진 판독).
       api-key: ${AI_GATEWAY_API_KEY:unset}
       base-url: ${AI_GATEWAY_BASE_URL:https://ai-gateway.vercel.sh/v1}
+    retry:
+      # 기본값(10번, 2초부터 5배씩 늘림)이면 AI 오류 한 번에 몇 분을 기다려 판정·판독 화면이 멈춘다.
+      # 한 번만 다시 시도하고, 그래도 안 되면 화면이 직접 입력(OPT-1)·다시 시도로 넘어가게 한다.
+      max-attempts: 2
+      backoff:
+        initial-interval: 1s
+        max-interval: 2s
 
 server:
   port: ${PORT:8080}
