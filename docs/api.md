@@ -7,7 +7,7 @@
 
 | 항목 | 값 |
 | --- | --- |
-| 기본 경로 | `/api/v1` (OPT-2 예시 `GET /api/v1/restaurants/recommendations?...`에만 나온다. 다른 항목의 EndPoint에는 접두사가 없어 팀 확인이 필요하다) |
+| 기본 경로 | `/api/v1` (잠정 결정, [decisions.md](decisions.md)). 아래 경로는 모두 이 접두사를 붙인다. 브라우저는 같은 출처로 부르고 Next.js가 백엔드로 넘긴다 |
 | 인증 | 없다. 로그인 없이 쓰고(`docs/scenarios.yaml` `login: false`), 사용자는 클라이언트가 보관한 `user_id`(UUID)로 구분한다 |
 | 요청 형식 | `application/json`. 사진 업로드(REQ-1)만 `multipart/form-data` |
 | 에러 본문 | 모든 에러는 `{ "detail": "<사람이 읽는 한국어 문장>" }` |
@@ -36,7 +36,7 @@
 | `image_type` | REQ-2 | `MENU_BOARD`(메뉴판, 메뉴 전부) · `FOOD`(음식 사진, `menus` 1개) |
 | `basis` | OPT-4 | `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정) |
 | `source` | REQ-1 | `FILE` · `DRAG_DROP` · `CAMERA` |
-| `preset` | REQ-4 | `HALAL` · `VEGAN` (REQ-4 프리셋 목록 조회로 받아온다) |
+| `preset` | REQ-4 | `HALAL`(할랄) · `VEGETARIAN`(채식) · `VEGAN`(비건) (REQ-4 프리셋 목록 조회로 받아온다. `VEGETARIAN`은 `scenarios.yaml`의 "채식"을 위해 추가) |
 
 ---
 
@@ -573,7 +573,7 @@ GET /api/v1/restaurants/recommendations?user_id=3f9b...&limit=5
 
 노션 기능리스트와 `docs/problem.yaml`을 옮기면서 어긋나거나 비어 있던 것들이다. 임의로 맞추지 않았으니 팀에 확인하고 고친다.
 
-1. **기본 경로.** `/api/v1`은 OPT-2 예시에만 나온다. 나머지 항목의 EndPoint에는 접두사가 없다. 모든 경로에 `/api/v1`을 붙이는가?
+1. ~~**기본 경로.**~~ 잠정으로 모든 경로에 `/api/v1`을 붙이기로 했다([decisions.md](decisions.md)).
 2. **경로 체계가 `problem.yaml`과 다르다.** `problem.yaml`은 F1에 `POST /api/scan`, F6에 `POST /api/judge-names`로 적혀 있고, 노션은 `POST /images` + `POST /menus/recognize` + `POST /judgments`로 나뉘어 있다. 어느 쪽이 최신인가?
 3. **API가 없는 기능.** `problem.yaml`의 F6(프로필 전환), F7(판정 근거 상세), F10(고지 문구)에 해당하는 항목이 노션 기능리스트에 없다. F6은 REQ-3 재호출로, F7은 REQ-3 응답의 `ingredients`·`matched_restrictions`로 덮이는지 확인이 필요하다.
 4. **확신도 필드가 없다.** `problem.yaml`의 출력 스키마에는 `confidence(high|medium|low)`와 `hidden_ingredients`가 있는데, REQ-3·OPT-1 응답 예시에는 `level`·`reason`·`matched_restrictions`·`ingredients`만 있다. 성분별 확인/추정 구분(F4)도 응답에 없다.

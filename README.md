@@ -4,14 +4,15 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 저장소. 학식당 메뉴판·음식
 
 ## 문서
 
-문서 목록과 언제 읽는지는 [CLAUDE.md](CLAUDE.md)의 문서 지도를 본다.
+문서 목록과 언제 읽는지는 [CLAUDE.md](CLAUDE.md)의 문서 지도를 본다. 기술 스택은 [docs/tech-stack.md](docs/tech-stack.md), 폴더는 [docs/folder-structure.md](docs/folder-structure.md)다.
 
-## 기술 구성 (제안, 팀 확정 전)
+## 구성
 
-- Next.js 15 (App Router, TypeScript) + Tailwind CSS
-- PostgreSQL + Drizzle ORM. 마이그레이션은 `drizzle/`, 시드는 `lib/db/seed/`
-- 서버가 시작될 때 `instrumentation.ts`가 마이그레이션과 시드를 실행한다(여러 번 실행돼도 결과가 같다)
-- 테스트: Vitest(`npm test`), Playwright(`npm run e2e`)
+| 폴더 | 내용 | 포트 |
+| --- | --- | --- |
+| `frontend/` | Next.js 15 화면. `docker compose`의 `app`. `/api/v1/**`은 백엔드로 넘긴다 | 3000 |
+| `backend/` | Spring Boot 4.1 (Java 21) API. 시작할 때 Flyway가 표와 시드를 만든다 | 8080 (내부) |
+| `db` | PostgreSQL 16 | 내부 |
 
 ## 설치·실행
 
@@ -25,25 +26,30 @@ docker compose up --build
 
 ### 로컬 개발
 
-PostgreSQL을 따로 띄우고 `.env`에 `DATABASE_URL`을 넣은 뒤:
+PostgreSQL을 따로 띄운 뒤 백엔드와 화면을 각각 실행한다.
 
 ```bash
-npm install
-npm run dev
+cd backend && ./gradlew bootRun
 ```
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
+백엔드는 `SPRING_DATASOURCE_*`가 없으면 `localhost:5432/foodcheck`(사용자·비밀번호 `foodcheck`)에 붙는다. 화면은 `BACKEND_URL`이 없으면 `http://localhost:8080`으로 넘긴다.
 
 ### DB 표를 바꿀 때 (역할 ①)
 
-`lib/db/schema.ts`를 고친 뒤 마이그레이션 파일을 만들어 함께 커밋한다.
-
-```bash
-npm run db:generate
-```
+`backend/src/main/resources/db/migration/`에 다음 번호의 `V<번호>__설명.sql`을 추가한다. 이미 올라간 V 파일은 고치지 않는다. 시드는 `R__` 파일을 고친다.
 
 ## 환경변수
 
-| 이름 | 용도 | 설정 위치 |
-| --- | --- | --- |
-| `DATABASE_URL` | PostgreSQL 접속 주소 | 로컬 `.env`, 배포 환경변수, `docker-compose.yml` |
-| `RELEASE_ID` | `/__health`가 돌려주는 배포 commit | 배포 환경변수(CI에서 commit SHA), `docker-compose.yml` |
-| `AI_GATEWAY_API_KEY` | 서비스 AI 기능 호출(필요할 때만) | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
+| 이름 | 쓰는 곳 | 용도 | 설정 위치 |
+| --- | --- | --- | --- |
+| `BACKEND_URL` | 화면 | `/api/v1/**`을 넘길 백엔드 주소 | 배포 환경변수, `docker-compose.yml` |
+| `RELEASE_ID` | 화면·백엔드 | `/__health`가 돌려주는 배포 commit | 배포 환경변수(CI에서 commit SHA), `docker-compose.yml` |
+| `SPRING_DATASOURCE_URL` | 백엔드 | PostgreSQL 접속 주소(`jdbc:postgresql://...`) | 로컬 `.env`, 배포 환경변수, `docker-compose.yml` |
+| `SPRING_DATASOURCE_USERNAME` | 백엔드 | DB 사용자 | 같은 곳 |
+| `SPRING_DATASOURCE_PASSWORD` | 백엔드 | DB 비밀번호 | 같은 곳 |
+| `AI_GATEWAY_API_KEY` | 백엔드 | 서비스 AI 기능 호출(필요할 때만) | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
+| `AI_GATEWAY_BASE_URL` | 백엔드 | AI Gateway 주소(기본값 있음, 바꿀 때만) | 배포 환경변수 |

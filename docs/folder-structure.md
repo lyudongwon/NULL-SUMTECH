@@ -40,11 +40,17 @@ backend/src/main/java/<기본 패키지>/
 └── <Application>.java
 backend/src/main/resources/
 ├── application.yml
-└── db/migration/         Flyway (V1__설명.sql)
+└── db/migration/         Flyway
+    ├── V1__init.sql              표 변경(V 파일)은 역할 ①만 만든다
+    ├── R__10_seed_restrictions.sql   시드는 반복 마이그레이션(R__). 번호 순서로 실행된다
+    ├── R__20_seed_restaurants.sql
+    └── R__30_seed_foods.sql
 backend/src/test/java/<기본 패키지>/   main과 같은 패키지 구조 (JUnit 5)
 ```
 
-- **기본 패키지는 정해지지 않았다.** 팀 이름 `NULL`은 Java 예약어 `null`이라 패키지 이름으로 쓸 수 없다(예: `com.sumtech.null` 불가).
+- **기본 패키지는 잠정으로 `com.nullteam.foodcheck`다** (`TODO(확인)`). 팀 이름 `NULL`은 Java 예약어 `null`이라 패키지 이름으로 쓸 수 없다(예: `com.sumtech.null` 불가).
+- 공통 코드는 `global/`에 둔다: `global/exception`(에러 응답 `{ "detail" }`), `global/health`(`GET /__health`).
+- 시드(`R__` 파일)는 여러 번 실행돼도 결과가 같게 쓴다(`ON CONFLICT`). 내용을 고치면 Flyway가 다음 시작 때 다시 실행한다.
 - 도메인 폴더 이름은 [api.md](api.md)의 도메인 열과 같고, 옆 주석의 기능 번호는 [problem.yaml](problem.yaml)의 `features`(REQ·OPT)다.
 
 ### 규칙
@@ -76,14 +82,14 @@ frontend/src/
 
 | 항목 | 규칙 |
 | --- | --- |
-| API 호출 | `fetch`는 `services/`에서만 한다. 컴포넌트·페이지가 직접 부르지 않는다 |
+| API 호출 | `fetch`는 `services/`에서만 한다. 컴포넌트·페이지가 직접 부르지 않는다. 주소는 같은 출처의 `/api/v1/...`이고, `app/api/v1/[...path]/route.ts`가 백엔드로 넘긴다 |
 | 이미지 축소 | OPT-3은 백엔드 API가 아니라 `lib/`의 순수 함수로 두고, 업로드 직전에 `hooks/`에서 부른다 |
 | 타입 | `types/`는 [api.md](api.md) 계약을 따른다. springdoc으로 타입을 생성하기로 하면 생성 결과를 둔다(`tech-stack.md` `미정`) |
 | 고지 문구 | REQ-7은 모든 화면 하단에 보이므로 `app/layout`에 둔다 |
 
 ## 열린 질문
 
-1. 백엔드 기본 패키지 이름.
-2. `global/`을 쓸지, 공통 코드를 `common/`처럼 다른 이름으로 둘지.
+1. 백엔드 기본 패키지 이름. 잠정 `com.nullteam.foodcheck`.
+2. `global/`을 쓸지, 공통 코드를 `common/`처럼 다른 이름으로 둘지. 뼈대는 `global/`로 만들었다.
 3. 프런트엔드 레이어 이름과 개수(위 6개는 제안). 기능별 폴더(`features/`)를 섞을지.
-4. `backend/`·`frontend/` 이름과, `app` 서비스를 어느 쪽으로 두는지([tech-stack.md](tech-stack.md) 열린 결정 1)에 따른 Dockerfile 위치.
+4. ~~Dockerfile 위치~~ 잠정: `backend/Dockerfile`, `frontend/Dockerfile`, 루트 `docker-compose.yml`. `app`은 Next.js다([tech-stack.md](tech-stack.md) 열린 결정 1).
