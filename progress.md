@@ -264,6 +264,12 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 건드리지 않은 것: "현재 상태"·3~6단계는 `docs/e2e-results`가, api.md·problem.yaml·decisions.md·erd.md는 새 팀 브랜치 `feat/opt2-nearby-restaurants`가 고치는 중이라 그대로 둠
   - 미확인(node·docker 없음): 심사의 "가장 먼저 고칠 것"(docker에서 흐름 E2E 8개 실행)은 이 PC에서 할 수 없다
   - 다음: `docs/e2e-results`·`feat/opt2-nearby-restaurants`가 main에 합쳐지면 "현재 상태"·OPT-2 문서와 코드가 맞는지 다시 본다
+- 8회차(2026-10-30) 지난 심사(71점)는 위반이 없고 "가장 먼저 고칠 것"(docker에서 흐름 E2E)은 이 PC에서 못 한다. `origin/main`은 새 커밋이 없었다. OPT-2 시드·문서는 `feat/opt2-nearby-restaurants`가 계약을 바꾸는 중이고, "현재 상태"·3~6단계는 `docs/e2e-results`가 고치는 중이라 건드리지 않았다
+  - 실패 처리 빈틈을 고침: `GlobalExceptionHandler`의 마지막 `Exception` 처리가 잘못된 메서드(예: `GET /api/v1/judgments`)와 JSON이 아닌 본문을 받아 500 "Something went wrong on the server."와 오류 로그를 냈다. 405 "This method is not allowed."·415 "This content type is not supported."로 돌려주게 함(공통 에러 형식 `detail` 유지)
+  - `JudgmentControllerTest`에 두 경우를 더함. 고치기 전에 두 테스트가 실패하는 것을 먼저 확인함
+  - 검사: `./gradlew --no-daemon test` 통과(91개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
+  - 문서: `docs/api.md` 공통 표에 405·415 줄은 아직 없다. api.md는 OPT-2 팀 브랜치가 고치는 중이라 그 브랜치가 합쳐진 뒤 더한다
+  - 다음: OPT-2 브랜치 병합 뒤 api.md 공통 에러에 405·415를 적고, OPT-2 새 계약과 코드가 맞는지 본다
 
 ### 팀 결정 필요
 
