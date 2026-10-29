@@ -29,7 +29,9 @@ import com.nullteam.foodcheck.global.exception.ApiException;
  * REQ-5 숨은 성분 추론. docs/api.md > REQ-5 > 찾는 순서를 그대로 따른다.
  *
  * <ol>
- * <li>음식 DB: 등록된 재료는 CONFIRMED + DB, 시드에 함께 넣은 숨은 재료는 INFERRED + COOKING_METHOD
+ * <li>음식 DB: 등록된 재료는 CONFIRMED + DB, 시드에 함께 넣은 숨은 재료는 INFERRED + COOKING_METHOD.
+ * 이름이 시드와 같지 않아도 끝이 시드 이름이면("돌솥비빔밥" → "비빔밥") 그 시드 재료를 쓰되,
+ * 변형 메뉴라 재료를 확신할 수 없으므로 모두 INFERRED로 낮춘다
  * <li>이름 속 재료 단어(NAME_KEYWORD)와 조리법(COOKING_METHOD): 모두 INFERRED
  * <li>만개의 레시피(1에 없을 때): INFERRED + RECIPE_SEARCH
  * <li>AI 추정(3이 실패하거나 결과가 없을 때): INFERRED + AI_ESTIMATE, confidence는 최대 MEDIUM
@@ -41,6 +43,8 @@ import com.nullteam.foodcheck.global.exception.ApiException;
 public class IngredientInferenceService {
 
 	private static final Logger log = LoggerFactory.getLogger(IngredientInferenceService.class);
+
+	private static final String SEED = "SEED";
 
 	private final FoodRepository foodRepository;
 	private final IngredientRepository ingredientRepository;
@@ -69,7 +73,7 @@ public class IngredientInferenceService {
 			return List.of();
 		}
 
-		List<IngredientView> fromDb = findFood(name).map(IngredientInferenceService::toViews).orElse(List.of());
+		List<IngredientView> fromDb = findInDb(name);
 		List<IngredientView> fromName = guessFromMenuName(name);
 
 		if (!fromDb.isEmpty()) {
@@ -91,9 +95,37 @@ public class IngredientInferenceService {
 		}
 	}
 
+	/**
+	 * 시드가 먼저다. 이름이 같은 시드 → 이름 끝이 같은 시드(변형 메뉴) → 전에 찾아 저장한 메뉴 순으로 본다.
+	 * 변형 메뉴를 저장된 메뉴보다 먼저 보는 것은, 시드에 이어지기 전에 레시피로 저장된 "돌솥비빔밥"이
+	 * 시드의 숨은 재료(고추장 속 돼지고기)를 가리지 않게 하려는 것이다.
+	 */
+	private List<IngredientView> findInDb(String name) {
+		Optional<Food> same = findFood(name);
+		if (same.isPresent() && SEED.equals(same.get().getSource())) {
+			return toViews(same.get());
+		}
+		List<Food> seeds = foodRepository.findBySource(SEED);
+		Optional<Food> base = MenuNameNormalizer.baseDishOf(name, seeds.stream().map(Food::getName).toList())
+				.flatMap(seedName -> seeds.stream().filter(f -> f.getName().equals(seedName)).findFirst());
+		if (base.isPresent()) {
+			return toVariantViews(base.get());
+		}
+		return same.map(IngredientInferenceService::toViews).orElse(List.of());
+	}
+
 	private Optional<Food> findFood(String name) {
 		return foodRepository.findByName(name)
 				.or(() -> foodRepository.findByCompactName(MenuNameNormalizer.compact(name)));
+	}
+
+	/** 변형 메뉴는 기본 요리 재료를 쓰되 모두 추정(INFERRED)으로, 확신도는 MEDIUM 이하로 둔다. */
+	private static List<IngredientView> toVariantViews(Food base) {
+		return toViews(base).stream()
+				.map(v -> new IngredientView(v.name(), Evidence.INFERRED,
+						v.confidence() == Confidence.HIGH ? Confidence.MEDIUM : v.confidence(), v.basis(),
+						v.restrictions()))
+				.toList();
 	}
 
 	private static List<IngredientView> toViews(Food food) {
