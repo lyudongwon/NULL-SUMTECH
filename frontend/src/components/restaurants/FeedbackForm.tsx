@@ -8,8 +8,8 @@ import type { RestrictionItem } from "@/types/restriction";
 type Props = {
   restaurantId: number;
   items: RestrictionItem[];
-  /** 제보를 보냈을 때. 보낸 항목의 이름을 알려 준다. */
-  onSent: (itemName: string) => void;
+  /** 제보를 보냈을 때. 보낸 항목을 알려 준다(되돌리기에 쓴다). */
+  onSent: (item: RestrictionItem) => void;
 };
 
 /** OPT-5 "Report an ingredient": 이 가게에서 쓰는 항목과 음식 이름·메모를 보낸다. 로그인한 사용자만 이 양식을 볼 수 있다. */
@@ -50,7 +50,7 @@ export function FeedbackForm({ restaurantId, items, onSent }: Props) {
         ...(note.trim() && { note: note.trim() }),
       });
       setOpen(false);
-      onSent(item.name);
+      onSent(item);
     } catch (error) {
       setMessage(error instanceof ApiError ? error.detail : "Couldn't send your report.");
       setBusy(false);

@@ -4,13 +4,27 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAccount } from "@/hooks/useAccount";
 import { useRecommendations } from "@/hooks/useRecommendations";
+import { ApiError } from "@/lib/apiClient";
+import { cancelFeedback } from "@/services/restaurantService";
 import { FeedbackForm } from "./FeedbackForm";
 
 export function RestaurantRecommendations() {
   const state = useRecommendations();
   const { account } = useAccount();
   // 제보를 보내면 그 가게가 목록에서 빠질 수 있어서, 감사 문구는 카드가 아니라 목록 위에 둔다.
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ text: string; undo?: { restaurantId: number; itemCode: string } } | null>(
+    null,
+  );
+
+  async function undo(restaurantId: number, itemCode: string) {
+    try {
+      await cancelFeedback(restaurantId, itemCode);
+      setNotice({ text: "Your report was removed." });
+      state.reload();
+    } catch (error) {
+      setNotice({ text: error instanceof ApiError ? error.detail : "Couldn't remove your report." });
+    }
+  }
 
   if (state.status === "loading") {
     return <p className="text-neutral-500">Loading…</p>;
@@ -43,9 +57,21 @@ export function RestaurantRecommendations() {
     );
   }
   const thanks = notice && (
-    <p role="status" className="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-      {notice}
-    </p>
+    <div
+      role="status"
+      className="flex items-center justify-between gap-3 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+    >
+      <span>{notice.text}</span>
+      {notice.undo && (
+        <button
+          type="button"
+          onClick={() => undo(notice.undo!.restaurantId, notice.undo!.itemCode)}
+          className="shrink-0 rounded-lg border border-emerald-700 px-3 py-1 font-semibold"
+        >
+          Undo
+        </button>
+      )}
+    </div>
   );
   if (state.restaurants.length === 0) {
     return (
@@ -73,8 +99,11 @@ export function RestaurantRecommendations() {
               <FeedbackForm
                 restaurantId={r.restaurant_id}
                 items={state.items}
-                onSent={(itemName) => {
-                  setNotice(`Thanks! We'll hide this restaurant from people who avoid ${itemName}.`);
+                onSent={(item) => {
+                  setNotice({
+                    text: `Thanks! We'll hide this restaurant from people who avoid ${item.name}.`,
+                    undo: { restaurantId: r.restaurant_id, itemCode: item.code },
+                  });
                   state.reload();
                 }}
               />

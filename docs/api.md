@@ -121,6 +121,8 @@
 | 음식점 추천(OPT-5) | 항목을 고르지 않고 보냄 | Please choose an ingredient. |
 | 음식점 추천(OPT-5) | 제보 성공(뒤에 항목 이름) | Thanks! We'll hide this restaurant from people who avoid |
 | 음식점 추천(OPT-5) | 서버가 이유를 주지 않은 오류 | Couldn't send your report. |
+| 음식점 추천(OPT-5) | 제보 되돌리기 · 되돌린 뒤 · 실패 | Undo · Your report was removed. · Couldn't remove your report. |
+| 설정 화면(OPT-4) | 가입한 계정의 번호인데 로그인이 풀림(앞뒤로 "Log in" 링크가 들어감) | This diet belongs to an account. Log in to see and change it. |
 | 팝업(REQ-3·OPT-1) | 메뉴 이름이 비었음 | Please enter a menu name. |
 | 팝업·버튼 | 팝업 닫기 | OK |
 | 설정·음식점 추천 화면 | 불러오는 중 | Loading… |

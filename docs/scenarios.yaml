@@ -138,4 +138,5 @@ scenarios:
       - 첫 화면에서 "Other restaurants"를 누르고 첫 번째 음식점 이름을 기억한다
       - 그 음식점의 "Report an ingredient"를 누르고 "Pork"를 골라 "Send"를 누른다
       - 첫 화면으로 돌아가 "Other restaurants"를 다시 누른다
-    expected: 제보를 보내면 "Thanks! We'll hide this restaurant from people who avoid Pork."가 보인다. 다시 연 목록에서 방금 제보한 음식점이 보이지 않는다. 로그인하지 않은 상태의 "Other restaurants"에는 "Log in to report an ingredient."가 보인다.
+      - 제보 안내 옆의 "Undo"를 누른다
+    expected: 제보를 보내면 "Thanks! We'll hide this restaurant from people who avoid Pork."가 보인다. 다시 연 목록에서 방금 제보한 음식점이 보이지 않는다. "Undo"를 누르면 "Your report was removed."가 보이고 그 음식점이 다시 보인다. 로그인하지 않은 상태의 "Other restaurants"에는 "Log in to report an ingredient."가 보인다.
