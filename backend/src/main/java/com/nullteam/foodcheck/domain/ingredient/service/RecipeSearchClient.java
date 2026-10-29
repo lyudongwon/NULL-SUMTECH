@@ -86,6 +86,11 @@ public class RecipeSearchClient {
 				return List.of();
 			}
 			String detailHtml = get(RECIPE_URL + link.group());
+			if (!titleMatches(detailHtml, menuName)) {
+				// 검색이 상관없는 레시피를 줄 때가 있다("ㅁㄴㅇㄹ" → 간장조림, "아메리카노" → 베이컨 요리).
+				log.info("만개의 레시피 결과가 메뉴와 맞지 않아 쓰지 않는다: menuName={}", menuName);
+				return List.of();
+			}
 			return parseIngredients(detailHtml);
 		} catch (Exception e) {
 			// 외부 사이트 문제로 판정을 멈추지 않는다. AI 추정으로 넘어간다.
@@ -106,6 +111,23 @@ public class RecipeSearchClient {
 			throw new IllegalStateException("HTTP " + response.statusCode() + " " + url);
 		}
 		return response.body();
+	}
+
+	/** 레시피 제목(JSON-LD name)에 메뉴 이름이 띄어쓰기 없이 들어 있어야 같은 음식으로 본다. */
+	boolean titleMatches(String detailHtml, String menuName) {
+		String menu = MenuNameNormalizer.compact(menuName);
+		Matcher scripts = LD_JSON.matcher(detailHtml);
+		while (scripts.find()) {
+			try {
+				String title = objectMapper.readTree(scripts.group(1).strip()).path("name").asText("");
+				if (!title.isEmpty()) {
+					return MenuNameNormalizer.compact(title).contains(menu);
+				}
+			} catch (Exception e) {
+				// 다음 JSON-LD를 본다.
+			}
+		}
+		return false;
 	}
 
 	List<String> parseIngredients(String detailHtml) {

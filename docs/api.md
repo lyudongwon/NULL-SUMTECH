@@ -488,7 +488,7 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 1. 음식 DB(`foods`): 등록된 재료는 `CONFIRMED`, `basis: DB`. 시드에 함께 넣은 숨은 재료(육수, 젓갈, 맛술 등)는 `INFERRED`, `basis: COOKING_METHOD`
    - 이름이 시드와 같지 않아도 이름 끝이 시드 이름이면(예: "돌솥비빔밥" → "비빔밥", "김치비빔국수" → "비빔국수") 그 시드의 재료를 쓴다. 변형 메뉴라 재료를 확신할 수 없으므로 모두 `INFERRED`로 바꾸고 `HIGH`는 `MEDIUM`으로 낮춘다. 그래서 변형 메뉴는 `BLOCKED`가 나오지 않는다. 시드 → 변형 시드 → 3·4에서 저장한 메뉴 순으로 본다(2026-10-30 실험 A1·A2에서 판독 이름이 흔들려 E1이 Safe로 나온 문제)
 2. 이름 속 재료 단어·조리법: 이름의 재료 단어(예: "돈" → 돼지고기)는 `NAME_KEYWORD`, 조리법(예: "튀김" → 밀가루·계란)은 `COOKING_METHOD`. 둘 다 `INFERRED`
-3. 만개의 레시피 검색(1에 없을 때): 찾은 재료는 `INFERRED`, `basis: RECIPE_SEARCH`
+3. 만개의 레시피 검색(1에 없을 때): 찾은 재료는 `INFERRED`, `basis: RECIPE_SEARCH`. 첫 레시피의 제목에 메뉴 이름(띄어쓰기 무시)이 들어 있을 때만 쓰고, 아니면 4로 넘어간다
 4. AI 추정(3이 실패했거나 결과가 없을 때): `INFERRED`, `basis: AI_ESTIMATE`, `confidence`는 최대 `MEDIUM`
 
 3·4에서 찾은 재료는 `foods`(`source`가 `RECIPE_SEARCH` 또는 `AI_ESTIMATE`)에 저장해 두고, 다음 요청부터는 1에서 바로 찾는다.
