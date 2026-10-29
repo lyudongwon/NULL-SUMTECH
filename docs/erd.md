@@ -113,7 +113,7 @@ erDiagram
 | --- | --- | --- |
 | `images` | `id` text PK(예: `img_8f3a2c`), `width`, `height`, `source`, `mime_type`, `uploaded_at` | 업로드한 사진의 메타데이터. 사진 본문을 어디에 두는지는 [열린 질문](#열린-질문) 1번 |
 
-- 사진은 OPT-3에서 이미 긴 변 1400px, JPEG 0.85로 줄어든 상태로 올라온다.
+- 긴 변이 1400px 이상인 사진은 OPT-3에서 긴 변 1400px, JPEG 0.85로 줄어든 상태로 올라오고, 1400px 미만인 사진은 원본 그대로 올라온다.
 
 ### 음식 DB와 숨은 성분 (REQ-2, REQ-3, REQ-5, REQ-6, OPT-1)
 
@@ -125,7 +125,7 @@ erDiagram
 | `ingredient_restriction_items` | (`ingredient_id`, `item_code`) PK | 재료가 걸리는 제한 항목 전부. 돼지고기는 `pork`와 `meat`, 소고기는 `beef`와 `meat`에 걸린다. 그래서 "고기"만 켜도, "돼지고기"만 켜도 걸린다 |
 
 - 판정은 AI가 아니라 코드가 한다. 사용자가 켠 `item_code`와 음식 재료가 걸리는 `item_code`를 맞대 보고 판정 규칙 R0~R4([api.md](api.md) REQ-3)를 적용한다. 적용된 규칙(REQ-6)은 응답에만 담고 저장하지 않는다.
-- OPT-1과 REQ-5: 수동 입력 메뉴는 `foods.name`으로 찾는다. 없으면 만개의 레시피(`RECIPE_SEARCH`), 그것도 실패하면 AI 추정(`AI_ESTIMATE`)으로 재료를 찾아 `foods`·`food_ingredients`에 저장하고 다음 요청부터 DB에서 찾는다. 이렇게 찾은 재료의 `evidence`는 항상 `INFERRED`다. 시드 재료는 `evidence = CONFIRMED`, `basis = DB`다.
+- OPT-1과 REQ-5: 수동 입력 메뉴도 사진 판정과 같이 [api.md](api.md) REQ-5의 찾는 순서를 따른다. `foods.name`으로 찾고, 없으면 이름 속 재료 단어·조리법으로 추정한 뒤 만개의 레시피(`RECIPE_SEARCH`), 그것도 실패하면 AI 추정(`AI_ESTIMATE`)으로 재료를 찾아 `foods`·`food_ingredients`에 저장하고 다음 요청부터 DB에서 찾는다. 이렇게 찾은 재료의 `evidence`는 항상 `INFERRED`다. 시드 재료는 `evidence = CONFIRMED`, `basis = DB`이고, 시드에 함께 넣은 숨은 재료(육수, 젓갈, 맛술 등)는 `evidence = INFERRED`, `basis = COOKING_METHOD`다.
 
 ### 음식점 추천 (OPT-2)
 
@@ -134,7 +134,7 @@ erDiagram
 | `restaurants` | `id` PK, `name`, `category`, `address` | 팀이 조사한 학교 주변 음식점(`R__20_seed_restaurants.sql`) |
 | `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
 
-- 추천은 판정 결과에 '안전'이 하나도 없을 때 "Other restaurants"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
+- 추천은 첫 화면의 "Other restaurants"와, 판정 결과에 '안전'이 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
 
 ## 시드 데이터 최소 요구
 
@@ -157,10 +157,10 @@ E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 
 
 ## 열린 질문
 
-1. 사진 본문을 어디에 두는가. 백엔드는 AWS 컨테이너라 재배포하면 컨테이너 디스크가 사라진다. Postgres `bytea`에 넣을지 S3 같은 외부 저장소를 쓸지, 업로드와 판독을 한 요청으로 합칠지 정해야 하고, 보관 기간도 정해야 한다.
+1. 사진 본문을 어디에 두는가. 백엔드는 AWS 컨테이너라 재배포하면 컨테이너 디스크가 사라진다. Postgres `bytea`에 넣을지 S3 같은 외부 저장소를 쓸지, 업로드와 판독을 한 요청으로 합칠지 정해야 하고, 보관 기간도 정해야 한다. 잠정: ②가 우선 백엔드 메모리(최대 200장, 30분)에 두고 `images.data bytea` 컬럼이 생기면 DB로 옮기기로 했다([api.md](api.md) REQ-1 사진 본문 저장). 컬럼은 아직 마이그레이션에 없다.
 2. ~~`user_id` 발급 방법.~~ 잠정: 클라이언트가 `POST /api/v1/users`로 번호를 받아 브라우저에 보관한다([api.md](api.md) REQ-4 사용자 번호 발급).
 3. 로그인. 회원가입과 로그인을 두지 않기로 했다(`decisions.md`).
-4. ~~프리셋·항목 코드 목록.~~ 문서 통일 때 확정했다([api.md](api.md) 열거형). 잠정으로 프리셋 `HALAL`(할랄)·`VEGETARIAN`(채식)·`VEGAN`(비건), 항목 `meat`(고기)·`pork`·`beef`·`seafood`·`egg`·`dairy`·`peanut`·`alcohol`을 시드(`R__10_seed_restrictions.sql`)에 넣었다. 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 쓴다. 전체 목록이 필요하다.
+4. ~~프리셋·항목 코드 목록.~~ 문서 통일 때 확정했다([api.md](api.md) 열거형). 잠정으로 프리셋 `HALAL`(할랄)·`VEGETARIAN`(채식)·`VEGAN`(비건), 항목 `meat`(고기)·`pork`·`beef`·`seafood`·`egg`·`dairy`·`peanut`·`alcohol`을 시드(`R__10_seed_restrictions.sql`)에 넣었다. 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 썼는데, 이 차이를 위 목록으로 정리했다.
 5. 메뉴 이름 매칭. 판독으로 읽은 이름이 DB의 이름과 정확히 같아야 하는가? 띄어쓰기, 표기 차이, 동의어(`돈까스`/`돈가스`)를 어떻게 처리할지 정해야 한다.
 6. ~~외부 검색 결과의 저장.~~ 저장한다. 만개의 레시피에도 없으면 AI 추정으로 판정한다([decisions.md](decisions.md)).
 7. 음식점 데이터. 추천 기준은 정했다(OPT-2). 몇 곳을 어디까지 조사할지는 팀이 정한다.

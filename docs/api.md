@@ -42,7 +42,7 @@
 | `source` (사진) | REQ-1 | `FILE` · `DRAG_DROP` · `CAMERA` |
 | `preset` | REQ-4 | `HALAL`(할랄: 돼지고기·술) · `VEGETARIAN`(채식: 고기·해산물 제외, 계란·유제품 허용) · `VEGAN`(비건: 고기·해산물·계란·유제품 제외) |
 | 제한 항목 `code` | REQ-4, REQ-3, OPT-2 | `meat`(고기) · `pork`(돼지고기) · `beef`(소고기) · `seafood`(해산물) · `egg`(계란) · `dairy`(우유·유제품) · `peanut`(땅콩) · `alcohol`(술) |
-| `evidence` | REQ-5, REQ-6 | `CONFIRMED`(확인: 음식 DB에 등록된 재료, 화면 "Confirmed") · `INFERRED`(추정, 화면 "Estimated") |
+| `evidence` | REQ-5, REQ-6 | `CONFIRMED`(확인: 음식 DB 시드에 확인된 재료로 등록된 재료, 화면 "Confirmed") · `INFERRED`(추정, 화면 "Estimated") |
 | `confidence` | REQ-5, REQ-6 | `HIGH`(높음, 화면 "High") · `MEDIUM`(보통, 화면 "Medium") · `LOW`(낮음, 화면 "Low") |
 | `basis` | REQ-5, REQ-6 | `DB`(음식 DB) · `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정) · `RECIPE_SEARCH`(만개의 레시피) · `AI_ESTIMATE`(AI 추정) |
 | `rule` | REQ-3, REQ-6 | 아래 [판정 규칙](#판정-규칙)의 `R0`~`R4` |
@@ -497,7 +497,7 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 
 ## OPT-2 음식점 추천
 
-`GET /api/v1/restaurants/recommendations` — 판정 결과에 '안전' 메뉴가 하나도 없을 때 "Other restaurants"에서 부른다. 사용자가 켠 제한 항목을 모두 피하는 음식점을 돌려준다.
+`GET /api/v1/restaurants/recommendations` — 첫 화면의 "Other restaurants"와, 판정 결과에 '안전' 메뉴가 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"에서 부른다. 사용자가 켠 제한 항목을 모두 피하는 음식점을 돌려준다.
 
 ### 요청
 
@@ -559,4 +559,4 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 1. `user_id` 보호: 로그인이 없어서 `user_id`만 알면 남의 식단 제한을 보고 고칠 수 있다. 해커톤에서는 이대로 간다([decisions.md](decisions.md)).
 2. AI 호출 남용: 로그인이 없는데 팀 AI 예산은 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 4에서 다룬다.
 3. 메뉴 이름 표기 차이: 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)를 어떻게 맞출지는 ③이 정한다([erd.md](erd.md) 열린 질문 5).
-4. 사진 본문 저장 위치: `images`에는 메타데이터만 있다. ②가 방식을 정해 ①에게 표 변경을 요청한다([erd.md](erd.md) 열린 질문 1).
+4. 사진 본문 저장 위치: `images`에는 메타데이터만 있다. ②가 잠정 방식을 정했고(위 REQ-1 > 사진 본문 저장), ①에게 요청한 `images.data bytea` 컬럼은 아직 없다([erd.md](erd.md) 열린 질문 1).

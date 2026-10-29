@@ -140,7 +140,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 10년차 서비스 기획자 관점의 검토. 이미 정해진 뜻을 분명히 쓰거나 문서끼리 어긋난 곳은 직접 고치고, 기능·한도·판정 규칙·API·화면 이름을 바꾸는 일은 아래 "팀 결정 필요"에 적는다.
 
 - [x] A. `problem.yaml > features`: 입력·입력 조건·완료 조건·예외 처리, 관찰 가능한 완료 조건, 구현 방식 섞임
-- [ ] B. 문서끼리 일치(problem.yaml ↔ scenarios.yaml ↔ api.md ↔ decisions.md ↔ erd.md)
+- [x] B. 문서끼리 일치(problem.yaml ↔ scenarios.yaml ↔ api.md ↔ decisions.md ↔ erd.md)
 - [ ] C. 판정 기준 R0~R4와 프로필이 비었을 때·판독 실패 시 동작
 - [ ] D. 해커톤 범위(MVP REQ / 부가 OPT 구분과 이유, 시연 흐름)
 - [ ] E. 문제 정의·성공 지표
@@ -153,6 +153,12 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 그대로 둔 것: 필드 구조(input·output·done). `input_condition`·`exceptions` 키를 새로 두면 대시보드 캔버스 표시가 바뀔 수 있어 `done` 안에 적었다
   - 검사: `yaml.safe_load` 통과(features ID 11개 그대로), `git diff --word-diff`로 `done` 7곳만 바뀐 것을 확인. scenarios.yaml·api.md는 손대지 않음
   - 다음: B
+- 2회차(2026-10-30) B 검토: 기능 ID·판정 단계 이름(Safe·Check first·Avoid)·열거형·한도(10MB, 45초, 1400px·0.85, 최대 30개)는 다섯 문서에서 같았다. 어긋난 곳은 problem.yaml·api.md 쪽 뜻에 맞춰 고쳤다.
+  - 고친 것: `api.md > OPT-2`·`erd.md > 음식점 추천`이 "Other restaurants"를 판정 화면에서만 부른다고 적어 첫 화면 버튼(problem.yaml OPT-2, decisions 2026-10-29)이 빠져 있던 것. `erd.md > 사진`이 모든 사진을 1400px로 줄인다고 적은 것(1400px 미만은 원본, OPT-3). `erd.md > 음식 DB`가 REQ-5 찾는 순서의 2단계(이름 속 재료 단어·조리법)와 시드의 숨은 재료(`INFERRED`·`COOKING_METHOD`)를 빠뜨린 것. `erd.md` 열린 질문 1·`api.md` 열린 질문 4가 ②의 잠정 저장 방식(메모리 → `bytea`)을 가리키지 않던 것. `erd.md` 열린 질문 4의 "전체 목록이 필요하다"(이미 확정). `api.md` 열거형 `CONFIRMED` 설명(DB에는 추정 재료도 저장되므로 "시드에 확인된 재료로 등록된 재료"로)
+  - `decisions.md`: 결정 문장은 기록이라 그대로 두고, 뒤 결정으로 바뀐 한국어 팝업·"다른 식당 보기"·`영어 이름 (한국어 원문)` 표기를 "반영 상태" 칸에 적었다
+  - 그대로 둔 것: scenarios.yaml(어긋남 없음), 기능 ID·API 경로·필드·열거형 값·화면 문구
+  - 검사: `git diff`로 scenarios.yaml·problem.yaml이 바뀌지 않았고 API 경로·열거형 값이 그대로임을 확인
+  - 다음: C
 
 ### 팀 결정 필요
 
@@ -161,4 +167,6 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (A, REQ-2·OPT-1) MVP인 REQ-2의 실패 처리가 부가 기능 OPT-1(수동 입력)에 기댄다. 제안: OPT-1을 REQ로 올리거나, OPT-1이 없을 때 REQ-2 실패 화면을 정한다(D에서 다시 본다)
 - (A, REQ-3) 식단 제한을 저장하지 않은 사용자는 모든 메뉴가 "Safe"로 나온다(R0). 설정을 잊은 알레르기 사용자가 "Safe"를 믿을 위험이 있다. 제안: 제한이 없을 때 판정 화면에 설정 안내를 보여 줄지 정한다(C에서 다시 본다)
 - (A, OPT-2) 식단 제한이 없는 사용자가 첫 화면의 "Other restaurants"를 누를 때 어떤 음식점이 보이는지 정해져 있지 않다. 제안: 시드 음식점 전부를 보여 줄지 정한다
+- (B, REQ-5) 음식 DB에 있는 메뉴에도 2단계(이름 속 재료 단어·조리법 추정)를 더하는지 정해져 있지 않다. `api.md` 찾는 순서는 3단계에만 "1에 없을 때"를 붙였고, problem.yaml REQ-5 done은 항상 쓰이는 것처럼 읽힌다. 제안: ③이 "DB에 있으면 DB 재료만" 또는 "DB 재료 + 이름 단어 추정"을 골라 `api.md > REQ-5 > 찾는 순서`에 적는다
+- (B, REQ-5·REQ-3) 재료를 하나도 찾지 못했을 때 `api.md > REQ-5`는 "R3과 같이 CHECK"라 하지만, R3 조건("재료가 모두 AI_ESTIMATE")은 빈 목록을 직접 말하지 않고 응답 `rule` 값도 정해져 있지 않다(C에서 다시 본다)
 - (A, 형식) features에 입력 조건·예외를 따로 적을 칸이 없어 `done` 문장이 길다. 제안: `input_condition`·`exceptions` 키를 둘지 대시보드 표시를 확인한 뒤 정한다
