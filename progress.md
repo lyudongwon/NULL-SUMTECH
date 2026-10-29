@@ -123,5 +123,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: 고치기 전후 백틱 토큰·`.md` 링크·REQ/OPT/R 번호 목록을 뽑아 `diff`로 비교해 똑같음, 결정 행 수 21 그대로, `git diff`로 바뀐 9줄을 다시 읽음
 - 4회차(2026-10-30) `docs/api.md`: 머리말을 짧게 고치고, 굵은 글씨 10곳(판독·추론 순서·열린 질문 제목 등)을 빼고, 설명 문장 몇 곳의 말투를 다듬음. 경로·필드·열거형·예시 JSON·영어 화면 문구·에러 `detail`·판정 규칙 표는 그대로
   - 검사: 고치기 전후 백틱 토큰·링크·영어 따옴표 문구·REQ/OPT/R 번호 목록을 뽑아 `diff`로 비교함. 다른 점은 `matched_restrictions` 설명에 `CONFIRMED` 하나를 넣은 것뿐(뜻은 그대로). `git diff`로 바뀐 14줄을 다시 읽음
-- 남은 문서(순서대로): docs/scenarios.yaml(steps·expected 제외) · erd.md · tech-stack.md · folder-structure.md
-- 다음 행동: docs/scenarios.yaml의 설명 문장만 다듬기(steps·expected·화면 문구는 그대로, `yaml.safe_load` 검사)
+- 5회차(2026-10-30) `docs/scenarios.yaml`: 머리 주석 11줄과 platformReason 말투만 다듬음. 시나리오 id·title·features·steps·expected는 손대지 않음
+  - 검사: `yaml.safe_load` 통과(시나리오 7개), HEAD와 파싱 결과 비교해 `scenarios`·`platform`·`login` 값이 똑같음, 주석의 REQ/OPT·F번호 대응·파일 경로 토큰 목록 `diff` 동일
+- 남은 문서(순서대로): erd.md · tech-stack.md · folder-structure.md
+- 다음 행동: docs/erd.md 설명 문장 다듬기(테이블·컬럼 이름·관계·열린 질문 내용은 그대로)
