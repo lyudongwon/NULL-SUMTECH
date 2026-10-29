@@ -4,6 +4,7 @@
 
 | 날짜 | 결정 | 이유 | 반영 상태 |
 | --- | --- | --- | --- |
+| 2026-10-30 | 화면 Dockerfile을 `frontend/Dockerfile`에서 저장소 루트 `Dockerfile`로 옮기고, `app` 서비스를 루트 맥락(`build: .`)으로 빌드한다. `AI_GATEWAY_API_KEY`는 `backend`뿐 아니라 `app` 환경변수에도 둔다(실제 호출은 backend가 그대로 한다) | 제출 요건이 `docker-compose.yml`과 같은 위치의 `Dockerfile`과 `app` 환경변수의 키를 본다. 대시보드에서 두 줄이 미확인(노란색)이었다 | 반영: 루트 `Dockerfile`·`.dockerignore`, `docker-compose.yml`, `folder-structure.md > 열린 질문 4`, `roles.md > 파일 소유권` |
 | 2026-10-30 | `scenarios.yaml`의 흐름 id를 현재 순서대로 `S1`~`S8`로 바꿨다. 옛 이름(`scan-menu-board` 등)은 각 흐름 위 주석으로 남기고, `e2e/scenarios/`의 spec 파일 이름도 `S1.spec.ts`~`S8.spec.ts`로 맞췄다. 흐름의 title·steps·expected는 그대로다 | 제출 요건이 흐름 id를 "S와 숫자"(`S1`)로 쓰라고 하고, 채점기는 `e2e/scenarios/<id>.spec.ts`를 id와 같은 이름으로 찾는다. 대시보드에서 이 두 줄이 미확인(노란색)이었다 | 반영: `scenarios.yaml`, `e2e/scenarios/S1~S8.spec.ts`, `e2e/fixtures/README.md`, `e2e/playwright.config.ts` |
 | 2026-10-30 | 측정 원자료(확인 시간 회차별 값, E1·E2 포기 횟수와 이유)를 `docs/measurements.md`에서 `problem.yaml > canvas > impact` 주석으로 옮기고 그 파일과 `CLAUDE.md` 문서 지도 줄을 지웠다. 값은 그대로다 | 새 문서를 늘리지 않고, 평가자가 숫자와 출처를 한곳에서 보게 한다 | 반영: `problem.yaml > canvas > impact` 주석, `CLAUDE.md` |
 | 2026-10-30 | `api.md > 화면 문구` 표에 설정·판정·근거 상세·음식점 추천 화면에서 빠져 있던 영어 문구를 더했다(설정 안내·묶음 제목·저장 중·오류, 판정 화면 Retake·오류, 근거 상세 열 이름·재료 출처·규칙 설명, 음식점 안내·Free of·오류, OK, Loading…). 모두 화면 코드에 있는 그대로다 | 카메라 문구를 확인하며 화면 코드 전체를 표와 대조했더니 다른 화면 문구도 빠져 있었다. 표를 화면 문구의 원본으로 맞춘다 | 반영: `api.md > 화면 문구` |
