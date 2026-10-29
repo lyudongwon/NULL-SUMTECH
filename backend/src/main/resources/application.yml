@@ -13,6 +13,11 @@ spring:
     locations: classpath:db/migration
   jackson:
     property-naming-strategy: SNAKE_CASE # api.md의 JSON 필드 이름(snake_case)과 맞춘다
+  servlet:
+    multipart:
+      # REQ-1 사진 업로드 한도(decisions.md). Spring 기본값 1MB로는 사진이 막힌다.
+      max-file-size: 10MB
+      max-request-size: 10MB
   ai:
     openai:
       # TODO(확인): AI Gateway의 OpenAI 호환 주소로 실제 호출되는지 아직 확인 전이다(tech-stack.md AI 행).
