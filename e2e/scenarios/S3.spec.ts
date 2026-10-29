@@ -22,7 +22,7 @@ async function logIn(page: Page, email: string, password: string) {
   await expect(page.getByRole("button", { name: "Log out" })).toBeVisible();
 }
 
-test("로그인한 유학생이 토글만으로 정한 식단 제한이 계정에 저장되고 판정에 쓰인다", async ({ page }) => {
+test("로그인한 유학생이 토글만으로 식단 제한을 정해 판정받는다", async ({ page }) => {
   await logIn(page, E2E_USER_EMAIL, E2E_USER_PASSWORD);
   await page.getByRole("link", { name: "Diet settings" }).click();
   await page.getByRole("switch", { name: "Meat", exact: true }).check();

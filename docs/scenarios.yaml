@@ -46,7 +46,7 @@ scenarios:
 
   # diet-toggle-only
   - id: S3
-    title: 로그인한 유학생이 토글만으로 정한 식단 제한이 계정에 저장되고 판정에 쓰인다
+    title: 로그인한 유학생이 토글만으로 식단 제한을 정해 판정받는다
     account: 유학생
     features: [REQ-3, REQ-4, OPT-4]
     steps:
