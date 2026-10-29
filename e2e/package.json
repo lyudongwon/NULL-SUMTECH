@@ -1,0 +1,12 @@
+{
+  "name": "null-sumtech-e2e",
+  "private": true,
+  "scripts": {
+    "smoke": "playwright test --project=smoke",
+    "test": "playwright test --project=scenarios"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^22.20.5"
+  }
+}
