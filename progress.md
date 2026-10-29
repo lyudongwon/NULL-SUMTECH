@@ -50,8 +50,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [x] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만) — 루트 `Dockerfile`(app), `backend/Dockerfile`
 - [x] docker-compose.yml: app·backend·db, app만 ports "3000:3000", 앱은 컨테이너 안 3000에서 받음, 절대 주소 없음(BACKEND_URL은 내부 서비스 이름)
 - [x] app 말고는 ports·container_name이 없고, 어느 서비스에도 env_file 없음. db는 이름 붙은 볼륨 `db-data`
-- [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY)
-- [ ] 로그인(OPT-4)이 생겨 시드 계정이 필요하다: `docker-compose.yml` app에 `SEED_USER_EMAIL: seed@example.com`·`SEED_USER_PASSWORD: seed-password-1234`를 `${}` 없이 적고, 앱이 처음 뜰 때 그 계정(역할 "유학생")을 만든다. 흐름 S3과 `e2e/env.ts` 기본값이 이 값을 쓴다(2026-10-30, `feat/auth-and-feedback` e094b29가 구현. 이 브랜치에 합치면 체크)
+- [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY). 로그인(OPT-4)이 생겨 `SEED_USER_EMAIL`·`SEED_USER_PASSWORD`(seed@example.com, 역할 "유학생")를 app·backend 환경변수에 값 그대로 둠. 백엔드가 시작할 때 만든다(e094b29). 흐름 S3(`account: 유학생`)과 `e2e/env.ts` 기본값이 이 값을 쓴다
 - [x] 빈 DB에서 `docker compose down -v` → `RELEASE_ID=<HEAD> docker compose up -d --build`로 67초(빌드 포함) 만에 `/__health` 200 (2026-10-30 로컬 Docker Desktop)
 - [x] README 설치·빌드·실행 안내와 환경변수 표
 - [~] GET /__health: docker 앱에서 200, 리다이렉트 없음, `Cache-Control: no-store`, releaseId = 실행 commit 확인. 배포는 아직 없음

@@ -130,6 +130,7 @@ E2E는 앱을 따로 띄운 뒤 돌린다(기본 `http://localhost:3000`, 다른
 | `AI_GATEWAY_API_KEY` | 백엔드(제출 요건 때문에 `docker-compose.yml`의 app에도 둔다) | 서비스 AI 기능 호출(필요할 때만) | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
 | `AI_GATEWAY_BASE_URL` | 백엔드 | AI Gateway 주소. `/v1`까지 적는다(기본값 `https://ai-gateway.vercel.sh/v1`, 바꿀 때만) | 배포 환경변수 |
 | `AUTH_COOKIE_SECURE` | 백엔드 | 로그인 쿠키에 `Secure`를 붙일지. HTTPS로 배포할 때만 `true`, 로컬 http에서는 비우거나 `false`(기본값 `false`) | 배포 환경변수, `docker-compose.yml` |
+| `SEED_USER_EMAIL`, `SEED_USER_PASSWORD` | 화면·백엔드 | 채점기가 E2E에 넘기는 시드 계정. 백엔드가 시작할 때 이 계정이 없으면 만든다. 둘 중 하나라도 비면 만들지 않는다 | `docker-compose.yml`에 값을 그대로 적음(제출 요건) |
 
 ## 배포 (Render)
 

@@ -62,12 +62,7 @@ public class AuthService {
 	public Authenticated signup(SignupRequest request) {
 		String email = normalizeEmail(request == null ? null : request.email());
 		String password = request.password();
-		if (email == null || !EMAIL.matcher(email).matches()) {
-			throw ApiException.badRequest("Please enter a valid email.");
-		}
-		if (password == null || password.length() < MIN_PASSWORD_LENGTH || password.length() > MAX_PASSWORD_LENGTH) {
-			throw ApiException.badRequest("Password must be at least 8 characters.");
-		}
+		validateCredentials(email, password);
 		if (userRepository.existsByEmail(email)) {
 			throw ApiException.conflict("That email is already registered.");
 		}
@@ -139,6 +134,30 @@ public class AuthService {
 	@Transactional
 	public int deleteExpiredSessions() {
 		return sessionRepository.deleteExpired(OffsetDateTime.now());
+	}
+
+	/**
+	 * 시드 계정(SEED_USER_EMAIL·SEED_USER_PASSWORD)을 만든다. 채점기가 이 계정으로 로그인하므로 앱이 시작할 때 부른다.
+	 * 이미 있는 이메일이면 그대로 두고 false를 돌려준다. 이메일·비밀번호 조건은 가입과 같다.
+	 */
+	@Transactional
+	public boolean seedAccount(String rawEmail, String password) {
+		String email = normalizeEmail(rawEmail);
+		validateCredentials(email, password);
+		if (userRepository.existsByEmail(email)) {
+			return false;
+		}
+		userRepository.saveAndFlush(User.register(email, passwordEncoder.encode(password)));
+		return true;
+	}
+
+	private static void validateCredentials(String email, String password) {
+		if (email == null || !EMAIL.matcher(email).matches()) {
+			throw ApiException.badRequest("Please enter a valid email.");
+		}
+		if (password == null || password.length() < MIN_PASSWORD_LENGTH || password.length() > MAX_PASSWORD_LENGTH) {
+			throw ApiException.badRequest("Password must be at least 8 characters.");
+		}
 	}
 
 	/** 가입 전에 쓰던 번호가 있고 아직 아무도 가입하지 않았다면 그 사용자를 돌려준다. 아니면 null. */
