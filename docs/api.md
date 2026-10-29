@@ -8,7 +8,7 @@
 | 항목 | 값 |
 | --- | --- |
 | 기본 경로 | `/api/v1` (잠정 결정, [decisions.md](decisions.md)). 아래 경로는 모두 이 접두사를 붙인다. 브라우저는 같은 출처로 부르고 Next.js가 백엔드로 넘긴다 |
-| 인증 | 없다. 로그인 없이 쓰고(`docs/scenarios.yaml` `login: false`), 사용자는 클라이언트가 보관한 `user_id`(UUID)로 구분한다 |
+| 인증 | 없다. 로그인 없이 쓰고(`docs/scenarios.yaml` `login: false`), 회원 정보 없이 서버가 Auto Increment로 발급하고 클라이언트가 보관한 `user_id`(숫자)로 구분한다. 처음 발급 방법은 TODO(확인) |
 | 요청 형식 | `application/json`. 사진 업로드(REQ-1)만 `multipart/form-data` |
 | 에러 본문 | 모든 에러는 `{ "detail": "<사람이 읽는 한국어 문장>" }` |
 | 서버 오류 | 모든 엔드포인트에서 서버 내부 오류는 500 Internal Server Error |
@@ -85,7 +85,7 @@
 
 | 위치 | key | 설명 |
 | --- | --- | --- |
-| Path | `user_id` | 클라이언트가 저장한 UUID |
+| Path | `user_id` | 서버가 발급하고 클라이언트가 저장한 번호(Auto Increment) |
 
 헤더 없다.
 
@@ -93,7 +93,7 @@
 
 ```json
 {
-  "user_id": "3f9b1c2e-7a41-4d2b-9c0e-5e8a1b2c3d4f",
+  "user_id": 1,
   "preset": "HALAL",
   "toggles": { "pork": true, "alcohol": true, "peanut": false },
   "version": 3,
@@ -151,7 +151,7 @@
 
 ```json
 {
-  "user_id": "3f9b1c2e-7a41-4d2b-9c0e-5e8a1b2c3d4f",
+  "user_id": 1,
   "preset": "HALAL",
   "toggles": { "pork": true, "alcohol": true, "peanut": true },
   "version": 4,
@@ -327,7 +327,7 @@
 
 ```json
 {
-  "user_id": "3f9b1c2e-7a41-4d2b-9c0e-5e8a1b2c3d4f",
+  "user_id": 1,
   "menu_names": ["제육볶음", "미역국"]
 }
 ```
@@ -399,7 +399,7 @@
 
 ```json
 {
-  "user_id": "3f9b1c2e-7a41-4d2b-9c0e-5e8a1b2c3d4f",
+  "user_id": 1,
   "menu_name": "돈가스"
 }
 ```
@@ -504,13 +504,13 @@
 
 | 위치 | key | 필수 | 설명 |
 | --- | --- | --- | --- |
-| Query | `user_id` | O | 클라이언트가 저장한 UUID |
+| Query | `user_id` | O | 서버가 발급하고 클라이언트가 저장한 번호(Auto Increment) |
 | Query | `limit` | X | 추천 개수 (기본 5) |
 
 헤더 없다.
 
 ```text
-GET /api/v1/restaurants/recommendations?user_id=3f9b...&limit=5
+GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 ```
 
 ### 응답 200 OK

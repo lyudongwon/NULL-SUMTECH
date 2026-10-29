@@ -65,6 +65,6 @@
 
 ## 팀 확인 필요
 
-- 사용자 식별자 이름: `problem.yaml > features > OPT-2`·`erd.md`는 `session_id`, `api.md`는 `user_id`다. DB는 `erd.md`대로 `sessions` 표를 쓰고, API는 `api.md`대로 `user_id`라는 이름을 쓴다.
+- 사용자 식별자 이름: `user_id`로 통일했다. 회원·로그인 없이 서버가 Auto Increment로 발급한다(`decisions.md`).
 - 만개의 레시피 검색: 사이트 이용약관과 robots.txt를 확인한다. 검색 결과는 DB에 저장해 같은 메뉴를 다시 검색하지 않는다. E2E에 쓰는 메뉴는 시드에 넣어 외부 사이트 없이도 테스트가 돌게 한다.
 - 잠정값: `docker compose`의 `app`(Next.js), 기본 패키지 `com.nullteam.foodcheck`, Java·Spring Boot 버전([decisions.md](decisions.md)). 팀이 바꾸면 이 문서의 경로도 같이 고친다.

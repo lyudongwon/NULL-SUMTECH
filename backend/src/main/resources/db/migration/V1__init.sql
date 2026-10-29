@@ -1,8 +1,8 @@
 -- 첫 스키마. docs/erd.md를 따른다. 표 변경(V 파일)은 역할 ①만 만든다(docs/roles.md).
 
 -- REQ-4 사용자와 식단 제한
-CREATE TABLE sessions (
-    id         uuid PRIMARY KEY,
+CREATE TABLE users (
+    id         bigserial PRIMARY KEY, -- user_id. 회원 정보 없이 서버가 발급한다
     created_at timestamptz NOT NULL DEFAULT now()
 );
 
@@ -22,18 +22,18 @@ CREATE TABLE preset_items (
     PRIMARY KEY (preset_code, item_code)
 );
 
-CREATE TABLE session_restrictions (
-    session_id  uuid PRIMARY KEY REFERENCES sessions (id) ON DELETE CASCADE,
+CREATE TABLE user_restrictions (
+    user_id     bigint PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
     preset_code text REFERENCES restriction_presets (code),
     version     integer NOT NULL DEFAULT 1,
     updated_at  timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE session_restriction_items (
-    session_id uuid NOT NULL REFERENCES sessions (id) ON DELETE CASCADE,
-    item_code  text NOT NULL REFERENCES restriction_items (code),
-    enabled    boolean NOT NULL,
-    PRIMARY KEY (session_id, item_code)
+CREATE TABLE user_restriction_items (
+    user_id   bigint NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    item_code text NOT NULL REFERENCES restriction_items (code),
+    enabled   boolean NOT NULL,
+    PRIMARY KEY (user_id, item_code)
 );
 
 -- REQ-1·OPT-3 사진 메타데이터 (본문 저장 위치는 erd.md 열린 질문 1)
