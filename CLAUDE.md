@@ -15,7 +15,6 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 **Can I Eat? (먹어도 돼?)** 저장
 | 커밋·브랜치·PR을 만들 때 | [docs/git-convention.md](docs/git-convention.md) | 브랜치, 커밋 메시지, PR, main 복구, 금지 사항 | 작성됨(초안) |
 | 맡은 역할과 고쳐도 되는 파일을 확인할 때 | [docs/roles.md](docs/roles.md) | 역할 3개(기반·결과 화면 / 사진·판독 / 판정 엔진), 파일 소유권, 작업 순서, 세션 시작 지시문 | 작성됨 |
 | 채팅·회의에서 정한 결정을 남기거나 확인할 때 | [docs/decisions.md](docs/decisions.md) | 날짜별 결정과 문서 반영 상태 | 작성됨 |
-| 성공 지표의 지금 값(확인 시간·포기 끼니) 출처를 확인할 때 | [docs/measurements.md](docs/measurements.md) | 측정 방법·날짜·측정자·원자료 표 | 작성됨 |
 | DB·엔티티·마이그레이션을 다룰 때 | [docs/erd.md](docs/erd.md) | 테이블·관계, 시드 최소 요구, 열린 질문 | 작성됨 |
 | 기술 스택과 실행 조건을 확인할 때 | [docs/tech-stack.md](docs/tech-stack.md) | 언어·프레임워크·DB·AI·테스트·배포 선택, 실행 조건 | 작성됨(잠정) |
 | 파일·폴더를 만들거나 옮길 때 | [docs/folder-structure.md](docs/folder-structure.md) | 백엔드 도메인 폴더(controller·service·dto·entity·repository), 프런트엔드 레이어 | 작성됨(잠정) |
