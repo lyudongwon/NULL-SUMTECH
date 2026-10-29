@@ -3,5 +3,5 @@
  * 주최 측 실행은 docker-compose.yml의 SEED_USER_EMAIL·SEED_USER_PASSWORD를 E2E_USER_EMAIL·E2E_USER_PASSWORD로 넘긴다.
  */
 export const E2E_BASE_URL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
-export const E2E_USER_EMAIL = process.env.E2E_USER_EMAIL ?? "student@example.com";
-export const E2E_USER_PASSWORD = process.env.E2E_USER_PASSWORD ?? "loopthon-2026";
+export const E2E_USER_EMAIL = process.env.E2E_USER_EMAIL ?? "seed@example.com";
+export const E2E_USER_PASSWORD = process.env.E2E_USER_PASSWORD ?? "seed-password-1234";
