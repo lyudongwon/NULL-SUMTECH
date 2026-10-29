@@ -131,6 +131,8 @@
 | 음식점 성분 제보(기능 명세 밖) | 제보 되돌리기 · 되돌린 뒤 · 실패 | Undo · Your report was removed. · Couldn't remove your report. |
 | 설정 화면(OPT-4) | 가입한 계정의 번호인데 로그인이 풀림(앞뒤로 "Log in" 링크가 들어감) | This diet belongs to an account. Log in to see and change it. |
 | 팝업(REQ-3·OPT-1) | 메뉴 이름이 비었음 | Please enter a menu name. |
+| 판정 화면 빈 상태(판독 없이 바로 열었을 때) | 아직 결과 없음 · 메뉴판이나 음식 사진을 올리면 메뉴마다 확인해 줌 · 사진 올리기 | No results yet · Upload a photo of a menu board or a dish, and we'll check each menu for you. · Upload photo |
+| 없는 주소(404) | 페이지를 찾을 수 없음 · 없거나 옮겨진 페이지 · 처음으로 · 사진 올리기 | Page not found · This page doesn't exist or has moved. · Go home · Upload photo |
 | 팝업·버튼 | 팝업 닫기 | OK |
 | 설정·음식점 추천 화면 | 불러오는 중 | Loading… |
 | 모든 화면 하단(REQ-7) | 고지 문구 | For guidance only. Please make the final check yourself or with a dietitian. |
@@ -595,7 +597,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 ```
 
 - `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
-- 음식점 데이터는 시드(`R__20_seed_restaurants.sql`)다. 지금은 이름 앞에 `(예시)`가 붙은 예시 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다
+- 음식점 데이터는 시드(`R__20_seed_restaurants.sql`)다. 지금은 예시 데이터이고(종류는 영어, 주소는 비움), 추천 화면 아래에 "Sample list for now. We're still adding real restaurants near campus."를 보여 준다. 팀이 학교 주변 음식점을 조사해 바꾸면 이 문구를 지운다
 - 제보(기능 명세 밖)가 있는 항목은 시드가 "충족한다"고 해도 충족하지 않는 것으로 본다. 그래서 사용자가 켠 항목 중 하나라도 제보된 음식점은 목록에서 빠진다(제보한 사람이 1명 이상이면). 가입한 계정의 `user_id`는 위 REQ-4와 같은 쿠키 확인을 거친다
 
 ### 예외 상황

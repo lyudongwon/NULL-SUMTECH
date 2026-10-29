@@ -153,7 +153,7 @@ erDiagram
 
 | 테이블 | 컬럼 | 설명 |
 | --- | --- | --- |
-| `restaurants` | `id` PK, `name`, `category`, `address` | 음식점 시드(`R__20_seed_restaurants.sql`). 지금은 `(예시)` 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다 |
+| `restaurants` | `id` PK, `name`, `category`, `address` | 음식점 시드(`R__20_seed_restaurants.sql`). 지금은 예시 데이터이고(종류는 영어, 주소는 비움, 예시라는 표시는 추천 화면 문구로 함), 팀이 학교 주변 음식점을 조사해 바꾼다 |
 | `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
 
 | `restaurant_feedback` | `id` PK, `restaurant_id` FK, `user_id` FK, `item_code` FK, `menu_name`, `note`, `created_at`, (`restaurant_id`, `user_id`, `item_code`) UNIQUE | 사용자가 "이 가게에 이 항목을 쓰는 음식이 있다"고 보낸 제보(기능 명세 밖, 옛 OPT-5) |
