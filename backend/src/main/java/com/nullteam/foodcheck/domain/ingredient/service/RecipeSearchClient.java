@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * {@code /admin/ /app/ /static/}이라 {@code /recipe/}는 허용된다. AI 학습 크롤러(GPTBot, ClaudeBot 등)는
  * 따로 막혀 있고 Content-Signal은 {@code ai-train=no, use=reference}다. 학습이 아니라 요청 시점의
  * 참조로만 쓰고, 막힌 크롤러 이름을 쓰지 않도록 User-Agent에 이 프로젝트 이름을 적는다.
- * TODO(확인): 사이트 이용약관은 팀이 확인해야 한다(docs/roles.md 팀 확인 필요). 막아야 하면
+ * 사이트 이용약관은 아직 팀이 검토하지 않았다(docs/roles.md 팀 확인 필요). 막아야 하면
  * {@code app.recipe-search.enabled=false}로 끄면 AI 추정(4단계)으로 넘어간다.
  */
 @Component
