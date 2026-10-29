@@ -8,7 +8,7 @@
 
 | 역할 | 맡는 일 | 담당 API (`/api/v1` 아래) | 한 줄 요약 |
 | --- | --- | --- | --- |
-| **① 기반·결과 화면** | 뼈대·인프라(완료), REQ-4 식단 제한 설정(완료), OPT-2 주변 음식점 지도(**다시 만든다**: 카카오맵 + 사용자 보고, V2 마이그레이션 포함), REQ-7 고지 문구(완료), **REQ-3·REQ-6 결과 화면** `/result`, 업로드 한도 10MB 설정, **E2E 흐름 7개 전부**, Docker 확인, CI, 배포 | `POST /users`, `GET /restrictions/presets`, `GET`·`PATCH /users/{user_id}/restrictions`, `GET /restaurants/nearby`, `PUT /restaurants/{id}/reports` | 판정 결과를 보여 주고, 앱 전체가 테스트·배포되게 한다 |
+| **① 기반·결과 화면** | 뼈대·인프라(완료), REQ-4 식단 제한 설정(완료), OPT-2 음식점 추천(완료, 팀 조사 음식점 시드 반영 남음), REQ-7 고지 문구(완료), **REQ-3·REQ-6 결과 화면** `/result`, 업로드 한도 10MB 설정, **E2E 흐름 7개 전부**, Docker 확인, CI, 배포 | `POST /users`, `GET /restrictions/presets`, `GET`·`PATCH /users/{user_id}/restrictions`, `GET /restaurants/recommendations` | 판정 결과를 보여 주고, 앱 전체가 테스트·배포되게 한다 |
 | **② 사진·판독** | REQ-1 사진 업로드(`/scan`), OPT-3 이미지 축소, REQ-2 메뉴 판독(Spring AI 비전), OPT-1 메뉴 이름 입력칸 | `POST /images`, `POST /menus/recognize` | 사진을 메뉴 이름 목록으로 바꾼다 |
 | **③ 판정 엔진** | REQ-5 숨은 성분 추론(음식 DB → 이름·조리법 → 만개의 레시피 → AI 추정), REQ-3 판정 규칙 R0~R4, REQ-6 근거 데이터, OPT-1 판정 API, 음식·재료 시드 | `POST /ingredients/infer`, `POST /judgments`, `POST /judgments/manual` | 메뉴 이름을 판정과 근거로 바꾼다 |
 
