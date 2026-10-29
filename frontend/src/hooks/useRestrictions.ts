@@ -9,6 +9,10 @@ import { ensureUserId } from "./userIdentity";
 
 type Status = "loading" | "ready" | "error";
 
+function isLoginError(error: unknown) {
+  return error instanceof ApiError && (error.status === 401 || error.status === 403);
+}
+
 /** REQ-4 설정 화면 상태. 프리셋·토글은 화면에서만 바꾸고 "저장"을 누를 때 한 번에 보낸다. */
 export function useRestrictions() {
   const [status, setStatus] = useState<Status>("loading");
@@ -19,6 +23,8 @@ export function useRestrictions() {
   const [version, setVersion] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  // 가입한 계정의 번호인데 이 브라우저가 로그인하지 않았다(OPT-4). 화면에 "Log in" 링크를 보여 준다.
+  const [needsLogin, setNeedsLogin] = useState(false);
 
   const load = useCallback(async () => {
     setStatus("loading");
@@ -39,7 +45,8 @@ export function useRestrictions() {
           setVersion(saved.version);
         } catch (error) {
           // 404: 아직 저장한 적 없음 → 기본값(제한 없음)
-          if (!(error instanceof ApiError && error.status === 404)) throw error;
+          if (isLoginError(error)) setNeedsLogin(true);
+          else if (!(error instanceof ApiError && error.status === 404)) throw error;
         }
       }
       setStatus("ready");
@@ -79,6 +86,7 @@ export function useRestrictions() {
         setVersion(saved.version);
       } catch (error) {
         // 브라우저에 남은 user_id가 서버에 없으면(DB 초기화 등) 새로 발급받아 처음 저장으로 다시 보낸다.
+        // 401·403(가입한 계정인데 로그인이 풀림)은 새 번호로 갈아타지 않고 그대로 던져 로그인하도록 안내한다.
         if (!(error instanceof ApiError && error.status === 404)) throw error;
         clearUserId();
         userId = await ensureUserId();
@@ -87,6 +95,9 @@ export function useRestrictions() {
       }
       return true;
     } catch (error) {
+      if (isLoginError(error)) {
+        setNeedsLogin(true);
+      }
       if (error instanceof ApiError && error.status === 409) {
         await load();
       }
@@ -97,5 +108,18 @@ export function useRestrictions() {
     }
   }
 
-  return { status, presets, items, preset, toggles, saving, message, selectPreset, toggle, save, reload: load };
+  return {
+    status,
+    presets,
+    items,
+    preset,
+    toggles,
+    saving,
+    message,
+    needsLogin,
+    selectPreset,
+    toggle,
+    save,
+    reload: load,
+  };
 }

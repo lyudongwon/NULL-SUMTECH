@@ -6,7 +6,7 @@ import { LevelBadge } from "@/components/ui/LevelBadge";
 import { btnOutline, btnPrimary, card, sectionLabel } from "@/components/ui/styles";
 import type { Level } from "@/types/judgment";
 
-// 첫 화면: 로그인 없이 서비스 이름과 하는 일이 보인다(progress.md 5단계).
+// 첫 화면: 로그인 없이 서비스 이름과 하는 일이 보인다(progress.md 5단계). 가입·로그인(OPT-4)은 머리글 오른쪽 위에 있다.
 const LEGEND: [Level, string][] = [
   ["SAFE", "No restricted ingredient, and hidden ones look unlikely."],
   ["CHECK", "Might hide one, like broth or sauce. Ask before you eat."],

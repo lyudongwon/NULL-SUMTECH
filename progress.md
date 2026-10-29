@@ -5,8 +5,8 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 ## 현재 상태
 
 - 실제 서비스 저장소 폴더: `C:\Users\a4710\NULL-SUMTECH` (안내 폴더: `C:\Users\a4710\loopthon-starter`)
-- 현재 단계 / 다음 행동: 3단계. docker·/__health·scenarios CI는 연결됨. 첫 배포는 학생의 배포 대상 결정·계정 연결·Secrets 등록 대기(blocked, 3단계 "학생이 할 일")
-- 학생에게 확인할 내용: 배포 대상(`docs/tech-stack.md > 열린 결정` 1). E1·E2의 시점과 출처는 2026-10-30 확인해 `problem.yaml > experiences`에 반영함
+- 현재 단계 / 다음 행동: 3단계. docker·/__health·scenarios CI는 연결됨. 배포 대상은 Render로 정했다(decisions.md 2026-10-30, `render.yaml`). 첫 배포는 학생의 Render 계정 연결·Blueprint 생성·입력값 등록 대기(3단계 "학생이 할 일")
+- 학생에게 확인할 내용: Render Blueprint 배포를 했는지(README > 배포 (Render)). E1·E2의 시점과 출처는 2026-10-30 확인해 `problem.yaml > experiences`에 반영함
 - 참고: 운영진의 검색·AI 사용 허락 받음(학생 확인, 2026-10-29). 조직 이름 `NULL`·`NULL-team`은 이미 다른 계정이 사용 중이고, `NULL-sumtech-team` 조직은 GitHub에서 확인되지 않아 학생 요청으로 개인 계정 레포를 사용함
 
 ## 1. GitHub 준비
@@ -50,18 +50,18 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [x] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만) — 루트 `Dockerfile`(app), `backend/Dockerfile`
 - [x] docker-compose.yml: app·backend·db, app만 ports "3000:3000", 앱은 컨테이너 안 3000에서 받음, 절대 주소 없음(BACKEND_URL은 내부 서비스 이름)
 - [x] app 말고는 ports·container_name이 없고, 어느 서비스에도 env_file 없음. db는 이름 붙은 볼륨 `db-data`
-- [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY). 로그인이 없어(`scenarios.yaml` login: false) SEED_USER_*는 두지 않음
+- [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY). 로그인(OPT-4)이 생겨 `SEED_USER_EMAIL`·`SEED_USER_PASSWORD`(seed@example.com, 역할 "유학생")를 app·backend 환경변수에 값 그대로 둠. 백엔드가 시작할 때 만든다(e094b29). 흐름 S3(`account: 유학생`)과 `e2e/env.ts` 기본값이 이 값을 쓴다
 - [x] 빈 DB에서 `docker compose down -v` → `RELEASE_ID=<HEAD> docker compose up -d --build`로 67초(빌드 포함) 만에 `/__health` 200 (2026-10-30 로컬 Docker Desktop)
 - [x] README 설치·빌드·실행 안내와 환경변수 표
 - [~] GET /__health: docker 앱에서 200, 리다이렉트 없음, `Cache-Control: no-store`, releaseId = 실행 commit 확인. 배포는 아직 없음
 - [ ] 공개 HTTPS URL 첫 배포 — **blocked(학생)**: 아래 "학생이 할 일" 1~3
-- [~] CI 실제 검사: `.github/workflows/scenarios.yml`(키트 복사, releaseId=commit 검사 추가) 추가. 자동 배포 연결은 배포 대상이 정해진 뒤
+- [~] CI 실제 검사: `.github/workflows/scenarios.yml`(키트 복사, releaseId=commit 검사 추가) 추가. 자동 배포는 Render Blueprint가 `main` 병합마다 다시 배포한다(README > 배포 (Render))
 - [ ] Agent가 대시보드 배포 URL 저장, UP·배포 commit 일치 확인 — 배포 뒤
 - 로컬 E2E(2026-10-30, 빈 DB docker, AI 키 없음): smoke 4/4·manual-input-fallback·manual-input-unknown-menu 통과, 사진 판독이 필요한 5개 흐름 실패. 원인: 백엔드 로그 `NotFoundException: 404`(Gateway base-url `/v1` 누락, 열린 PR #10이 고침) + 로컬·GitHub Secrets에 AI 키 없음
 - 로컬 E2E 재실행(2026-10-30, PR #10 반영 main, 로컬 .env에 AI 키): smoke 4/4, 흐름 7/7 통과를 2회 연속 확인(사진 판독 비전 호출 포함, 흐름당 4~8초). E1·E2(Check first)도 2회 모두 같은 결과
 - 학생이 할 일(blocked):
-  1. 배포 대상 결정(`docs/tech-stack.md > 열린 결정` 1): 화면 Vercel + 백엔드 컨테이너 호스트(AWS 등) + 무료 Postgres(Neon 등) 중 무엇을 쓸지, 무료 등급 확인
-  2. 고른 플랫폼에 학생 계정으로 로그인해 GitHub 레포 연결, 배포 환경변수(`BACKEND_URL`, `SPRING_DATASOURCE_*`, `AI_GATEWAY_API_KEY`, `RELEASE_ID`는 플랫폼 commit 변수) 직접 입력
+  1. ~~배포 대상 결정~~ → Render로 정함(decisions.md 2026-10-30, `render.yaml`)
+  2. Render에 학생 계정으로 로그인해 GitHub 레포 연결, New → Blueprint로 `main` 선택, 묻는 값(백엔드 `AI_GATEWAY_API_KEY`, 화면 `BACKEND_URL`) 직접 입력(README > 배포 (Render))
   3. GitHub 레포 Settings → Secrets and variables → Actions에 `AI_GATEWAY_API_KEY` 직접 등록(지금 Secrets 비어 있음)
   4. PR #10(Gateway `/v1`) 확인·병합
 - 배포 URL / CI·배포 링크 / 첫 배포 commit SHA: 아직 없음
@@ -106,6 +106,9 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [ ] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
 - [ ] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
 - 흐름별 E2E 결과(통과 / 실패 단계와 이유): 2026-10-30 로컬에서 `docker compose down -v` → `up -d --build` → `/__health` 200 → `npx playwright test --project=scenarios`(390x844)로 확인했다.
+  - **채점기 재현(2026-10-30, `feat/auth-and-feedback` b3c7199, 흐름 8개로 합친 뒤):** 같은 조건(빈 DB, app `cpus: 2`·`mem_limit: 4g`, 채점기 값)으로 **8/8 통과**(51초, 흐름 하나 최대 9.4초). `build --no-cache` 114초, `up` 시작부터 `/__health` 200까지 16초, releaseId 일치. 없는 주소 404, 모든 화면 가로 스크롤 없음
+    - 합치기 전(dee7942, 흐름 10개): 10/10 통과했지만 형식 게이트에 걸렸다(흐름 3~8개 초과, 옛 S10의 중간 `page.goto`·`try…finally`). 예측 구현 점수 10.7 → 합친 뒤 약 18.4(게이트 통과)
+    - 남은 감점: 음식점 시드의 "(예시)"·"TODO(확인)" 노출(G3), `/result`를 바로 열면 "Please enter a menu name." 팝업(U3), Next 기본 404 본문(D4)
   - **채점기 재현(2026-10-30, main d10fd38):** 빈 DB, app `cpus: 2`·`mem_limit: 4g`, 팀 config 대신 채점기 값(390x844 isMobile·hasTouch, workers 1, retries 0, timeout 120초, expect 10초, ko-KR, Asia/Seoul, service worker 차단)으로 **8/8 통과**(52초). `build --no-cache` 93초, `up` 시작부터 `/__health` 200까지 15초, releaseId 일치. 없는 주소 404, 모든 화면 가로 스크롤 없음. 예측 구현 점수 17.4/20
     - 감점 원인과 고친 PR: D3 spec이 영어 근거·소고기를 확인하지 않음 → #31, G1 근거 상세 표가 390px에서 열이 붙음 → #32, D4 결과 화면 판정 실패 시 다음 행동 없음 → #34, U2·U3 첫 화면·결과 화면에 지금 식단 표시 없음 → #35
     - 네 PR을 각각, 그리고 함께 병합한 상태에서 같은 조건으로 **8/8 통과**(빌드 35~41초, `/__health` 15초). 위 "약한 확인" 중 근거 칸·소고기 확인은 #31이 고친다

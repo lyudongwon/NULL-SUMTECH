@@ -9,14 +9,16 @@
 # 프리셋 "Vegetarian"(채식)은 고기·해산물만 빼고 계란·유제품은 허용한다(api.md 코드 VEGETARIAN).
 # S6(halal-bibimbap-gochujang)은 problem.yaml E1(P1)을, S7(peanut-allergy-bibimguksu)는 E2(P2)를 그대로 재현한다.
 # OPT-3(이미지 축소)은 화면 동작이 아니어서 뺐다.
+# 로그인(OPT-4)은 선택이다. 로그인 없이도 서버가 발급한 user_id로 쓰고, 로그인하면 식단 제한이 계정에 남는다.
+# 키트 형식대로 로그인하는 흐름(S3)에만 account(역할 "유학생", docker-compose.yml의 시드 계정)를 쓰고, 나머지 흐름은 account를 생략한다.
+# 로그인 자체는 steps에 쓰지 않는다(spec이 시드 계정으로 먼저 로그인한다). 키트에 없는 최상위 login 키는 두지 않는다.
+# 가입부터 하는 확인과 음식점 성분 제보(기능 명세 밖)는 고른 해결 경로(사진 판정)의 흐름이 아니라서 흐름에 넣지 않고 e2e/extra에서 돌린다.
 # OPT-2(음식점 추천) 흐름 S8(other-restaurants-halal)은 음식점 이름이 아니라 "제한 항목을 쓰는 음식점은 안 보인다"로 확인한다. 음식점 시드(R__20)가 아직 예시 데이터라, 실제 조사 데이터로 바뀌어도 그대로 통과해야 한다.
 
 platform: mobile
 platformReason: |-
   웹 서비스지만 학식당에서 메뉴를 고르는 그 자리에서 휴대폰 브라우저로 연다.
   메뉴판이나 음식을 휴대폰 카메라로 찍어 바로 먹을지 말지 정하기 때문이다.
-
-login: false # 회원·로그인 없이 서버가 Auto Increment로 발급한 user_id로 사용자를 구분한다
 
 scenarios:
   # scan-menu-board
@@ -44,8 +46,9 @@ scenarios:
 
   # diet-toggle-only
   - id: S3
-    title: 프리셋 없이 토글만으로 식단 제한을 정해 판정받는다
-    features: [REQ-3, REQ-4]
+    title: 로그인한 유학생이 토글만으로 식단 제한을 정해 판정받는다
+    account: 유학생
+    features: [REQ-3, REQ-4, OPT-4]
     steps:
       - 첫 화면에서 "Diet settings"를 누른다
       - 토글 목록에서 "Meat"를 켠다
