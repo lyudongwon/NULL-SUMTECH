@@ -63,17 +63,42 @@
 | 설정 화면 | 프리셋 | Halal · Vegetarian · Vegan |
 | 설정 화면 | 토글 | Meat · Pork · Beef · Seafood · Egg · Dairy · Peanut · Alcohol |
 | 설정 화면·버튼 | 저장 | Save |
+| 설정 화면 | 안내 | Pick a preset or turn foods on and off, then save. |
+| 설정 화면 | 묶음 제목 | Presets · Foods I can't eat |
+| 설정 화면·버튼 | 저장 중 | Saving… |
+| 설정 화면 | 서버가 이유를 주지 않은 오류 · 다시 시도 버튼 | Couldn't load your settings. · Couldn't save your settings. · Try again |
 | 설정 화면(REQ-4) | 동시 저장 충돌(409 `detail`) | Another request was saved first. Please try again. |
+| 사진 올리기 화면(REQ-1) | 안내 | Upload one photo of a menu board or a dish. |
+| 사진 올리기 화면(REQ-1) | 끌어 놓기 안내(넓은 화면에서만) | You can also drag a photo here. |
+| 사진 올리기 화면·버튼(REQ-1) | 카메라로 찍기 · 앨범에서 고르기 | Take a photo · Choose from album |
+| 사진 올리기 화면(REQ-1, 화면 읽기 이름) | 사진 파일 입력 | Photo file |
+| 카메라 화면(REQ-1, 화면 읽기 이름) | 카메라 창 · 미리보기 · 방금 찍은 사진 | Camera · Camera preview · Photo you just took |
+| 카메라 화면(REQ-1) | 카메라 켜는 중 | Opening camera… |
+| 카메라 화면·버튼(REQ-1) | 찍기 · 닫기 | Take photo · Cancel |
+| 카메라 화면·버튼(REQ-1) | 다시 찍기 · 이 사진 쓰기 | Retake · Use photo |
+| 사진 올리기 화면(REQ-1·REQ-2) | 진행 상태 | Uploading photo… · Reading the menu… · Opening results… |
+| 사진 올리기 화면(REQ-1·REQ-2) | 서버가 이유를 주지 않은 오류 | Couldn't upload the photo. · Couldn't read the menu. |
 | 입력칸(OPT-1) | 메뉴 이름 입력칸 | Menu name |
 | 입력칸(OPT-1)·버튼 | 판정하기 | Can I eat it? |
 | 판정 화면 | 배지 | Safe · Check first · Avoid |
+| 판정 화면·링크 | 다시 찍기 | Retake |
+| 판정 화면 | 서버가 이유를 주지 않은 오류 | Couldn't load the results. |
 | 근거 상세(REQ-6) | 확인/추정 | Confirmed · Estimated |
 | 근거 상세(REQ-6) | 확신도 | High · Medium · Low |
 | 근거 상세(REQ-6) | 적용 규칙 | Rule |
+| 근거 상세(REQ-6) | 재료 표의 열 이름 | Ingredient · Evidence · Confidence · Source |
+| 근거 상세(REQ-6) | 재료 출처(`basis`) | Food database · Menu name · Cooking method · 10000recipe · AI estimate |
+| 근거 상세(REQ-6) | 적용 규칙 설명(R0~R4 순서) | No diet restrictions set · A confirmed ingredient is restricted · An estimated ingredient may be restricted · All ingredients are AI estimates · No restricted ingredients found |
 | 첫 화면·판정 화면·버튼(OPT-2) | 다른 식당 보기 | Other restaurants |
 | 모든 화면·링크 | 처음으로 | Home |
 | 음식점 추천(OPT-2) | 결과 없음 | No restaurants match your diet yet. |
+| 음식점 추천(OPT-2) | 안내 | Restaurants that fit your diet, for when the cafeteria doesn't. |
+| 음식점 추천(OPT-2) | 식단 제한을 저장하기 전 | Please set your diet first. |
+| 음식점 추천(OPT-2) | 음식점이 피하는 항목(뒤에 항목 이름이 붙음) | Free of |
+| 음식점 추천(OPT-2) | 서버가 이유를 주지 않은 오류 | Couldn't load recommendations. |
 | 팝업(REQ-3·OPT-1) | 메뉴 이름이 비었음 | Please enter a menu name. |
+| 팝업·버튼 | 팝업 닫기 | OK |
+| 설정·음식점 추천 화면 | 불러오는 중 | Loading… |
 | 모든 화면 하단(REQ-7) | 고지 문구 | For guidance only. Please make the final check yourself or with a dietitian. |
 
 - 메뉴·재료 이름은 메뉴판에 적힌 한국어 원문 그대로 보인다(예: `비빔밥`, `고추장`). 학식당의 한국어 메뉴판과 대조하고, 직원에게 그대로 보여 줄 수 있어야 하기 때문이다. 판정 근거 문장은 영어이고, 그 안에 재료 이름이 한국어 원문으로 들어간다(예: `May contain 고추장 속 다진 돼지고기. Check for Pork before eating.`).
