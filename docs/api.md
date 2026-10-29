@@ -288,7 +288,14 @@
 | 존재하지 않는 `image_id` | 404 Not Found `{ "detail": "이미지를 찾을 수 없습니다." }` |
 | 메뉴판·음식 사진으로 인식되지 않음 | 422 Unprocessable Entity `{ "detail": "메뉴판이나 음식 사진이 아닙니다." }` → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
 | 일부 메뉴를 읽지 못함 | 200 OK, 해당 항목 `name: null` |
-| 판독 엔진(AI) 오류·시간 초과 | 500 Internal Server Error → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
+| 판독 엔진(AI) 오류·시간 초과(45초) | 500 Internal Server Error `{ "detail": "메뉴를 읽지 못했습니다. 메뉴 이름을 직접 입력해 주세요." }` → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
+
+### 판독 방식 (②가 정함, 2026-10-29)
+
+- Spring AI 구조화 출력으로 `kind`(`MENU_BOARD`·`FOOD`·`NOT_MENU`)와 메뉴 이름 목록을 받는다. `NOT_MENU`는 422다. 이름의 앞뒤 공백은 지우고, 빈 이름은 `null`로 바꾼다. 음식 사진은 첫 이름 1개만, 메뉴판은 최대 30개까지 돌려준다.
+- 모델은 환경변수 `MENU_AI_MODEL`(기본 `openai/gpt-5-mini`, `TODO(확인)`)로 바꾼다.
+- E2E에서 판독 응답을 고정하지 않는다. 실제 모델을 부르고, 테스트 사진(`e2e/fixtures/`)은 글자가 크고 또렷하게 만들어 흔들림을 줄인다([tech-stack.md](tech-stack.md) 열린 결정 6).
+- 화면은 판독이 끝나면 `name`이 있는 항목만 순서대로(중복 제외) 모아 `/result?menus=<JSON 배열>`로 이동한다([roles.md](roles.md) 만나는 지점 1).
 
 ---
 
