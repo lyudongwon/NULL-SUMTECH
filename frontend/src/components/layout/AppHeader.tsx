@@ -48,8 +48,9 @@ export function AppHeader() {
             );
           })}
         </nav>
-        {/* 오른쪽 위: 가입·로그인(OPT-4). 로그인하면 이메일과 "Log out" */}
-        <div className="order-2 ml-auto min-w-0 md:order-3 md:ml-0">
+        {/* 오른쪽 위: 가입·로그인(OPT-4). 로그인하면 이메일과 "Log out".
+            휴대폰 폭에서 로그인했으면 이메일이 잘리지 않게 메뉴 아래 한 줄을 통째로 쓴다. */}
+        <div className="order-2 ml-auto min-w-0 max-sm:has-[[data-account=signed-in]]:order-4 max-sm:has-[[data-account=signed-in]]:ml-0 max-sm:has-[[data-account=signed-in]]:w-full md:order-3 md:ml-0">
           {!AUTH_PAGES.includes(pathname) && <AccountBar />}
         </div>
       </div>

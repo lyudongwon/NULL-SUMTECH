@@ -18,8 +18,8 @@ export function AccountBar() {
 
   if (account.status === "authenticated") {
     return (
-      <div className="flex min-w-0 items-center gap-2 text-sm sm:gap-3">
-        <span title={account.user.email} className="max-w-20 truncate text-[13px] text-body sm:max-w-64">
+      <div data-account="signed-in" className="flex min-w-0 items-center justify-between gap-2 text-sm sm:justify-start sm:gap-3">
+        <span title={account.user.email} className="min-w-0 truncate text-[13px] text-body sm:max-w-64">
           {account.user.email}
         </span>
         <button
