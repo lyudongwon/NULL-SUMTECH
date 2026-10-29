@@ -3,6 +3,7 @@ package com.nullteam.foodcheck.domain.judgment.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -140,5 +141,20 @@ class JudgmentControllerTest {
 				.content("{\"user_id\": 7}"))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.detail").value("Please enter a menu name."));
+	}
+
+	@Test
+	void 지원하지_않는_메서드는_500이_아니라_405다() throws Exception {
+		mvc.perform(get("/api/v1/judgments"))
+				.andExpect(status().isMethodNotAllowed())
+				.andExpect(jsonPath("$.detail").value("This method is not allowed."));
+	}
+
+	@Test
+	void JSON이_아닌_본문은_500이_아니라_415다() throws Exception {
+		mvc.perform(post("/api/v1/judgments").contentType(MediaType.TEXT_PLAIN).content("제육볶음"))
+				.andExpect(status().isUnsupportedMediaType())
+				.andExpect(jsonPath("$.detail").value("This content type is not supported."));
+		verifyNoInteractions(ingredientInferenceService);
 	}
 }

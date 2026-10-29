@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,6 +50,17 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(NoResourceFoundException.class)
 	public ResponseEntity<Map<String, String>> handleNotFound(NoResourceFoundException e) {
 		return detail(HttpStatus.NOT_FOUND, "Not found.");
+	}
+
+	/** 아래 Exception 처리에 잡혀 500이 되지 않도록 메서드·본문 형식 오류는 따로 받는다. */
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<Map<String, String>> handleMethod(HttpRequestMethodNotSupportedException e) {
+		return detail(HttpStatus.METHOD_NOT_ALLOWED, "This method is not allowed.");
+	}
+
+	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+	public ResponseEntity<Map<String, String>> handleMediaType(HttpMediaTypeNotSupportedException e) {
+		return detail(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "This content type is not supported.");
 	}
 
 	@ExceptionHandler(Exception.class)
