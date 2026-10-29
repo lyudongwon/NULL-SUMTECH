@@ -6,13 +6,13 @@
 
 | 역할 | 맡는 일 | 담당 API (`/api/v1` 아래) | 한 줄 요약 |
 | --- | --- | --- | --- |
-| **① 기반·결과 화면** | 뼈대·인프라(완료), REQ-4 식단 제한 설정(완료), OPT-2 음식점 추천(완료, 팀 조사 음식점 시드 반영 남음), REQ-7 고지 문구(완료), **REQ-3·REQ-6 결과 화면** `/result`, 업로드 한도 10MB 설정, **E2E 흐름 5개 전부**, Docker 확인, CI, 배포 | `POST /users`, `GET /restrictions/presets`, `GET`·`PATCH /users/{user_id}/restrictions`, `GET /restaurants/recommendations` | 판정 결과를 보여 주고, 앱 전체가 테스트·배포되게 한다 |
+| **① 기반·결과 화면** | 뼈대·인프라(완료), REQ-4 식단 제한 설정(완료), OPT-2 음식점 추천(완료, 팀 조사 음식점 시드 반영 남음), REQ-7 고지 문구(완료), **REQ-3·REQ-6 결과 화면** `/result`, 업로드 한도 10MB 설정, **E2E 흐름 7개 전부**, Docker 확인, CI, 배포 | `POST /users`, `GET /restrictions/presets`, `GET`·`PATCH /users/{user_id}/restrictions`, `GET /restaurants/recommendations` | 판정 결과를 보여 주고, 앱 전체가 테스트·배포되게 한다 |
 | **② 사진·판독** | REQ-1 사진 업로드(`/scan`), OPT-3 이미지 축소, REQ-2 메뉴 판독(Spring AI 비전), OPT-1 메뉴 이름 입력칸 | `POST /images`, `POST /menus/recognize` | 사진을 메뉴 이름 목록으로 바꾼다 |
 | **③ 판정 엔진** | REQ-5 숨은 성분 추론(음식 DB → 이름·조리법 → 만개의 레시피 → AI 추정), REQ-3 판정 규칙 R0~R4, REQ-6 근거 데이터, OPT-1 판정 API, 음식·재료 시드 | `POST /ingredients/infer`, `POST /judgments`, `POST /judgments/manual` | 메뉴 이름을 판정과 근거로 바꾼다 |
 
 - 흐름은 ② 사진 → 메뉴 이름, ③ 메뉴 이름 → 판정, ① 판정 → 화면·테스트·배포다. 세 역할이 만나는 곳은 아래 [만나는 지점](#만나는-지점) 두 군데뿐이다.
 - 결과 화면은 처음에 ②가 맡았지만, ②에 사진 업로드·축소·AI 판독·입력칸이 몰려 있어 ①로 옮겼다. ①은 `/restaurants`와 공통 레이아웃을 이미 갖고 있어 "다른 식당 보기"까지 이어서 만든다.
-- E2E 흐름 5개는 모두 "설정 → 사진 → 결과"를 지나가므로, 테스트 틀(Playwright 설정·공통 도우미)과 spec은 ① 한 사람이 만든다.
+- E2E 흐름 7개는 모두 "설정 → 사진 → 결과"를 지나가므로, 테스트 틀(Playwright 설정·공통 도우미)과 spec은 ① 한 사람이 만든다.
 - 판정 규칙은 단위 테스트가 필요한 곳([ai-rules.md](ai-rules.md) 7번)이라 ③이 화면 없이 백엔드 로직과 데이터에 집중한다.
 
 ## 만나는 지점
@@ -55,15 +55,15 @@
 
 ### 1단계부터: 동시에 진행한다
 
-- ①: 업로드 한도 10MB(`application.yml`) → `/result` 화면(예시 데이터로 시작) → `e2e/` Playwright 설정과 흐름 5개 spec → Docker 확인·CI → 배포 → 팀 조사 음식점 시드(`R__20`)
-- ②: REQ-1 업로드(`/scan`, `POST /images`) → OPT-3 축소 → REQ-2 판독(Spring AI 비전) → OPT-1 입력칸 → `/result?menus=...`로 이동 → 테스트 사진(`e2e/fixtures/`)
+- ①: 업로드 한도 10MB(`application.yml`) → `/result` 화면(예시 데이터로 시작) → `e2e/` Playwright 설정과 흐름 7개 spec → Docker 확인·CI → 배포 → 팀 조사 음식점 시드(`R__20`)
+- ②: REQ-1 업로드(`/scan`, `POST /images`) → OPT-3 축소 → REQ-2 판독(Spring AI 비전) → OPT-1 입력칸 → `/result?menus=...`로 이동 → 테스트 사진(`e2e/fixtures/`: menu-board, seolleongtang, no-menu, bibimbap, bibimguksu)
 - ③: 음식·재료 시드(`R__30`) → 판정 규칙 R0~R4와 JUnit → `POST /judgments` → `POST /judgments/manual` → REQ-5 재료 찾기(만개의 레시피 → AI 추정)
 
 ## 각 Claude 세션 시작 지시문
 
 **① 기반·결과 화면**
 
-> CLAUDE.md, docs/ai-rules.md, docs/git-convention.md, docs/roles.md를 먼저 읽어. 나는 역할 ①(기반·결과 화면)이야. feat/base-settings 브랜치에서 application.yml의 업로드 한도를 10MB로 먼저 올리고, /result 화면을 만들어: ③의 src/types/judgment.ts 기준으로 `/result?menus=<JSON 배열>`의 메뉴를 POST /api/v1/judgments로 판정해 배지·근거 한 줄·메뉴를 누르면 보이는 REQ-6 상세(확인/추정, 확신도, 적용 규칙)·이름이 비었을 때 '입력 값이 없습니다.' 팝업·'안전'이 하나도 없을 때 "다른 식당 보기"(/restaurants)를 보여 줘. 판정 API가 나오기 전에는 예시 데이터로 개발해. '등록되지 않은 메뉴' 팝업은 만들지 않아. 그다음 e2e/에 Playwright 설정과 docs/scenarios.yaml 흐름 5개 spec을 만들고, Docker 확인·CI·배포를 준비해. 내 담당 파일만 고쳐.
+> CLAUDE.md, docs/ai-rules.md, docs/git-convention.md, docs/roles.md를 먼저 읽어. 나는 역할 ①(기반·결과 화면)이야. feat/base-settings 브랜치에서 application.yml의 업로드 한도를 10MB로 먼저 올리고, /result 화면을 만들어: ③의 src/types/judgment.ts 기준으로 `/result?menus=<JSON 배열>`의 메뉴를 POST /api/v1/judgments로 판정해 배지·근거 한 줄·메뉴를 누르면 보이는 REQ-6 상세(확인/추정, 확신도, 적용 규칙)·이름이 비었을 때 '입력 값이 없습니다.' 팝업·'안전'이 하나도 없을 때 "다른 식당 보기"(/restaurants)를 보여 줘. 판정 API가 나오기 전에는 예시 데이터로 개발해. '등록되지 않은 메뉴' 팝업은 만들지 않아. 그다음 e2e/에 Playwright 설정과 docs/scenarios.yaml 흐름 7개 spec을 만들고, Docker 확인·CI·배포를 준비해. 내 담당 파일만 고쳐.
 
 **② 사진·판독**
 
@@ -71,7 +71,7 @@
 
 **③ 판정 엔진**
 
-> CLAUDE.md, docs/ai-rules.md, docs/git-convention.md, docs/roles.md를 먼저 읽어. 나는 역할 ③(판정 엔진)이야. feat/judgment-engine 브랜치에서 첫 커밋으로 backend domain/judgment의 dto와 frontend src/types/judgment.ts·src/services/judgmentService.ts를 올려. 형식은 docs/api.md REQ-3 응답 그대로야(①이 결과 화면에서 쓴다). 그다음 db/migration/R__30_seed_foods.sql(erd.md 시드 최소 요구의 음식과 숨은 재료: 육수, 젓갈, 맛술, 햄, 어묵 등. 된장찌개는 넣지 마), 판정 규칙 R0~R4와 JUnit 테스트, POST /api/v1/judgments, POST /api/v1/judgments/manual, REQ-5 재료 찾기(POST /api/v1/ingredients/infer: 음식 DB → 이름·조리법 → 만개의 레시피 → AI 추정, 찾은 재료는 foods에 저장)를 만들어. 사용자 제한은 RestrictionService.findEnabledItemCodes(userId)로 받아. DB에 없는 메뉴에도 404를 주지 말고 판정해. 내 담당 파일만 고치고, 필요한 라이브러리나 DB 표는 ①에게 요청해.
+> CLAUDE.md, docs/ai-rules.md, docs/git-convention.md, docs/roles.md를 먼저 읽어. 나는 역할 ③(판정 엔진)이야. feat/judgment-engine 브랜치에서 첫 커밋으로 backend domain/judgment의 dto와 frontend src/types/judgment.ts·src/services/judgmentService.ts를 올려. 형식은 docs/api.md REQ-3 응답 그대로야(①이 결과 화면에서 쓴다). 그다음 db/migration/R__30_seed_foods.sql(erd.md 시드 최소 요구의 음식과 숨은 재료: 육수, 젓갈, 맛술, 햄, 어묵 등. 비빔밥 고추장의 다진 돼지고기, 비빔국수 양념장의 땅콩은 추정 재료로 넣어. 된장찌개는 넣지 마), 판정 규칙 R0~R4와 JUnit 테스트, POST /api/v1/judgments, POST /api/v1/judgments/manual, REQ-5 재료 찾기(POST /api/v1/ingredients/infer: 음식 DB → 이름·조리법 → 만개의 레시피 → AI 추정, 찾은 재료는 foods에 저장)를 만들어. 사용자 제한은 RestrictionService.findEnabledItemCodes(userId)로 받아. DB에 없는 메뉴에도 404를 주지 말고 판정해. 내 담당 파일만 고치고, 필요한 라이브러리나 DB 표는 ①에게 요청해.
 
 ## 팀 확인 필요
 
