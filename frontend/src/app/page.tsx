@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DietSummary } from "@/components/settings/DietSummary";
 
 // 첫 화면: 로그인 없이 서비스 이름과 하는 일이 보인다(progress.md 5단계).
 // TODO(확인): 서비스 이름은 팀이 정하지 않아 임시로 "학식 식단 체커"를 쓴다.
@@ -12,6 +13,8 @@ export default function Home() {
           <strong>Safe, Check first, or Avoid</strong>.
         </p>
       </div>
+
+      <DietSummary variant="home" />
 
       <nav className="flex flex-col gap-3">
         <Link

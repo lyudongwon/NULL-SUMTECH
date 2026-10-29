@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { JudgmentResults } from "@/components/result/JudgmentResults";
+import { DietSummary } from "@/components/settings/DietSummary";
 
 export const metadata = { title: "Results | Can I Eat?" };
 
@@ -15,6 +16,7 @@ export default function ResultPage() {
           <Link href="/">Home</Link>
         </div>
       </div>
+      <DietSummary variant="result" />
       <Suspense fallback={<p className="text-neutral-500">Checking…</p>}>
         <JudgmentResults />
       </Suspense>

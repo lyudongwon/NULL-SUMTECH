@@ -58,6 +58,7 @@
 | --- | --- | --- |
 | 첫 화면 | 서비스 이름 | Can I Eat? |
 | 첫 화면 | 하는 일 | Snap a cafeteria menu or dish, and see if it fits your diet: Safe, Check first, or Avoid. |
+| 첫 화면 | 지금 식단(뒤에 프리셋 이름과 켠 항목이 붙음) · 저장 전 | Your diet: · No diet set yet. |
 | 첫 화면·버튼 | 식단 제한 설정 | Diet settings |
 | 첫 화면·버튼 | 사진 올리기 | Upload photo |
 | 설정 화면 | 프리셋 | Halal · Vegetarian · Vegan |
@@ -82,6 +83,7 @@
 | 입력칸(OPT-1)·버튼 | 판정하기 | Can I eat it? |
 | 판정 화면 | 배지 | Safe · Check first · Avoid |
 | 판정 화면·링크 | 다시 찍기 | Retake |
+| 판정 화면 | 판정에 쓴 식단(뒤에 켠 항목이 붙음) · 켠 항목 없음 | Checked for: · no diet restrictions |
 | 판정 화면 | 서버가 이유를 주지 않은 오류 | Couldn't load the results. |
 | 판정 화면·버튼 | 판정 실패 뒤 다시 판정 · 사진 다시 고르기 | Try again · Retake |
 | 근거 상세(REQ-6) | 확인/추정 | Confirmed · Estimated |
