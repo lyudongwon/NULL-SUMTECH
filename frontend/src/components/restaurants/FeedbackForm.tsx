@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { btnOutline, btnPrimary } from "@/components/ui/styles";
 import { ApiError } from "@/lib/apiClient";
 import { submitFeedback } from "@/services/restaurantService";
 import type { RestrictionItem } from "@/types/restriction";
@@ -13,6 +14,9 @@ type Props = {
 };
 
 /** OPT-5 "Report an ingredient": 이 가게에서 쓰는 항목과 음식 이름·메모를 보낸다. 로그인한 사용자만 이 양식을 볼 수 있다. */
+// 시안의 작은 버튼(.btn-sm)
+const SMALL = "h-10 rounded-[10px] px-3.5 text-[13px]";
+
 export function FeedbackForm({ restaurantId, items, onSent }: Props) {
   const [open, setOpen] = useState(false);
   const [itemCode, setItemCode] = useState("");
@@ -26,7 +30,7 @@ export function FeedbackForm({ restaurantId, items, onSent }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-3 rounded-lg border border-neutral-300 px-3 py-1 text-sm font-semibold"
+        className={`${btnOutline} ${SMALL} mt-3 self-start`}
       >
         Report an ingredient
       </button>
@@ -57,11 +61,11 @@ export function FeedbackForm({ restaurantId, items, onSent }: Props) {
     }
   }
 
-  const field = "w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm";
+  const field = "h-10 w-full rounded-[10px] border border-edge bg-surface px-3 text-sm font-normal text-ink";
 
   return (
-    <form onSubmit={onSubmit} className="mt-3 flex flex-col gap-3 border-t border-neutral-200 pt-3">
-      <label className="flex flex-col gap-1 text-xs font-semibold text-neutral-700">
+    <form onSubmit={onSubmit} className="mt-3 flex flex-col gap-3 border-t border-divider pt-3">
+      <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
         Which ingredient is used?
         <select value={itemCode} onChange={(event) => setItemCode(event.target.value)} className={field}>
           <option value="" disabled>
@@ -74,7 +78,7 @@ export function FeedbackForm({ restaurantId, items, onSent }: Props) {
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-1 text-xs font-semibold text-neutral-700">
+      <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
         Dish name (optional)
         <input
           value={menuName}
@@ -83,13 +87,13 @@ export function FeedbackForm({ restaurantId, items, onSent }: Props) {
           className={field}
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs font-semibold text-neutral-700">
+      <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
         Note (optional)
         <input value={note} maxLength={500} onChange={(event) => setNote(event.target.value)} className={field} />
       </label>
 
       {message && (
-        <span role="alert" className="text-sm text-red-600">
+        <span role="alert" className="text-sm font-medium text-avoid">
           {message}
         </span>
       )}
@@ -98,7 +102,7 @@ export function FeedbackForm({ restaurantId, items, onSent }: Props) {
         <button
           type="submit"
           disabled={busy}
-          className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          className={`${btnPrimary} ${SMALL} flex-1`}
         >
           {busy ? "Please wait…" : "Send"}
         </button>
@@ -108,7 +112,7 @@ export function FeedbackForm({ restaurantId, items, onSent }: Props) {
             setOpen(false);
             setMessage(null);
           }}
-          className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold"
+          className={`${btnOutline} ${SMALL} flex-1`}
         >
           Cancel
         </button>

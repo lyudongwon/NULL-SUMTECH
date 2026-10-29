@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { btnPrimary, card } from "@/components/ui/styles";
 import { useAccount } from "@/hooks/useAccount";
 import { ApiError } from "@/lib/apiClient";
 
@@ -37,11 +38,11 @@ export function AuthForm({ mode }: Props) {
     }
   }
 
-  const field = "w-full rounded-lg border border-neutral-300 px-3 py-2";
+  const field = "h-12 w-full rounded-xl border border-edge bg-surface px-3.5 text-base font-normal text-ink";
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1 text-sm font-semibold text-neutral-700">
+    <form onSubmit={onSubmit} noValidate className={`${card} flex w-full max-w-md flex-col gap-4 p-6`}>
+      <label className="flex flex-col gap-1.5 text-sm font-semibold text-muted">
         Email
         <input
           type="email"
@@ -52,7 +53,7 @@ export function AuthForm({ mode }: Props) {
           className={field}
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-semibold text-neutral-700">
+      <label className="flex flex-col gap-1.5 text-sm font-semibold text-muted">
         {mode === "signup" ? "Password (8+ characters)" : "Password"}
         <input
           type="password"
@@ -65,7 +66,7 @@ export function AuthForm({ mode }: Props) {
       </label>
 
       {message && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="rounded-[14px] bg-avoid-bg px-4 py-3 text-sm font-medium text-avoid">
           {message}
         </p>
       )}
@@ -73,14 +74,14 @@ export function AuthForm({ mode }: Props) {
       <button
         type="submit"
         disabled={busy}
-        className="rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white disabled:opacity-60"
+        className={btnPrimary}
       >
         {busy ? "Please wait…" : copy.submit}
       </button>
 
-      <p className="text-center text-sm text-neutral-600">
+      <p className="text-center text-sm text-body">
         {copy.other}{" "}
-        <Link href={copy.otherHref} className="font-semibold text-emerald-700">
+        <Link href={copy.otherHref} className="font-semibold text-olive hover:text-olive-dark">
           {copy.otherLink}
         </Link>
       </p>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { Icon } from "@/components/ui/icons";
+import { btnOutline, btnPrimary } from "@/components/ui/styles";
 import { cameraSupported } from "@/hooks/useCamera";
 import type { ImageSource } from "@/types/image";
 import { CameraCapture } from "./CameraCapture";
@@ -54,17 +56,15 @@ export function PhotoPicker({ disabled, onPick }: Props) {
     if (file) onPick(file, source);
   }
 
-  function onDrop(event: DragEvent<HTMLDivElement>) {
+  function onDrop(event: DragEvent<HTMLElement>) {
     event.preventDefault();
     setDragging(false);
     const file = event.dataTransfer.files?.[0];
     if (file && !disabled) onPick(file, "DRAG_DROP");
   }
 
-  const button = "flex-1 rounded-lg px-4 py-3 text-center font-semibold disabled:opacity-60";
-
   return (
-    <div
+    <section
       data-testid="scan-drop-zone"
       onDragOver={(event) => {
         event.preventDefault();
@@ -72,19 +72,24 @@ export function PhotoPicker({ disabled, onPick }: Props) {
       }}
       onDragLeave={() => setDragging(false)}
       onDrop={onDrop}
-      className={`flex flex-col gap-4 rounded-xl border-2 border-dashed p-5 ${
-        dragging ? "border-emerald-500 bg-emerald-50" : "border-neutral-300"
+      className={`flex flex-col items-center justify-center gap-[18px] rounded-3xl border-[1.5px] border-dashed px-5 pt-10 pb-8 text-center transition-colors md:px-8 md:pt-12 ${
+        dragging ? "border-olive bg-[#f7f9ef]" : "border-[#c3c8d0] bg-surface"
       }`}
     >
-      <p className="text-center text-sm text-neutral-600">
-        Upload one photo of a menu board or a dish.
-        <span className="hidden sm:inline"> You can also drag a photo here.</span>
-      </p>
-      <div className="flex gap-3">
-        <button type="button" disabled={disabled} onClick={takePhoto} className={`${button} bg-emerald-600 text-white`}>
+      <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-chip text-olive">
+        <Icon name="upload" size={30} stroke={1.7} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-[19px] font-semibold">Upload one photo of a menu board or a dish.</p>
+        <p className="hidden text-sm text-muted sm:block">You can also drag a photo here.</p>
+      </div>
+      <div className="flex w-full flex-wrap justify-center gap-2.5">
+        <button type="button" disabled={disabled} onClick={takePhoto} className={`${btnPrimary} flex-1 sm:flex-none`}>
+          <Icon name="camera" />
           Take a photo
         </button>
-        <button type="button" disabled={disabled} onClick={() => open("FILE")} className={`${button} border border-neutral-300`}>
+        <button type="button" disabled={disabled} onClick={() => open("FILE")} className={`${btnOutline} flex-1 sm:flex-none`}>
+          <Icon name="image" />
           Choose from album
         </button>
       </div>
@@ -108,6 +113,6 @@ export function PhotoPicker({ disabled, onPick }: Props) {
         disabled={disabled}
         onChange={onChange}
       />
-    </div>
+    </section>
   );
 }

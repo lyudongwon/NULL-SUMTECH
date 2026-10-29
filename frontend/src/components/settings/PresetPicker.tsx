@@ -17,10 +17,8 @@ export function PresetPicker({ presets, selected, onSelect }: Props) {
             type="button"
             aria-pressed={active}
             onClick={() => onSelect(preset.code)}
-            className={`rounded-full border px-4 py-2 text-sm font-medium ${
-              active
-                ? "border-emerald-600 bg-emerald-600 text-white"
-                : "border-neutral-300 bg-white text-neutral-800"
+            className={`min-h-11 rounded-full border px-4 text-sm ${
+              active ? "border-ink bg-ink font-semibold text-white" : "border-edge bg-surface font-medium text-ink"
             }`}
           >
             {preset.name}

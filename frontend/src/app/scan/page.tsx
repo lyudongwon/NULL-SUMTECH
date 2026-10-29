@@ -1,18 +1,13 @@
-import Link from "next/link";
+import { PageHead } from "@/components/layout/PageHead";
 import { ScanFlow } from "@/components/scan/ScanFlow";
 
 export const metadata = { title: "Upload photo | Can I Eat?" };
 
 export default function ScanPage() {
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Upload photo</h1>
-        <Link href="/" className="text-sm text-neutral-500">
-          Home
-        </Link>
-      </div>
+    <div className="flex flex-1 flex-col gap-6">
+      <PageHead title="Upload photo" />
       <ScanFlow />
-    </section>
+    </div>
   );
 }
