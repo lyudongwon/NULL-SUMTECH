@@ -44,7 +44,7 @@
 - **사용자 제한은 서비스로 받는다.** ③은 `RestrictionService.findEnabledItemCodes(userId)`로 사용자가 켠 항목을 받는다(사용자가 없으면 empty, 저장한 적 없으면 빈 집합). `restriction` 도메인의 repository·entity를 직접 쓰지 않는다.
 - **브랜치는 각자 따로 쓴다.** [git-convention.md](git-convention.md)대로 `feat/base-settings`(①), `feat/photo-scan`(②), `feat/judgment-engine`(③)을 쓰고 작게 자주 PR로 합친다. 시작 전마다 `main`을 받는다.
 - **E2E는 ①이 만든다.** `e2e/scenarios/<id>.spec.ts`로 흐름마다 파일 하나다. 테스트 사진은 ②가 `e2e/fixtures/`에 넣는다. 판정 엔진 단위 테스트(JUnit 5)는 ③이 맡는다.
-- **E2E 메뉴는 시드에 넣는다.** 예외는 S4(`manual-input-unknown-menu`)의 "된장찌개" 하나다. DB에 없는 경로를 확인하는 흐름이고, 만개의 레시피가 막혀도 AI 추정으로 배지가 나오게 해서 외부 사이트와 상관없이 통과시킨다.
+- **E2E 메뉴는 시드에 넣는다.** 예외는 S5(`manual-input-unknown-menu`)의 "된장찌개" 하나다. DB에 없는 경로를 확인하는 흐름이고, 만개의 레시피가 막혀도 AI 추정으로 배지가 나오게 해서 외부 사이트와 상관없이 통과시킨다.
 
 ## 작업 순서
 

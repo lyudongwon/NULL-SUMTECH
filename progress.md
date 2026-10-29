@@ -50,7 +50,8 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [x] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만) — 루트 `Dockerfile`(app), `backend/Dockerfile`
 - [x] docker-compose.yml: app·backend·db, app만 ports "3000:3000", 앱은 컨테이너 안 3000에서 받음, 절대 주소 없음(BACKEND_URL은 내부 서비스 이름)
 - [x] app 말고는 ports·container_name이 없고, 어느 서비스에도 env_file 없음. db는 이름 붙은 볼륨 `db-data`
-- [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY). 로그인이 없어(`scenarios.yaml` login: false) SEED_USER_*는 두지 않음
+- [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY)
+- [ ] 로그인(OPT-4)이 생겨 시드 계정이 필요하다: `docker-compose.yml` app에 `SEED_USER_EMAIL: student@example.com`·`SEED_USER_PASSWORD: loopthon-2026`을 `${}` 없이 적고, 앱이 처음 뜰 때 그 계정(역할 "유학생")을 만든다. 흐름 S3과 `e2e/env.ts` 기본값이 이 값을 쓴다(2026-10-30, 아직 구현 안 됨)
 - [x] 빈 DB에서 `docker compose down -v` → `RELEASE_ID=<HEAD> docker compose up -d --build`로 67초(빌드 포함) 만에 `/__health` 200 (2026-10-30 로컬 Docker Desktop)
 - [x] README 설치·빌드·실행 안내와 환경변수 표
 - [~] GET /__health: docker 앱에서 200, 리다이렉트 없음, `Cache-Control: no-store`, releaseId = 실행 commit 확인. 배포는 아직 없음
@@ -216,8 +217,8 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (C, REQ-3·REQ-5) 판정 API가 500을 돌려줄 때 판정 화면이 무엇을 보여 주는지(문구·다시 시도) 정해져 있지 않다. REQ-5에서 AI 추정 호출 자체가 실패했을 때 "재료를 찾지 못함"(`[]` → R3)으로 볼지 500으로 볼지도 없다. 제안: AI 실패는 `[]` → R3로 보고, 500 화면 문구를 `api.md > 화면 문구`에 더할지 ①·③이 정한다
 - (A, 형식) features에 입력 조건·예외를 따로 적을 칸이 없어 `done` 문장이 길다. 제안: `input_condition`·`exceptions` 키를 둘지 대시보드 표시를 확인한 뒤 정한다
 - (D) 주요·부가를 나눈 이유가 어느 문서에도 없다. 제안: "시연 흐름에 꼭 필요하면 REQ, 없어도 문제·해법을 보여 줄 수 있으면 OPT" 같은 기준 한 줄을 `problem.yaml` 주석에 팀이 적는다 → 2026-10-30 반영: features 위 주석에 "핵심 흐름(E1·E2 판정과 근거)에 꼭 필요하면 REQ"로 적음
-- (D, OPT-1·OPT-3) 앞의 A 항목 두 개(OPT-1·OPT-3을 REQ로 올릴지)를 D에서 다시 봤다. 둘 다 이미 만들어졌고 흐름 S3(`manual-input-fallback`)·S4(`manual-input-unknown-menu`)와 배포 업로드가 기댄다. 제안: 둘을 REQ로 올리고 ID는 그대로 둔다(ID를 바꾸면 코드·E2E 주석이 바뀐다)
-- (D, 시연) 발표 시연 순서와 대체 계획이 없다. 시연은 AI 판독·만개의 레시피 같은 외부 호출에 기댄다. 제안: E1(S5) → E2(S6) → 판독 실패 시 수동 입력(S3) 순서를 팀이 정하고, 네트워크가 막힐 때 시드 메뉴를 직접 입력하는 대체 장면을 정한다
+- (D, OPT-1·OPT-3) 앞의 A 항목 두 개(OPT-1·OPT-3을 REQ로 올릴지)를 D에서 다시 봤다. 둘 다 이미 만들어졌고 흐름 S4(`manual-input-fallback`)·S5(`manual-input-unknown-menu`)와 배포 업로드가 기댄다. 제안: 둘을 REQ로 올리고 ID는 그대로 둔다(ID를 바꾸면 코드·E2E 주석이 바뀐다)
+- (D, 시연) 발표 시연 순서와 대체 계획이 없다. 시연은 AI 판독·만개의 레시피 같은 외부 호출에 기댄다. 제안: E1(S6) → E2(S7) → 판독 실패 시 수동 입력(S4) 순서를 팀이 정하고, 네트워크가 막힐 때 시드 메뉴를 직접 입력하는 대체 장면을 정한다
 - (D, OPT-2) OPT-2 흐름은 2026-10-30 S8로 생겼다(목록 방식, PR #25·#29). 남은 것: 시연에서 "안전한 메뉴가 없을 때 다른 식당"(`insight.design_decision`)을 보여 줄지, 보여 주면 시드 몇 곳이 필요한지 정한다(`erd.md` 열린 질문 7)
 - (E, 지표) "15초 안에 판정과 확인할 재료까지"를 잴 시작·끝과 조건이 없다. 판독 시간 한도는 45초(REQ-2)라 15초를 넘어도 실패가 아니다. 제안: "사진을 고른 때부터 판정 화면이 보일 때까지, 시드 메뉴판 사진(E1·E2 시나리오)으로 N회 중 N회 15초 이내"처럼 측정 방법을 `measurable`에 적고, 시연 리허설에서 잰 값을 남긴다 → 2026-10-30 반영: `measurable`에 사진 선택 → 배지 표시, E1·E2 사진 10회 중 10회 15초 이내로 적음
 - (E, 지표) "포기한 끼니 한 달 약 10끼"는 지금 값만 있고 목표·측정 방법이 없으며 해커톤 기간에는 잴 수 없다. 제안: 목표 숫자를 학생이 정하거나, "배경 지표(해커톤 중 측정 안 함)"로 표시한다 → 2026-10-30 반영: 목표 한 달 5끼 이하, 해커톤 뒤 사용 전후 각 한 달 기록으로 적음
