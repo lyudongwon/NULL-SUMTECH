@@ -114,6 +114,38 @@ class JudgmentRulesTest {
 	}
 
 	@Test
+	void R3_AI_추정에_조리법_추정이_섞여도_DB나_레시피_재료가_없으면_확인_필요다() {
+		// DB·만개의 레시피에 없는 "두부조림": AI가 [두부, 간장], 조리법 "조림"이 맛술을 더한 경우
+		JudgmentResult result = judge("두부조림", Set.of("peanut"),
+				inferred("두부", Basis.AI_ESTIMATE),
+				inferred("간장", Basis.AI_ESTIMATE),
+				inferred("맛술", Basis.COOKING_METHOD, "alcohol"));
+
+		assertEquals(Level.CHECK, result.level());
+		assertEquals(Rule.R3, result.rule());
+	}
+
+	@Test
+	void R3_AI가_실패해_이름_단어_재료만_남아도_확인_필요다() {
+		JudgmentResult result = judge("치즈떡볶이", Set.of("peanut"),
+				inferred("치즈", Basis.NAME_KEYWORD, "dairy"));
+
+		assertEquals(Level.CHECK, result.level());
+		assertEquals(Rule.R3, result.rule());
+	}
+
+	@Test
+	void R4_만개의_레시피에서_찾은_재료가_있고_걸리지_않으면_안전이다() {
+		JudgmentResult result = judge("된장찌개", HALAL,
+				inferred("된장", Basis.RECIPE_SEARCH),
+				inferred("두부", Basis.RECIPE_SEARCH),
+				inferred("애호박", Basis.NAME_KEYWORD));
+
+		assertEquals(Level.SAFE, result.level());
+		assertEquals(Rule.R4, result.rule());
+	}
+
+	@Test
 	void R3_재료를_하나도_찾지_못하면_확인_필요다() {
 		JudgmentResult result = judge("처음 보는 메뉴", HALAL);
 

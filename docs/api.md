@@ -419,12 +419,13 @@
 | `R0` | 사용자 제한이 하나도 없다(미설정·미등록 `user_id` 포함) | `SAFE` |
 | `R1` | `CONFIRMED` 재료가 제한에 걸린다 | `BLOCKED` |
 | `R2` | `INFERRED` 재료가 제한에 걸린다 | `CHECK` |
-| `R3` | 걸리는 재료는 없지만 재료가 모두 `AI_ESTIMATE`에서 왔다 | `CHECK` |
+| `R3` | 걸리는 재료는 없지만 음식 DB(`DB`)나 만개의 레시피(`RECIPE_SEARCH`)에서 온 재료가 하나도 없다(재료가 AI 추정·이름 단어·조리법 추정뿐이거나 비었다) | `CHECK` |
 | `R4` | 걸리는 재료가 없다 | `SAFE` |
 
 - AI 추정(`AI_ESTIMATE`) 재료는 항상 `INFERRED`다. 그래서 AI 추정만으로는 `BLOCKED`가 나오지 않고, 제한이 있는 사용자에게는 걸리면 `R2`, 걸리지 않으면 `R3`로 늘 `CHECK`가 나온다(REQ-5).
+- REQ-5는 AI 추정 결과에도 이름 단어(`NAME_KEYWORD`)·조리법(`COOKING_METHOD`) 추정을 덧붙인다. 그래서 `R3`는 "모두 `AI_ESTIMATE`"가 아니라 "`DB`·`RECIPE_SEARCH` 재료가 없음"으로 본다. 그렇지 않으면 AI 추정에 조리법 재료 하나만 섞여도 `R4`(`SAFE`)가 나와 위 줄과 어긋난다.
 - 재료를 하나도 찾지 못해 `ingredients`가 비어도 `R3`(`CHECK`)이다. 제한이 없는 사용자는 그보다 먼저 `R0`(`SAFE`)이 된다.
-- `R0`·`R3`의 `reason`은 응답 예시에 없어 지금 구현(`JudgmentRules`) 문구를 적는다. `R0`: `You have no diet restrictions set.` / `R3`(재료 없음): `No ingredients were found. Please check before eating.` / `R3`(모두 AI 추정): `Ingredients are AI estimates only. Please check before eating.`
+- `R0`·`R3`의 `reason`은 응답 예시에 없어 지금 구현(`JudgmentRules`) 문구를 적는다. `R0`: `You have no diet restrictions set.` / `R3`(재료 없음): `No ingredients were found. Please check before eating.` / `R3`(DB·레시피 재료 없음): `Ingredients are AI estimates only. Please check before eating.`
 - 판정은 코드(`backend` `domain/judgment/service`)가 한다. AI는 재료를 찾을 때만 쓴다. 규칙마다 JUnit 테스트를 둔다.
 
 ### 예외 상황
