@@ -28,4 +28,5 @@ server:
   port: ${PORT:8080}
 
 app:
-  release-id: ${RELEASE_ID:}
+  # Render는 배포한 commit을 RENDER_GIT_COMMIT으로 넣어 준다. docker compose 실행에서는 RELEASE_ID를 쓴다.
+  release-id: ${RENDER_GIT_COMMIT:${RELEASE_ID:}}
