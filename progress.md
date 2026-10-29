@@ -119,5 +119,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `yaml.safe_load` 통과(features ID 11개 그대로), `git diff`로 바뀐 줄의 ID(REQ/OPT/R/E) 짝이 맞는지 확인
 - 2회차(2026-10-30) `README.md`: 첫머리에 문제 → 누가 겪는지 → 해법 → 핵심 기능 소개 3문단을 problem.yaml 내용만으로 넣고, 나열식 "~한다" 문장을 읽기 쉬운 말투로 고침. 명령·포트·환경변수 표·경로는 그대로
   - 검사: 고치기 전후 README의 백틱 토큰·`.md` 링크·URL 목록을 뽑아 비교해 똑같음을 확인, 새 링크 `docs/problem.yaml`은 실제 파일
-- 남은 문서(순서대로): docs/decisions.md → docs/api.md → docs/scenarios.yaml(steps·expected 제외) · erd.md · tech-stack.md · folder-structure.md
-- 다음 행동: docs/decisions.md 다듬기
+- 3회차(2026-10-30) `docs/decisions.md`: 머리말을 읽기 쉽게 고치고, 굵은 글씨 2곳을 빼고, 이유 칸의 딱딱한 문장 8곳을 자연스럽게 고침. 결정 21행·날짜·반영 상태·결정 내용은 그대로
+  - 검사: 고치기 전후 백틱 토큰·`.md` 링크·REQ/OPT/R 번호 목록을 뽑아 `diff`로 비교해 똑같음, 결정 행 수 21 그대로, `git diff`로 바뀐 9줄을 다시 읽음
+- 남은 문서(순서대로): docs/api.md → docs/scenarios.yaml(steps·expected 제외) · erd.md · tech-stack.md · folder-structure.md
+- 다음 행동: docs/api.md 다듬기(경로·필드·열거형·영어 화면 문구는 그대로, 설명 문장만)
