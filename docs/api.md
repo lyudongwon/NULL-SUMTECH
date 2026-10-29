@@ -83,6 +83,7 @@
 | 판정 화면 | 배지 | Safe · Check first · Avoid |
 | 판정 화면·링크 | 다시 찍기 | Retake |
 | 판정 화면 | 서버가 이유를 주지 않은 오류 | Couldn't load the results. |
+| 판정 화면·버튼 | 판정 실패 뒤 다시 판정 · 사진 다시 고르기 | Try again · Retake |
 | 근거 상세(REQ-6) | 확인/추정 | Confirmed · Estimated |
 | 근거 상세(REQ-6) | 확신도 | High · Medium · Low |
 | 근거 상세(REQ-6) | 적용 규칙 | Rule |
