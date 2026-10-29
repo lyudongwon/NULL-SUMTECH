@@ -207,7 +207,7 @@ features:
     name: 음식점 추천
     input: user_id
     output: 학식 대신 갈 수 있는 다른 음식점 추천
-    done: 첫 화면에는 "Other restaurants"가 항상 있고, 판정 결과에 '안전' 메뉴가 하나도 없으면 판정 화면에도 "Other restaurants"가 나타난다. 누르면 내 식단 제한 항목을 모두 피하는 음식점이 보인다. 음식점 데이터는 시드(R__20)로 넣는다. 지금 시드는 이름 앞에 (예시)가 붙은 예시 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다. 조건에 맞는 곳이 없으면 "No restaurants match your diet yet."가 보인다.
+    done: 첫 화면에는 "Other restaurants"가 항상 있고, 판정 결과에 '안전' 메뉴가 하나도 없으면 판정 화면에도 "Other restaurants"가 나타난다. 누르면 내 식단 제한 항목을 모두 피하는 음식점이 보인다. 음식점 데이터는 시드(R__20)로 넣는다. 지금 시드는 예시 데이터라 목록 아래에 "Sample list for now. We're still adding real restaurants near campus."가 보이고, 팀이 학교 주변 음식점을 조사해 바꾼다. 조건에 맞는 곳이 없으면 "No restaurants match your diet yet."가 보인다.
   - id: OPT-3 # 부가
     name: 이미지 축소
     input: 원본 이미지
