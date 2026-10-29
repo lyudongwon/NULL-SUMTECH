@@ -7,6 +7,8 @@ services:
     environment:
       BACKEND_URL: http://backend:8080
       RELEASE_ID: local
+      # 채점기는 app 환경변수로 AI 키를 넣는다. 키를 실제로 읽는 쪽은 backend다(아래 backend에도 같은 줄).
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
       KAKAO_MAP_APP_KEY: ${KAKAO_MAP_APP_KEY:-}
     depends_on:
       backend:
