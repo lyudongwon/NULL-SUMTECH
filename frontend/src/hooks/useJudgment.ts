@@ -1,37 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ApiError, apiRequest } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiClient";
+import { judge } from "@/services/judgmentService";
 import { getPresets } from "@/services/restrictionService";
+import type { JudgmentResponse, JudgmentResult, Level } from "@/types/judgment";
 import { ensureUserId } from "./userIdentity";
 
-// TODO(③): ③이 src/types/judgment.ts와 src/services/judgmentService.ts를 올리면
-// 아래 타입과 requestJudgments를 그 파일의 것으로 바꾼다(docs/roles.md 만나는 지점 2).
-// 지금은 docs/api.md REQ-3 응답을 그대로 옮겨 둔 임시본이다.
-export type JudgmentLevel = "SAFE" | "CHECK" | "BLOCKED";
-export type JudgmentIngredient = {
-  name: string;
-  evidence: "CONFIRMED" | "INFERRED";
-  confidence: "HIGH" | "MEDIUM" | "LOW";
-  basis: "DB" | "NAME_KEYWORD" | "COOKING_METHOD" | "RECIPE_SEARCH" | "AI_ESTIMATE";
-  restrictions: string[];
-};
-export type JudgmentResult = {
-  menu_name: string;
-  level: JudgmentLevel;
-  reason: string;
-  matched_restrictions: string[];
-  rule: "R0" | "R1" | "R2" | "R3" | "R4";
-  ingredients: JudgmentIngredient[];
-};
-type JudgmentResponse = { results: JudgmentResult[] };
-
-function requestJudgments(userId: number, menuNames: string[]) {
-  return apiRequest<JudgmentResponse>("/judgments", {
-    method: "POST",
-    body: JSON.stringify({ user_id: userId, menu_names: menuNames }),
-  });
-}
+// 타입과 요청 함수는 ③의 src/types/judgment.ts·src/services/judgmentService.ts를 쓴다(docs/roles.md 만나는 지점 2).
+// 결과 화면 컴포넌트가 이 파일에서 가져가던 이름은 그대로 다시 내보낸다.
+export type { JudgmentIngredient, JudgmentResult } from "@/types/judgment";
+export type JudgmentLevel = Level;
 
 export const EMPTY_INPUT_MESSAGE = "Please enter a menu name.";
 
@@ -71,7 +50,7 @@ export function useJudgment(menuNames: string[], demo: boolean): State {
       try {
         const [presets, response] = await Promise.all([
           getPresets(),
-          demo ? Promise.resolve(demoResponse(names)) : ensureUserId().then((id) => requestJudgments(id, names)),
+          demo ? Promise.resolve(demoResponse(names)) : ensureUserId().then((id) => judge(id, names)),
         ]);
         if (cancelled) return;
         setState({
