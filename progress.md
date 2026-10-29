@@ -290,12 +290,18 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `./gradlew --no-daemon test` 통과(103개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
   - 미확인(node·docker 없음): 흐름 E2E 8개 실행
   - 다음: OPT-2 브랜치 병합 뒤 api.md 공통 에러에 405·415를 적는다. 남은 큰 일은 팀 결정과 node·docker 확인이다
+- 12회차(2026-10-30) 지난 심사(70점)의 "가장 먼저 고칠 것"은 docker에서 흐름 E2E 8개 실행, api.md 405·415, "현재 상태" 고치기다. `origin/main`은 새 커밋이 없었다. `docs/api.md`는 `feat/opt2-nearby-restaurants`와 새 팀 브랜치 `fix/seed-name-match`가, "현재 상태"·3~6단계는 `docs/e2e-results`가 고치는 중이라 이번에도 건드리지 않았다. `fix/seed-name-match`가 바꾸는 재료 추론 파일(`IngredientInferenceService`·`MenuNameNormalizer`·`RecipeSearchClient`·`FoodRepository`)과 프런트 프록시도 피했다
+  - 위험 항목 중 이미 구현된 사진 보관 원칙(메모리 30분, 최대 200장)에 직접 테스트가 없어 `ImageBodyStoreTest`(4개)를 더함: 본문·형식 그대로 돌려줌, 없는 사진은 빈 값, 꼭 30분까지 남고 1초 뒤 지움(시간을 되돌려도 다시 나오지 않음), 201장째에 가장 오래된 사진을 지움
+  - 시간을 정하려고 `ImageBodyStore`에 `Clock`을 받는 package-private 생성자를 더함. 동작·보관 기간은 그대로이고 Spring은 인자 없는 생성자를 쓴다(`ImageControllerTest` 통과로 확인)
+  - 검사: `./gradlew --no-daemon test` 통과(107개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). `TTL`을 31분으로 잠시 바꾸면 만료 테스트가 실패하는 것을 확인하고 되돌림
+  - 미확인(node·docker 없음): 흐름 E2E 8개 실행
+  - 다음: 남은 일은 팀 결정(아래 목록)과 node·docker 확인뿐이다. 루프가 팀 브랜치를 피해 혼자 할 수 있는 일은 남지 않았다
 
 ### 팀 결정 필요
 
 - (시드 DB 테스트) 심사는 `SeedJudgmentTest`가 실제 DB가 아니라 SQL VALUES 줄을 정규식으로 읽는다고 본다. 이 PC에는 docker가 없어 Testcontainers를 못 쓴다. docker 없이 실제 PostgreSQL을 띄우는 `io.zonky.test:embedded-postgres`(testImplementation)를 쓰면 Flyway 시드 → JPA 조회 → 판정까지 테스트할 수 있으나, `build.gradle`은 ①만 고친다(파일 머리 주석). 제안: ①이 이 의존성을 더할지 정한다. 더하면 루프가 통합 테스트를 쓴다
 
-- (api.md 405·415) 8회차가 코드에 넣은 405 "This method is not allowed."·415 "This content type is not supported."가 `docs/api.md` 공통 에러 표에 없다. api.md는 `feat/opt2-nearby-restaurants`가 계약을 바꾸는 중이라 루프가 고치면 충돌한다. 제안: OPT-2 브랜치 담당자가 병합 전에 공통 에러 표에 두 줄을 더하거나, 병합 뒤 루프가 더하게 둔다
+- (api.md 405·415) 8회차가 코드에 넣은 405 "This method is not allowed."·415 "This content type is not supported."가 `docs/api.md` 공통 에러 표에 없다. api.md는 `feat/opt2-nearby-restaurants`·`fix/seed-name-match`가 고치는 중이라 루프가 고치면 충돌한다. 제안: OPT-2 브랜치 담당자가 병합 전에 공통 에러 표에 두 줄을 더하거나, 병합 뒤 루프가 더하게 둔다
 
 - (OPT-2) 코드는 `limit`을 1~20으로 맞추는데(`RestaurantService.MAX_LIMIT`), `docs/api.md > OPT-2`에는 "기본 5"만 있다 → 2회차 반영: api.md 요청 표에 적음
 - (OPT-2 시드) 음식점 시드는 "(예시)" 가짜 5곳이고 주소는 `TODO(확인)`이다. `problem.yaml > OPT-2 > done`은 "팀이 조사한 음식점"을 말한다. 실제 음식점 이름·종류·주소·안 쓰는 재료는 AI가 지어낼 수 없다. 제안: ①이 학교 주변 음식점 5곳 이상을 직접 조사해 `R__20_seed_restaurants.sql`을 바꾸거나, 시연에서 OPT-2를 "예시 데이터"라고 밝히고 보여 준다
