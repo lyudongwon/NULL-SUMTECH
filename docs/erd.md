@@ -131,7 +131,7 @@ erDiagram
 
 | 테이블 | 컬럼 | 설명 |
 | --- | --- | --- |
-| `restaurants` | `id` PK, `name`, `category`, `address` | 팀이 조사한 학교 주변 음식점(`R__20_seed_restaurants.sql`) |
+| `restaurants` | `id` PK, `name`, `category`, `address` | 음식점 시드(`R__20_seed_restaurants.sql`). 지금은 `(예시)` 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다 |
 | `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
 
 - 추천은 첫 화면의 "Other restaurants"와, 판정 결과에 '안전'이 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
