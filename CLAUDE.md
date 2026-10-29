@@ -15,7 +15,9 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 저장소. 학식당 메뉴판·음식
 | 커밋·브랜치·PR을 만들 때 | [docs/git-convention.md](docs/git-convention.md) | 브랜치, 커밋 메시지, PR, main 복구, 금지 사항 | 작성됨(초안) |
 | 맡은 역할과 고쳐도 되는 파일을 확인할 때 | [docs/roles.md](docs/roles.md) | 역할 3개(기반·설정 / 사진·화면 / 판정 엔진), 파일 소유권, 작업 순서, 세션 시작 지시문 | 작성됨(초안) |
 | 채팅·회의에서 정한 결정을 남기거나 확인할 때 | [docs/decisions.md](docs/decisions.md) | 날짜별 결정과 문서 반영 상태 | 작성됨 |
-| DB·엔티티·마이그레이션을 다룰 때 | `docs/erd.md` | ERD | 작성 예정 |
+| DB·엔티티·마이그레이션을 다룰 때 | [docs/erd.md](docs/erd.md) | 테이블·관계, 시드 최소 요구, 열린 질문 | 작성됨(초안) |
+| 기술 스택과 실행 조건을 확인할 때 | [docs/tech-stack.md](docs/tech-stack.md) | 언어·프레임워크·DB·AI·테스트·배포 선택, 실행 조건 | 작성됨(노션 사본) |
+| 파일·폴더를 만들거나 옮길 때 | [docs/folder-structure.md](docs/folder-structure.md) | 백엔드 도메인 폴더(controller·service·dto·entity·repository), 프런트엔드 레이어 | 작성됨(잠정) |
 | 세션을 시작할 때 | [progress.md](progress.md) | 현재 단계, 해야 할 일 체크리스트 | 작성됨 |
 | 실행·환경변수를 확인할 때 | [README.md](README.md) | 설치·실행 방법, 환경변수 표 | 작성됨(실행 방법은 기술 구성 확정 후) |
 | 팀 원본 문서를 볼 때 | [노션: SUMTECH 2026 NULL팀](https://app.notion.com/p/408c4b3d7d9e80c1baf7e49e8365e3e5) | 기획서, 기능 명세서, API 명세서 | 팀 공유 |
@@ -34,4 +36,4 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 저장소. 학식당 메뉴판·음식
 
 ## 기술 스택
 
-아직 확정되지 않았다. 확정되면 README의 설치·실행 섹션에 먼저 적고, 여기에는 한 줄 요약만 남긴다.
+Next.js(화면) + Spring Boot(백엔드) + PostgreSQL(JPA·Flyway) + Spring AI. 잠정이며 작업 중 바뀐다. 전체 표와 실행 조건은 [docs/tech-stack.md](docs/tech-stack.md), 설치·실행 방법은 README에 적는다.
