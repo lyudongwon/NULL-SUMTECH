@@ -1,0 +1,52 @@
+# 흐름 E2E를 채점기와 같은 순서로 미리 검사한다.
+# 순서: 루트 docker-compose.yml로 빈 DB에서 띄우기 → /__health 200(2분 안) → e2e/scenarios/S*.spec.ts를 휴대폰 화면으로 돌리기.
+# TODO(확인): 시작 키트의 workflows/scenarios.yml 원본을 받지 못해, 제출 요건 안내에 맞춰 같은 순서로 직접 썼다.
+#            키트 파일을 받으면 이 파일을 그 내용으로 덮어쓴다.
+# 휴대폰 화면(390x844, isMobile, hasTouch)은 e2e/playwright.config.ts의 devices["Pixel 7"]로 맞춘다.
+name: scenarios
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  scenarios:
+    runs-on: ubuntu-latest
+    env:
+      AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start on an empty DB
+        run: docker compose up -d --build
+      - name: Wait for /__health (2 minutes)
+        run: |
+          for i in $(seq 1 120); do
+            if curl -fsS http://localhost:3000/__health; then echo; exit 0; fi
+            sleep 1
+          done
+          echo "app did not become healthy within 2 minutes"; exit 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - name: Scenario E2E (Playwright)
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npx playwright test --project=scenarios
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-scenarios
+          path: e2e/playwright-report
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Stop
+        if: always()
+        run: docker compose down -v
