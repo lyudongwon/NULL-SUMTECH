@@ -4,6 +4,7 @@
 
 | 날짜 | 결정 | 이유 | 반영 상태 |
 | --- | --- | --- | --- |
+| 2026-10-30 | 옛 흐름 id를 쓰던 곳을 S1~S8에 맞췄다(`problem.yaml` features 주석 → S6·S7, `erd.md` → S5, `progress.md` 기획 검토 D 항목). `progress.md`의 지난 상태(이미 확인한 E1·E2 질문, "OPT-2 흐름이 없다")를 지금 상태로 고쳤다. `scenarios.yaml`의 옛 이름 주석과 `progress.md` 회차 기록은 이력이라 그대로 둔다 | 재채점(5b312d9)에서 문서끼리 어긋난 작은 곳으로 지적됐다 | 반영: `problem.yaml`, `erd.md`, `progress.md` |
 | 2026-10-30 | REQ-5 완료 조건에서 화면으로 확인할 수 없는 "찾아온 재료를 DB에 저장해 다시 검색하지 않는다"를 `api.md > REQ-5 > 찾는 순서`를 가리키게 하고, 대신 화면에서 보이는 근거 상세의 "Source" 열을 적었다. 동작은 그대로다 | 평가에서 REQ-5 done이 화면에서 확인할 수 없는 문장이라 C1이 감점됐다 | 반영: `problem.yaml > features > REQ-5 > done` |
 | 2026-10-30 | REQ(주요)·OPT(부가)를 나눈 기준을 features 위 주석에 적었다: REQ는 E1·E2 메뉴를 사진 한 장으로 판정하고 근거까지 보여 주는 핵심 흐름에 꼭 필요한 기능, OPT는 없어도 그 흐름으로 문제와 해법을 보여 줄 수 있는 기능. 기능 ID와 구분은 그대로다 | 나눈 이유가 없어 C2가 감점됐다(progress.md 기획 검토 D) | 반영: `problem.yaml > features` 위 주석 |
 | 2026-10-30 | 대안 1 why_ours의 "15초"가 목표값임을 밝혔다("목표 15초 이내, measurable") | 측정값처럼 읽혀 B2가 감점됐다 | 반영: `problem.yaml > canvas > alternatives[0] > why_ours` |
