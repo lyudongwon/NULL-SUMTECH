@@ -1,5 +1,6 @@
 package com.nullteam.foodcheck.domain.image.service;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -22,6 +23,17 @@ public class ImageBodyStore {
 	public record Body(byte[] bytes, String mimeType, Instant storedAt) {
 	}
 
+	private final Clock clock;
+
+	public ImageBodyStore() {
+		this(Clock.systemUTC());
+	}
+
+	/** 테스트가 시간을 정해 30분 만료를 확인할 때 쓴다. */
+	ImageBodyStore(Clock clock) {
+		this.clock = clock;
+	}
+
 	/** 오래된 것부터 지운다(LinkedHashMap 삽입 순서). */
 	private final Map<String, Body> bodies = new LinkedHashMap<>(16, 0.75f, false) {
 		@Override
@@ -31,7 +43,7 @@ public class ImageBodyStore {
 	};
 
 	public synchronized void put(String imageId, byte[] bytes, String mimeType) {
-		bodies.put(imageId, new Body(bytes, mimeType, Instant.now()));
+		bodies.put(imageId, new Body(bytes, mimeType, clock.instant()));
 	}
 
 	public synchronized Optional<Body> find(String imageId) {
@@ -39,7 +51,7 @@ public class ImageBodyStore {
 		if (body == null) {
 			return Optional.empty();
 		}
-		if (body.storedAt().plus(TTL).isBefore(Instant.now())) {
+		if (body.storedAt().plus(TTL).isBefore(clock.instant())) {
 			bodies.remove(imageId);
 			return Optional.empty();
 		}
