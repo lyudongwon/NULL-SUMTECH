@@ -26,5 +26,6 @@ test("프리셋 없이 토글만으로 식단 제한을 정해 판정받는다",
 
   const card = page.getByRole("listitem").filter({ hasText: "설렁탕" });
   await expect(card.getByText("Avoid", { exact: true })).toBeVisible(AI_WAIT);
-  await expect(card).toContainText("고기");
+  await expect(card.getByTestId("reason")).toContainText("소고기");
+  await expect(card.getByTestId("reason")).toContainText(/, which is not allowed for your .*Meat.* restriction\.$/);
 });
