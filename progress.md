@@ -47,7 +47,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 
 ## 3. 최소 화면 docker 실행·CI·첫 배포
 
-- [x] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만) — `frontend/Dockerfile`(app), `backend/Dockerfile`
+- [x] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만) — 루트 `Dockerfile`(app), `backend/Dockerfile`
 - [x] docker-compose.yml: app·backend·db, app만 ports "3000:3000", 앱은 컨테이너 안 3000에서 받음, 절대 주소 없음(BACKEND_URL은 내부 서비스 이름)
 - [x] app 말고는 ports·container_name이 없고, 어느 서비스에도 env_file 없음. db는 이름 붙은 볼륨 `db-data`
 - [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY). 로그인이 없어(`scenarios.yaml` login: false) SEED_USER_*는 두지 않음
@@ -93,23 +93,27 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 
 ## 6. 흐름 E2E
 
-- [x] 키트 e2e/를 저장소 e2e/로 복사, platform에 맞는 project만 남김
-- [x] 흐름마다 e2e/scenarios/<id>.spec.ts 하나(id와 같은 파일 이름), 파일마다 test 하나
-- [x] steps를 같은 순서의 화면 조작으로 spec 본문에 옮김(API 호출 없음), 다른 역할 단계는 새 창(context)으로 로그인, 회원가입 이메일은 실행마다 다르게
-- [x] page.goto는 창마다 처음 한 번만(로그인 화면으로 가는 goto만 예외), 회원가입은 첫 화면에서 눌러 가거나 회원가입 주소 하나만, 도우미 함수는 test보다 위에
-- [x] 마지막에 expected 결과를 expect로 확인(화면이 열렸는지만 보지 않음)
-- [x] test.skip·test.fixme·test.only·조건부 return·실패를 삼키는 try/catch 없음
-- [x] page.route·route.fulfill·routeFromHAR·routeWebSocket·addInitScript·화면 글자를 바꾸는 page.evaluate 없음
-- [x] 흐름에 필요한 선행 데이터는 앱 시드로, 업로드 자료는 e2e/fixtures/에 커밋, 앞 흐름이 만든 데이터에 기대지 않음
-- [x] AI 기능은 실제 응답을 기다려 확인, 흐름 하나가 로컬에서 1분 안
-- [x] viewport를 spec에서 바꾸지 않음, platform의 화면(both면 둘 다)에서 통과
-- [x] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
-- [x] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
-- 흐름별 E2E 결과(통과 / 실패 단계와 이유): 2026-10-30 로컬, `docker compose down -v` → `RELEASE_ID=da60b58 docker compose up -d --build`(`/__health` releaseId 일치) 뒤 smoke 4/4, 흐름 7/7 통과(흐름당 9~13초). 같은 날 앞선 실행 2회도 7/7
-  - spec 점검: 금지 패턴(skip·only·route·addInitScript·evaluate·viewport·try/catch) 없음, 파일마다 goto·test 1개, Pixel 7 화면만
-  - 약한 확인(통과는 하지만 expected보다 느슨함): `scan-food-photo-single-dish`는 근거 한 줄과 "모두 영어"를 따로 확인하지 않음, `scan-menu-board`는 "소고기"를 근거 칸이 아닌 카드 전체에서 찾음, `diet-toggle-only`는 "소고기" 대신 "고기"로 찾음, `manual-input-fallback` 주석에 옛 한국어 이름("메뉴 이름"·"판정하기")이 남음
-  - 실패 동작: 틀린 AI 키로 백엔드를 띄우면 Gateway 401 → 화면에 "We couldn't read the menu. Please type the menu name."과 "Menu name" 입력칸이 뜸(api.md 판독 오류 행과 같음)
-  - 프로젝트 검사: `./gradlew test` 성공, 화면 `eslint`·`tsc --noEmit`·`next build` 성공, 없는 주소(`/no-such-page`, `/api/v1/no-such`) 404, 추적 파일·커밋 이력에 AI 키 값 없음
+- [ ] 키트 e2e/를 저장소 e2e/로 복사, platform에 맞는 project만 남김
+- [ ] 흐름마다 e2e/scenarios/<id>.spec.ts 하나(id와 같은 파일 이름), 파일마다 test 하나
+- [ ] steps를 같은 순서의 화면 조작으로 spec 본문에 옮김(API 호출 없음), 다른 역할 단계는 새 창(context)으로 로그인, 회원가입 이메일은 실행마다 다르게
+- [ ] page.goto는 창마다 처음 한 번만(로그인 화면으로 가는 goto만 예외), 회원가입은 첫 화면에서 눌러 가거나 회원가입 주소 하나만, 도우미 함수는 test보다 위에
+- [ ] 마지막에 expected 결과를 expect로 확인(화면이 열렸는지만 보지 않음)
+- [ ] test.skip·test.fixme·test.only·조건부 return·실패를 삼키는 try/catch 없음
+- [ ] page.route·route.fulfill·routeFromHAR·routeWebSocket·addInitScript·화면 글자를 바꾸는 page.evaluate 없음
+- [ ] 흐름에 필요한 선행 데이터는 앱 시드로, 업로드 자료는 e2e/fixtures/에 커밋, 앞 흐름이 만든 데이터에 기대지 않음
+- [ ] AI 기능은 실제 응답을 기다려 확인, 흐름 하나가 로컬에서 1분 안
+- [ ] viewport를 spec에서 바꾸지 않음, platform의 화면(both면 둘 다)에서 통과
+- [ ] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
+- [ ] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
+- 흐름별 E2E 결과(통과 / 실패 단계와 이유): 2026-10-30 로컬에서 `docker compose down -v` → `up -d --build` → `/__health` 200 → `npx playwright test --project=scenarios`(390x844)로 확인했다.
+  - 빈 DB·`chore/submission-requirements`만: **6/8 통과**(S1~S5, S8). S6·S7은 판독 이름이 시드 메뉴와 달라(`돌솥비빔밥`, `김치비빔국수`) 재료를 못 찾고 "Safe"가 나와 실패했다
+  - 빈 DB·위 브랜치 + `fix/seed-name-match`(PR #22) 병합: **8/8 통과**, 전체 13.5초. 즉 S6·S7은 PR #22가 고친다
+  - 흐름 하나 최대 11초(1분 조건 안), 빈 DB 기동은 `/__health` 200까지 20초 안, `docker compose build --no-cache`는 1분 25초(10분 조건 안)
+  - **옛 7개 흐름 spec 기록(PR #15 작성 당시, 2026-10-30).** 흐름이 `S1~S8`로 바뀌기 전에 `<id>.spec.ts` 7개로 측정한 것이라 지금 spec에는 다시 확인하지 않았다. 당시 결과는 smoke 4/4, 흐름 7/7 통과(`RELEASE_ID=da60b58`, `/__health` releaseId 일치)
+    - spec 점검: 금지 패턴(skip·only·route·addInitScript·evaluate·viewport·try/catch) 없음, 파일마다 goto·test 1개, Pixel 7 화면만
+    - 약한 확인(통과는 하지만 expected보다 느슨함): `scan-food-photo-single-dish`는 근거 한 줄과 "모두 영어"를 따로 확인하지 않음, `scan-menu-board`는 "소고기"를 근거 칸이 아닌 카드 전체에서 찾음, `diet-toggle-only`는 "소고기" 대신 "고기"로 찾음, `manual-input-fallback` 주석에 옛 한국어 이름("메뉴 이름"·"판정하기")이 남음
+    - 실패 동작: 틀린 AI 키로 백엔드를 띄우면 Gateway 401 → 화면에 "We couldn't read the menu. Please type the menu name."과 "Menu name" 입력칸이 뜸(api.md 판독 오류 행과 같음)
+    - 프로젝트 검사: `./gradlew test` 성공, 화면 `eslint`·`tsc --noEmit`·`next build` 성공, 없는 주소(`/no-such-page`, `/api/v1/no-such`) 404, 추적 파일·커밋 이력에 AI 키 값 없음
 
 ## 7. 최종 검증
 
@@ -182,7 +186,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 다음: E
 - 5회차(2026-10-30) E 검토: `statement`·`root_problem`·`five_whys`는 "기능이 없어서"가 아니라 실제 상황(메뉴판에 요리 이름만 있고 원재료 표시 의무가 없음, E1·E2 포기 경험)으로 적혀 있다. 성공 지표는 `canvas.impact.measurable` 두 줄뿐이다. "확인 시간 5분 → 15초"는 숫자는 있으나 시작·끝 시점과 측정 조건이 없고, 어느 기능 done·시나리오 expected에도 이어져 있지 않아 통과/실패를 가릴 수 없다. "포기한 끼니 한 달 약 10끼"는 지금 값만 있고 목표가 없다. 근거 인용은 R1(숫자 일치)·R2(별표 24 7개 항목)는 claim과 맞고, R3·R4를 쓴 문장 두 곳이 claim보다 넓게 말한다
   - 고친 것(`problem.yaml > five_whys`): "무슬림 유학생은 학식을 가장 적게 경험한다(R3)"를 R3 claim 그대로 "대학 급식에서 한국 음식을 경험한 비율이 가장 낮다(R3)"로 바꿈(R3는 학식 이용 빈도가 아니라 한국 음식 경험 비율을 말함)
-  - 그대로 둔 것: 지표 숫자(5분·15초·10끼, 학생 제공 어림값), R4를 쓴 "일부 학교만" 문장(아래 팀 결정 필요), features, scenarios.yaml
+  - 그대로 둔 것: 지표 숫자(5분·15초·10끼, 학생 제공 값. 2026-10-30 출처를 `problem.yaml > canvas > impact` 주석에 10-23 측정 기록으로 적음), R4를 쓴 "일부 학교만" 문장(아래 팀 결정 필요), features, scenarios.yaml
   - 검사: `yaml.safe_load` 통과, `git diff`로 `five_whys` 한 줄만 바뀐 것을 확인
   - 다음: F
 - 6회차(2026-10-30) F 검토: 문서에 적힌 사실은 이렇다. 회원·로그인이 없고 `users`에는 번호와 생성 시각만 있다(`erd.md`). 식단 제한(알레르기·할랄·채식)은 서버 DB에 `user_id`와 함께 저장된다(REQ-4). 사진은 `user_id`와 잇지 않고 본문은 백엔드 메모리에 최대 200장·30분 둔다(`api.md > REQ-1 > 사진 본문 저장`). 판독·판정 결과는 저장하지 않는다(`erd.md`). 사진은 판독을 위해 외부 AI(AI Gateway)로 보낸다(`tech-stack.md`). 동의·고지 문구, 보관 기간 원칙, 설정 삭제 방법은 problem.yaml·scenarios.yaml·api.md·화면 코드 어디에도 없다
@@ -207,10 +211,10 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (D, OPT-1·OPT-3) 앞의 A 항목 두 개(OPT-1·OPT-3을 REQ로 올릴지)를 D에서 다시 봤다. 둘 다 이미 만들어졌고 시나리오 `manual-input-fallback`·`manual-input-unknown-menu`와 배포 업로드가 기댄다. 제안: 둘을 REQ로 올리고 ID는 그대로 둔다(ID를 바꾸면 코드·E2E 주석이 바뀐다)
 - (D, 시연) 발표 시연 순서와 대체 계획이 없다. 시연은 AI 판독·만개의 레시피 같은 외부 호출에 기댄다. 제안: E1(`halal-bibimbap-gochujang`) → E2(`peanut-allergy-bibimguksu`) → 판독 실패 시 수동 입력(`manual-input-fallback`) 순서를 팀이 정하고, 네트워크가 막힐 때 시드 메뉴를 직접 입력하는 대체 장면을 정한다
 - (D, OPT-2) OPT-2는 시나리오 흐름이 없다(음식점 시드 대기). 시연에서 "안전한 메뉴가 없을 때 다른 식당"(`insight.design_decision`)을 보여 줄지, 보여 주면 시드 몇 곳이 필요한지 정한다(`erd.md` 열린 질문 7)
-- (E, 지표) "15초 안에 판정과 확인할 재료까지"를 잴 시작·끝과 조건이 없다. 판독 시간 한도는 45초(REQ-2)라 15초를 넘어도 실패가 아니다. 제안: "사진을 고른 때부터 판정 화면이 보일 때까지, 시드 메뉴판 사진(E1·E2 시나리오)으로 N회 중 N회 15초 이내"처럼 측정 방법을 `measurable`에 적고, 시연 리허설에서 잰 값을 남긴다
-- (E, 지표) "포기한 끼니 한 달 약 10끼"는 지금 값만 있고 목표·측정 방법이 없으며 해커톤 기간에는 잴 수 없다. 제안: 목표 숫자를 학생이 정하거나, "배경 지표(해커톤 중 측정 안 함)"로 표시한다
-- (E, 지표) 판정이 맞는지 보는 지표가 없다. 서비스의 약속은 "같은 기준으로 판정하고 근거를 보여 준다"인데 성공 지표는 속도뿐이다. 제안: "시드 메뉴 N개에서 기대 판정(시나리오 expected)과 일치 N/N" 같은 정확도 지표를 더할지 정한다(새 지표라 직접 넣지 않음)
-- (E, 근거) `root_problem`의 "할랄 메뉴 같은 대응은 비용 부담 때문에 일부 학교에서만 하고 있다(R4)"와 `five_whys` 4번째의 "일부 학교만 감당한다(R4)"는 R4(2018년 서울대 한 곳 도입·적자 운영 기사)보다 넓게 말한다. R4는 다른 학교 현황을 말하지 않는다. 제안: "서울대도 2018년에야 식당 한 곳에 도입했고 적자로 운영한다(R4)"처럼 근거만큼 줄이거나, 여러 학교 현황 출처를 학생이 찾아 더한다
+- (E, 지표) "15초 안에 판정과 확인할 재료까지"를 잴 시작·끝과 조건이 없다. 판독 시간 한도는 45초(REQ-2)라 15초를 넘어도 실패가 아니다. 제안: "사진을 고른 때부터 판정 화면이 보일 때까지, 시드 메뉴판 사진(E1·E2 시나리오)으로 N회 중 N회 15초 이내"처럼 측정 방법을 `measurable`에 적고, 시연 리허설에서 잰 값을 남긴다 → 2026-10-30 반영: `measurable`에 사진 선택 → 배지 표시, E1·E2 사진 10회 중 10회 15초 이내로 적음
+- (E, 지표) "포기한 끼니 한 달 약 10끼"는 지금 값만 있고 목표·측정 방법이 없으며 해커톤 기간에는 잴 수 없다. 제안: 목표 숫자를 학생이 정하거나, "배경 지표(해커톤 중 측정 안 함)"로 표시한다 → 2026-10-30 반영: 목표 한 달 5끼 이하, 해커톤 뒤 사용 전후 각 한 달 기록으로 적음
+- (E, 지표) 판정이 맞는지 보는 지표가 없다. 서비스의 약속은 "같은 기준으로 판정하고 근거를 보여 준다"인데 성공 지표는 속도뿐이다. 제안: "시드 메뉴 N개에서 기대 판정(시나리오 expected)과 일치 N/N" 같은 정확도 지표를 더할지 정한다(새 지표라 직접 넣지 않음) → 2026-10-30 반영: 배지를 정해 둔 시나리오 5개 5/5 일치, 확인된 제한 재료 메뉴에 "Safe" 0건
+- (E, 근거) `root_problem`의 "할랄 메뉴 같은 대응은 비용 부담 때문에 일부 학교에서만 하고 있다(R4)"와 `five_whys` 4번째의 "일부 학교만 감당한다(R4)"는 R4(2018년 서울대 한 곳 도입·적자 운영 기사)보다 넓게 말한다. R4는 다른 학교 현황을 말하지 않는다. 제안: "서울대도 2018년에야 식당 한 곳에 도입했고 적자로 운영한다(R4)"처럼 근거만큼 줄이거나, 여러 학교 현황 출처를 학생이 찾아 더한다 → 2026-10-30 반영: 세 곳을 "서울대도 2018년에야 식당 한 곳에 들였고 적자로 운영"(R4)으로 좁힘
 - (F, REQ-4) 할랄 프리셋은 종교를, 알레르기 토글은 건강 정보를 짐작하게 하는 민감한 정보인데, 저장할 때 무엇을 왜 서버에 두는지 알리는 문구가 없다. 제안: 설정 화면에 "Your diet settings are saved on our server with an anonymous number only." 같은 한 줄 고지를 둘지, 서버 대신 브라우저(`localStorage`)에만 둘지 ①이 정한다
 - (F, REQ-4) `user_id`가 1부터 늘어나는 번호이고 인증이 없어, 다른 번호로 `GET`·`PATCH /api/v1/users/{user_id}/restrictions`를 부르면 남의 식단 제한을 읽고 바꿀 수 있다. 제안: 해커톤 범위에서는 위험을 문서(`api.md` 열린 질문)에 적어 두고, 시간이 되면 추측하기 어려운 값(UUID 등)으로 바꿀지 ①이 정한다(API 경로·필드 변경이라 직접 고치지 않음)
 - (F, REQ-4) 저장한 식단 제한을 지우는 방법(API·버튼)이 없다. 지금은 브라우저 `localStorage`를 지워도 서버 행은 남는다. 제안: 삭제 기능을 더할지, "해커톤이 끝나면 DB를 지운다"는 보관 원칙을 문서에 적을지 정한다(기능 추가라 직접 넣지 않음)
