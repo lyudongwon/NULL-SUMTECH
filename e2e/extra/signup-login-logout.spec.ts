@@ -1,4 +1,5 @@
-// docs/scenarios.yaml 흐름 S9 (회원가입·로그인·로그아웃, OPT-4)
+// 회원가입·로그인·로그아웃(OPT-4) 확인. docs/problem.yaml > features > OPT-4 > done
+// 키트의 흐름은 3~8개라 scenarios.yaml 흐름(S1~S8)에 넣지 않고 e2e/extra에서 돌린다(채점기는 돌리지 않는다).
 // 가입 전에 저장한 식단 제한이 계정에 남고, 로그아웃했다가 다시 로그인하면 불러와지는지 본다.
 import { expect, test } from "@playwright/test";
 

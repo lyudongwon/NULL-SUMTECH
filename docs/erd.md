@@ -5,7 +5,7 @@
 ## 전제
 
 - DB는 PostgreSQL, ORM은 JPA(Hibernate), 마이그레이션은 Flyway다([tech-stack.md](tech-stack.md)). DB 호스트(Neon 또는 AWS RDS)는 정해지지 않았다.
-- 사용자는 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 회원가입·로그인(OPT-4)은 선택이다. 가입하면 `users`의 그 행에 `email`·`password_hash`가 채워지고, 가입하지 않은 행은 두 컬럼이 null이다(`scenarios.yaml`의 `login: optional`). 처음에 `user_id`를 어떻게 발급받는지는 [열린 질문](#열린-질문) 2번.
+- 사용자는 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 회원가입·로그인(OPT-4)은 선택이다. 가입하면 `users`의 그 행에 `email`·`password_hash`가 채워지고, 가입하지 않은 행은 두 컬럼이 null이다(로그인은 선택이라 `scenarios.yaml`의 흐름 S1~S8은 로그인 없이 끝난다). 처음에 `user_id`를 어떻게 발급받는지는 [열린 질문](#열린-질문) 2번.
 - 메뉴 판독 결과와 판정 결과는 저장하지 않는다. 조회 API가 없고 요청마다 계산해 돌려준다. 기록 보기 같은 기능이 생기면 그때 테이블을 추가한다.
 
 ## 다이어그램

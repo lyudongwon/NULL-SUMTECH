@@ -1,4 +1,5 @@
-// docs/scenarios.yaml 흐름 S10 (음식점 성분 제보와 추천 필터링, OPT-5 + OPT-2 + OPT-4)
+// 음식점 성분 제보와 추천 필터링(OPT-5 + OPT-2 + OPT-4) 확인. docs/problem.yaml > features > OPT-5 > done
+// 키트의 흐름은 3~8개라 scenarios.yaml 흐름(S1~S8)에 넣지 않고 e2e/extra에서 돌린다(채점기는 돌리지 않는다).
 // 제보는 DB에 남아 다른 흐름(S8)의 추천 목록을 줄이므로, 끝에서 내 제보를 취소해 원래대로 돌려 놓는다.
 import { expect, test } from "@playwright/test";
 
