@@ -33,3 +33,7 @@ app:
   auth:
     # HTTPS로 배포할 때 true. 쿠키가 http로는 가지 않게 한다. 로컬 http(localhost)에서는 false여야 로그인이 된다.
     cookie-secure: ${AUTH_COOKIE_SECURE:false}
+    # 채점기가 E2E에 넘기는 시드 계정. 둘 다 있으면 시작할 때 없을 경우에만 만든다(SeedUserInitializer).
+    seed-user:
+      email: ${SEED_USER_EMAIL:}
+      password: ${SEED_USER_PASSWORD:}

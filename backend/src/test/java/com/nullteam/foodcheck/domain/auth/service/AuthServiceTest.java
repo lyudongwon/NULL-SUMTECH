@@ -173,4 +173,31 @@ class AuthServiceTest {
 			assertThat(e.getMessage()).isEqualTo("Please log in.");
 		});
 	}
+
+	@Test
+	void 시드_계정은_없을_때만_해시한_비밀번호로_만들고_세션은_열지_않는다() {
+		var saved = new User[1];
+		when(users.saveAndFlush(any(User.class))).thenAnswer(call -> saved[0] = call.getArgument(0));
+
+		assertThat(service.seedAccount(" Seed@Example.com ", "seed-password")).isTrue();
+
+		assertThat(saved[0].getEmail()).isEqualTo("seed@example.com");
+		assertThat(encoder.matches("seed-password", saved[0].getPasswordHash())).isTrue();
+		verify(sessions, never()).save(any());
+	}
+
+	@Test
+	void 시드_계정이_이미_있으면_그대로_둔다() {
+		when(users.existsByEmail("seed@example.com")).thenReturn(true);
+
+		assertThat(service.seedAccount("seed@example.com", "seed-password")).isFalse();
+		verify(users, never()).saveAndFlush(any());
+	}
+
+	@Test
+	void 시드_계정도_가입과_같은_이메일_비밀번호_조건을_따른다() {
+		assertThatThrownBy(() -> service.seedAccount("not-an-email", "seed-password")).isInstanceOf(ApiException.class);
+		assertThatThrownBy(() -> service.seedAccount("seed@example.com", "short")).isInstanceOf(ApiException.class);
+		verify(users, never()).saveAndFlush(any());
+	}
 }
