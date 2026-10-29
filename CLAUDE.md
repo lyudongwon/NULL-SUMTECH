@@ -16,6 +16,7 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 저장소. 학식당 메뉴판·음식
 | 채팅·회의에서 정한 결정을 남기거나 확인할 때 | [docs/decisions.md](docs/decisions.md) | 날짜별 결정과 문서 반영 상태 | 작성됨 |
 | DB·엔티티·마이그레이션을 다룰 때 | [docs/erd.md](docs/erd.md) | 테이블·관계, 시드 최소 요구, 열린 질문 | 작성됨(초안) |
 | 기술 스택과 실행 조건을 확인할 때 | [docs/tech-stack.md](docs/tech-stack.md) | 언어·프레임워크·DB·AI·테스트·배포 선택, 실행 조건 | 작성됨(노션 사본) |
+| 파일·폴더를 만들거나 옮길 때 | [docs/folder-structure.md](docs/folder-structure.md) | 백엔드 도메인 폴더(controller·service·dto·entity·repository), 프런트엔드 레이어 | 작성됨(잠정) |
 | 세션을 시작할 때 | [progress.md](progress.md) | 현재 단계, 해야 할 일 체크리스트 | 작성됨 |
 | 실행·환경변수를 확인할 때 | [README.md](README.md) | 설치·실행 방법, 환경변수 표 | 작성됨(실행 방법은 기술 구성 확정 후) |
 | 팀 원본 문서를 볼 때 | [노션: SUMTECH 2026 NULL팀](https://app.notion.com/p/408c4b3d7d9e80c1baf7e49e8365e3e5) | 기획서, 기능 명세서, API 명세서 | 팀 공유 |
