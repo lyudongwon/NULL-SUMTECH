@@ -98,7 +98,10 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [ ] viewport를 spec에서 바꾸지 않음, platform의 화면(both면 둘 다)에서 통과
 - [ ] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
 - [ ] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
-- 흐름별 E2E 결과(통과 / 실패 단계와 이유):
+- 흐름별 E2E 결과(통과 / 실패 단계와 이유): 2026-10-30 로컬(`docker compose down -v` → `up -d --build` → `/__health` 200 → `npx playwright test --project=scenarios`, 390x844)에서 2회 돌렸다.
+  - 통과: S1, S2, S3, S4, S5, S8 (2회 모두)
+  - 흔들림: S6·S7은 번갈아 한 번씩 실패했다. 실패한 쪽은 판독 이름이 시드 메뉴와 달라(`돌솥비빔밥`, `김치비빔국수`) 재료를 못 찾고 "Safe"가 나왔다. `fix/seed-name-match` 브랜치(`937e980 판독 이름이 변형이어도 시드 메뉴 재료로 판정`)가 이 문제를 고친다. 그 브랜치를 합친 뒤 다시 돌려 확인할 것
+  - 전체 실행 시간 35~42초(흐름 하나 최대 11초), 빈 DB 기동은 `/__health` 200까지 20초 안
 
 ## 7. 최종 검증
 
