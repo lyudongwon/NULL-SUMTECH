@@ -12,6 +12,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /** 모든 에러를 api.md 공통 형식 { "detail": "<한국어 문장>" }으로 돌려준다. */
@@ -37,6 +38,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Map<String, String>> handleMissingParam(MissingServletRequestParameterException e) {
 		return detail(HttpStatus.BAD_REQUEST, e.getParameterName() + " 값이 필요합니다.");
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	public ResponseEntity<Map<String, String>> handleTooLarge(MaxUploadSizeExceededException e) {
+		return detail(HttpStatus.CONTENT_TOO_LARGE, "사진 용량이 너무 큽니다. (최대 10MB)");
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)
