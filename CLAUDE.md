@@ -9,7 +9,7 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 저장소. 학식당 메뉴판·음식
 | 이럴 때 읽는다 | 문서 | 담고 있는 것 | 상태 |
 | --- | --- | --- | --- |
 | 작업을 시작할 때 (항상) | [docs/ai-rules.md](docs/ai-rules.md) | AI 에이전트 작업 규칙, 저장소 약속 | 작성됨(초안) |
-| 기능을 만들거나 고칠 때, 요구사항을 확인할 때 | [docs/problem.yaml](docs/problem.yaml) | 문제정의 캔버스, 경험 사례, 근거 자료, 기능 명세 `features` (F1~F11) | 작성됨 |
+| 기능을 만들거나 고칠 때, 요구사항을 확인할 때 | [docs/problem.yaml](docs/problem.yaml) | 문제정의 캔버스, 경험 사례, 근거 자료, 기능 명세 `features` (REQ-1~7, OPT-1~3) | 작성됨 |
 | 화면·E2E 흐름을 만들거나 고칠 때 | [docs/scenarios.yaml](docs/scenarios.yaml) | 사용자 핵심 흐름(단계·기대 결과), 주 사용 플랫폼, 로그인 여부 | 작성됨 |
 | API를 만들거나 호출할 때 | [docs/api.md](docs/api.md) | 엔드포인트별 요청·응답·에러·예외 상황, 열린 질문 | 작성됨(노션 사본) |
 | 커밋·브랜치·PR을 만들 때 | [docs/git-convention.md](docs/git-convention.md) | 브랜치, 커밋 메시지, PR, main 복구, 금지 사항 | 작성됨(초안) |
@@ -21,7 +21,7 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 저장소. 학식당 메뉴판·음식
 
 - 상태가 "작성 예정"인 문서는 파일이 생긴 뒤에 따른다. 없는 문서의 내용을 지어서 인용하지 않는다.
 - `docs/`에 협업 문서를 새로 추가하면 이 표에 한 줄을 같이 추가한다.
-- 노션 기능 명세서(REQ/OPT)와 `problem.yaml`의 `features`(F1~F11)는 ID 체계와 범위가 다르다. 레포의 `features`를 기준으로 진행하고, 어긋난 부분은 보고해서 팀이 맞추게 한다.
+- 기능 ID는 노션 기능 명세서와 `problem.yaml`의 `features`가 같은 REQ/OPT 체계를 쓴다. 레포의 `features`를 기준으로 진행하고, 노션·`api.md`와 어긋난 부분은 보고해서 팀이 맞추게 한다.
 
 ## 작업 규칙
 
