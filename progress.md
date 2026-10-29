@@ -195,7 +195,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (D) 주요·부가를 나눈 이유가 어느 문서에도 없다. 제안: "시연 흐름에 꼭 필요하면 REQ, 없어도 문제·해법을 보여 줄 수 있으면 OPT" 같은 기준 한 줄을 `problem.yaml` 주석에 팀이 적는다
 - (D, OPT-1·OPT-3) 앞의 A 항목 두 개(OPT-1·OPT-3을 REQ로 올릴지)를 D에서 다시 봤다. 둘 다 이미 만들어졌고 시나리오 `manual-input-fallback`·`manual-input-unknown-menu`와 배포 업로드가 기댄다. 제안: 둘을 REQ로 올리고 ID는 그대로 둔다(ID를 바꾸면 코드·E2E 주석이 바뀐다)
 - (D, 시연) 발표 시연 순서와 대체 계획이 없다. 시연은 AI 판독·만개의 레시피 같은 외부 호출에 기댄다. 제안: E1(`halal-bibimbap-gochujang`) → E2(`peanut-allergy-bibimguksu`) → 판독 실패 시 수동 입력(`manual-input-fallback`) 순서를 팀이 정하고, 네트워크가 막힐 때 시드 메뉴를 직접 입력하는 대체 장면을 정한다
-- (D, OPT-2) OPT-2는 시나리오 흐름이 없다(음식점 시드 대기). 시연에서 "안전한 메뉴가 없을 때 다른 식당"(`insight.design_decision`)을 보여 줄지, 보여 주면 시드 몇 곳이 필요한지 정한다(`erd.md` 열린 질문 7)
+- (D, OPT-2) OPT-2는 시나리오 흐름이 없다(음식점 시드 대기). 시연에서 "안전한 메뉴가 없을 때 다른 식당"(`insight.design_decision`)을 보여 줄지, 보여 주면 시드 몇 곳이 필요한지 정한다(`erd.md` 열린 질문 7) → 흐름은 생김(`scenarios.yaml > other-restaurants-halal`, `e2e/scenarios/other-restaurants-halal.spec.ts`). 시드가 "(예시)" 5곳인 것은 아래 "전체 점검 > 팀 결정 필요 > OPT-2 시드"에 남는다
 - (E, 지표) "15초 안에 판정과 확인할 재료까지"를 잴 시작·끝과 조건이 없다. 판독 시간 한도는 45초(REQ-2)라 15초를 넘어도 실패가 아니다. 제안: "사진을 고른 때부터 판정 화면이 보일 때까지, 시드 메뉴판 사진(E1·E2 시나리오)으로 N회 중 N회 15초 이내"처럼 측정 방법을 `measurable`에 적고, 시연 리허설에서 잰 값을 남긴다 → 2026-10-30 반영: `measurable`에 사진 선택 → 배지 표시, E1·E2 사진 10회 중 10회 15초 이내로 적음
 - (E, 지표) "포기한 끼니 한 달 약 10끼"는 지금 값만 있고 목표·측정 방법이 없으며 해커톤 기간에는 잴 수 없다. 제안: 목표 숫자를 학생이 정하거나, "배경 지표(해커톤 중 측정 안 함)"로 표시한다 → 2026-10-30 반영: 목표 한 달 5끼 이하, 해커톤 뒤 사용 전후 각 한 달 기록으로 적음
 - (E, 지표) 판정이 맞는지 보는 지표가 없다. 서비스의 약속은 "같은 기준으로 판정하고 근거를 보여 준다"인데 성공 지표는 속도뿐이다. 제안: "시드 메뉴 N개에서 기대 판정(시나리오 expected)과 일치 N/N" 같은 정확도 지표를 더할지 정한다(새 지표라 직접 넣지 않음) → 2026-10-30 반영: 배지를 정해 둔 시나리오 5개 5/5 일치, 확인된 제한 재료 메뉴에 "Safe" 0건
@@ -257,6 +257,13 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 미확인(node·docker 없음): `labels.ts` 바뀐 화면 표시. 문자열 한 줄만 바뀌어 타입·import 변화 없음
   - 건드리지 않은 것: "현재 상태"·3·6단계는 `docs/e2e-results` 브랜치가 고치는 중이라 그대로 둠. E2E 실행 증거는 이 PC에서 만들 수 없음
   - 다음: 남은 일은 팀 결정(위험 완화 고지·OPT-2 실제 음식점·E2E 결과 병합·R3 ③ 확인·배포 대상)과 node·docker 확인뿐이다
+- 7회차(2026-10-30) 지난 심사(73점)의 tests·consistency 지적을 고침. `origin/main`은 새 커밋이 없어 합칠 것이 없었다
+  - `JudgmentRulesTest`: R3 두 `reason`(재료 없음, DB·만개의 레시피 재료 없음)과 R0·R4 `reason`을 api.md(판정 규칙 아래 설명, 응답 예시) 문구 그대로 `assertEquals`로 고정함. R3 테스트 4개에 `matched_restrictions`가 빈 목록인지도 확인함
+  - 2-B 팀 결정 필요의 옛 문장 "OPT-2는 시나리오 흐름이 없다"에 흐름이 생겼다는 표시를 붙임
+  - 검사: `./gradlew --no-daemon test` 통과(89개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). 테스트 수는 그대로이고 확인만 늘었다
+  - 건드리지 않은 것: "현재 상태"·3~6단계는 `docs/e2e-results`가, api.md·problem.yaml·decisions.md·erd.md는 새 팀 브랜치 `feat/opt2-nearby-restaurants`가 고치는 중이라 그대로 둠
+  - 미확인(node·docker 없음): 심사의 "가장 먼저 고칠 것"(docker에서 흐름 E2E 8개 실행)은 이 PC에서 할 수 없다
+  - 다음: `docs/e2e-results`·`feat/opt2-nearby-restaurants`가 main에 합쳐지면 "현재 상태"·OPT-2 문서와 코드가 맞는지 다시 본다
 
 ### 팀 결정 필요
 
