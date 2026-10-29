@@ -1,0 +1,24 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://foodcheck:foodcheck@db:5432/foodcheck
+      RELEASE_ID: local
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: foodcheck
+      POSTGRES_USER: foodcheck
+      POSTGRES_PASSWORD: foodcheck
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foodcheck -d foodcheck"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
