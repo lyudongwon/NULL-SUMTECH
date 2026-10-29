@@ -334,6 +334,11 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 다음: 카카오 로컬 API 클라이언트(키가 없거나 실패하면 건너뜀, `kakao_place_id`로 upsert)를 더하고 테스트한다
 - 17회차(2026-10-30) blocked. 지난 심사(69점)의 "가장 먼저 고칠 것"은 `fix/scenario-ids-for-grader`를 합친 뒤 S8·화면을 새 OPT-2 계약으로 맞추는 것이다. `origin/main`에 그 브랜치(PR #27, b9226c3)가 합쳐졌으나 `git merge origin/main`이 `e2e/scenarios/S3.spec.ts`·`S4.spec.ts`에서 충돌했다. 이 브랜치의 e7ff95c(이전 main 병합)와 main의 흐름 id·대기 시간 변경(`AI_WAIT`)이 같은 주석 줄을 고쳐서 생긴다(예: S4 "입력칸 이름 …" vs "입력칸 …"). 지시대로 임의로 풀지 않고 `git merge --abort`로 되돌렸다. 코드·테스트는 바꾸지 않았다
   - 필요한 일: 팀(또는 학생)이 이 브랜치에 main을 합치며 두 spec의 충돌을 main 쪽(`origin/main`)으로 푼다. 주석 문구 차이뿐이라 main 쪽을 그대로 받으면 된다. 그 뒤 루프가 S8·`restaurantService.ts`·화면을 `/nearby`(지도·핑·보고)로 바꾼다
+- 18회차(2026-10-30) `origin/main`(PR #26까지)을 충돌 없이 합침(17회차의 S3·S4 충돌은 main 쪽에서 풀려 있었다). 지난 심사(65점)의 "가장 먼저 고칠 것"은 S8·화면을 `/nearby` 지도 계약으로 바꾸는 일이지만, 팀 브랜치 `docs/opt2-back-to-list`(e9dc1d3)가 "카카오맵 지도는 하지 않고 OPT-2를 음식점 목록으로 되돌린다"고 결정하고 `problem.yaml`·`api.md`·`decisions.md` 등을 고치는 중이다. 팀 방향과 반대라 지도 전환은 하지 않았다
+  - 한 일: REQ-5 `POST /api/v1/ingredients/infer`의 HTTP 테스트가 없어 `IngredientControllerTest`(4개)를 더함. 추론 서비스는 진짜, 저장소·만개의 레시피·AI 추정만 가짜. 음식 DB 재료의 snake_case 필드·`evidence`·`confidence`·`basis`·`restrictions`, 레시피 실패 → AI 추정 `MEDIUM`, 모두 실패 → 200 `ingredients: []`, `menu_name` 없음·빈 문자열·공백·본문 없음 → 400 "Please enter a menu name."(외부 호출 없음)
+  - 검사: `./gradlew --no-daemon test` 통과(129개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
+  - 건드리지 않은 것: `docs/opt2-back-to-list`가 고치는 문서·설정(`api.md`·`problem.yaml`·`decisions.md`·`erd.md`·`tech-stack.md`·`.env.example`·`application.yml`·`docker-compose.yml`·`ci.yml`), `revert-14-main`이 고치는 판정·화면·테스트 파일
+  - 다음: `docs/opt2-back-to-list`가 main에 합쳐지면 OPT-2 문서·화면·S8이 목록 계약으로 다시 맞는다. 그 뒤 남는 `/nearby`·`/reports` 코드와 V2 표를 어떻게 할지는 아래 "OPT-2 지도 코드 정리"를 본다
 
 ### 팀 결정 필요
 
@@ -353,3 +358,4 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (OPT-2 전환) 16회차가 새 OPT-2 백엔드(`/nearby`·`/reports`)를 더했지만 화면과 흐름 S8은 아직 옛 계약("돼지고기·술을 쓰지 않는 음식점만 추천", "Free of …")이다. S8의 steps·expected를 새 계약(지도·핑)으로 바꾸는 일은 `docs/scenarios.yaml`·`S8.spec.ts`를 고치는 `fix/scenario-ids-for-grader`가 합쳐진 뒤에 해야 충돌이 없다. 제안: 그 브랜치를 먼저 합치고, ①(또는 루프)이 화면·S8·`restaurant_restriction_items` 제거(V3)를 한 번에 바꾼다. 카카오맵 JS SDK 화면은 node가 없는 이 PC에서 확인할 수 없다
 - (OPT-2 기본 좌표) `NEARBY_DEFAULT_LAT`·`NEARBY_DEFAULT_LNG`가 `TODO(확인)`이라 비어 있다. 위치 권한도 기본 좌표도 없으면 거리를 잴 수 없어, 지금 코드는 좌표가 있는 음식점 전부를 `distance_m: null`로 번호 순에 돌려준다(api.md에는 이 경우가 없다). 제안: 팀이 조선대 주변 좌표를 정해 `.env.example`·`docker-compose.yml`에 넣으면 이 경우는 생기지 않는다. api.md에 이 동작을 적을지도 함께 정한다
 - (OPT-2 시연 시드) tech-stack.md 열린 결정 8은 음식점과 보고를 시드로 넣어 외부 API가 막혀도 지도가 보이게 한다고 적었다. 실제 가게의 이름·좌표·보고는 루프가 지어낼 수 없어 `R__20`을 바꾸지 않았다(지금 5곳은 좌표가 없어 지도에 나오지 않는다). 제안: 팀이 카카오맵에서 확인한 가게의 `kakao_place_id`·좌표를 시드로 넣는다
+- (OPT-2 지도 코드 정리) 팀 브랜치 `docs/opt2-back-to-list`는 OPT-2를 목록 방식으로 되돌린다. 합쳐지면 16회차가 더한 `NearbyRestaurantController`(`/restaurants/nearby`·`/restaurants/{id}/reports`)·`NearbyRestaurantService`·`RestaurantReport`와 `V2__restaurant_reports.sql`(이미 적용된 V 파일)은 `features`에 없는 코드가 된다. 루프는 기능을 빼지 않는다. 제안: ①이 두 엔드포인트를 지울지 정한다. 지우면 V2는 고치지 않고 표를 지우는 새 V3를 더하고, `NearbyRestaurantControllerTest`도 함께 지운다. 남겨 둘 거라면 api.md에 "쓰지 않는 실험 API"로 적는다
