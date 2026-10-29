@@ -31,8 +31,8 @@ curl http://localhost:3000/__health   # releaseId가 지금 commit인지
 
 | ID | 실험 | 방법 | 통과 기준 | AI 호출 | 상태 |
 | --- | --- | --- | --- | --- | --- |
-| A1 | 판정 시간 | 휴대폰 화면(Pixel 7)에서 "Upload photo"로 `bibimbap.jpg`·`bibimguksu.jpg`를 각각 10회 올리고, 사진을 고른 때부터 판정 화면에 배지가 보일 때까지 잰다. Playwright로 시각을 찍어 측정자 손 오차를 없앤다 | 20회 모두 15초 이내 | 약 20 | 대기 |
-| A2 | 판정 정확도·안정성 | 배지가 정해진 시나리오 5개(`scan-menu-board`·`scan-food-photo-single-dish`·`diet-toggle-only`의 설렁탕 Avoid, `halal-bibimbap-gochujang`·`peanut-allergy-bibimguksu`의 Check first)를 5회씩 돌린다 | 25/25 배지 일치, Confirmed 제한 재료가 있는데 Safe인 경우 0건 | 약 25 | 대기 |
+| A1 | 판정 시간 | 휴대폰 화면(Pixel 7)에서 "Upload photo"로 `bibimbap.jpg`·`bibimguksu.jpg`를 각각 10회 올리고, 사진을 고른 때부터 판정 화면에 배지가 보일 때까지 잰다. Playwright로 시각을 찍어 측정자 손 오차를 없앤다 | 20회 모두 15초 이내 | 약 20 | 완료(시간 통과, 배지 흔들림) |
+| A2 | 판정 정확도·안정성 | 배지가 정해진 시나리오 5개(`scan-menu-board`·`scan-food-photo-single-dish`·`diet-toggle-only`의 설렁탕 Avoid, `halal-bibimbap-gochujang`·`peanut-allergy-bibimguksu`의 Check first)를 5회씩 돌린다 | 25/25 배지 일치, Confirmed 제한 재료가 있는데 Safe인 경우 0건 | 약 25 | 완료(23/25, 실패) |
 
 - A1은 반복마다 같은 메뉴를 다시 판독하므로 AI 판독 시간이 대부분이다. 최댓값·평균·중앙값을 같이 적는다.
 - A2에서 배지가 한 번이라도 바뀌면 그 회차의 판독 결과(읽은 메뉴 이름)와 판정 근거를 남긴다. 판독이 흔들렸는지, 판정이 흔들렸는지를 나누기 위해서다.
@@ -133,4 +133,56 @@ curl http://localhost:3000/__health   # releaseId가 지금 commit인지
 
 ## 결과
 
-(실험을 마치면 여기에 날짜·실험 ID·통과/실패·원인 분류(①②③)·후속 조치를 한 줄씩 적는다.)
+2026-10-30, Agent가 로컬 docker(빈 DB)에서 실행. 숫자 표는 [measurements.md](measurements.md) 3~5절. 원인 분류: ① 구현 ② 기획 ③ 테스트 자료.
+
+### 판단
+
+- **기획대로 만들었는가: 대부분 예, 하나는 아니오.** 판정 엔진(B 132칸·경계 경우), 업로드·화면 완료 조건(C)은 기획과 맞다. 시간 지표(A1)도 달성했다. 하지만 정확도 지표(A2 23/25)를 못 채웠고, 원인이 E1 그 자체다.
+- **시나리오대로 써도 되는가: 시드에 있는 이름으로 읽히는 메뉴만 예.** 실제 메뉴판·음식 사진은 잘 읽지만(D1), 메뉴 이름이 조금만 달라도 레시피 검색으로 넘어가 숨은 재료를 놓치고, 메뉴판에 적힌 재료도 쓰지 않는다.
+
+### 실험별 결과
+
+| ID | 결과 | 분류 | 후속 조치(담당) |
+| --- | --- | --- | --- |
+| A1 | 통과(20/20이 15초 이내, 평균 5.7초). 배지는 비빔밥 4/10, 비빔국수 9/10만 Check first | ① | 아래 F1 |
+| A2 | **실패** 23/25(E1 3/5). Confirmed→Safe 0건 | ① | F1 |
+| B1·B2 | 통과 132/132 | — | — |
+| B3 | 7개 중 B3-3만 다름: 뜻 없는 입력(`ㅁㄴㅇㄹ`)에 만개의 레시피가 상관없는 레시피를 줘 Safe | ① | F3 |
+| C1 PNG·WEBP | 통과 | — | — |
+| C2 거부 | 통과(API 415·413·400, 화면 "This image format is not supported."). curl처럼 1MB 넘는 요청에 `Expect: 100-continue`를 붙이는 클라이언트는 프록시에서 502 | ① | F5 |
+| C3 드래그 앤 드롭 | 통과 | — | — |
+| C4 추측 금지 | 통과. 김치찌개·제육볶음·카레라이스를 각 2회 같은 이름으로 읽음, 지어낸 메뉴 없음 | — | — |
+| C5 시간 초과 | 하지 않음(늦출 수단 없음). 판독 코드에 45초 제한은 있음 | — | ②와 방법 정하기 |
+| C6 근거 상세 | 통과(누를 때 추가 요청 0) | — | — |
+| C7 영어·고지 | 통과. 7개 화면 모두 고지 문구, 한글은 메뉴·재료 이름뿐. 단 음식점 화면의 시드 `(예시)`·`TODO(확인)` | ② | F4 |
+| C8·C9 OPT-2 | 통과(Safe 없을 때만 판정 화면에 링크, 모든 토글이면 "No restaurants match your diet yet.") | — | F4 |
+| C10 OPT-3 | 통과(2000×1500 → 서버가 받은 크기 1400×1050, 886px는 그대로) | — | — |
+| D1 실제 사진 | 아래 표 | ①② | F1·F2·F3·F6 |
+| D2·D3 | 하지 않음(배포·사람 필요) | — | 팀 |
+
+### D1 실제 사진 (Wikimedia Commons, Halal + Peanut 사용자)
+
+사진은 저장소에 넣지 않았다. 출처: [Menu of Starbucks in Seoul, 2001](https://commons.wikimedia.org/wiki/File:Menu_of_Starbucks_in_Seoul,_2001.jpg)(CC BY 2.0), [소설한남에서의 점심식사 03](https://commons.wikimedia.org/wiki/File:%EC%86%8C%EC%84%A4%ED%95%9C%EB%82%A8%EC%97%90%EC%84%9C%EC%9D%98_%EC%A0%90%EC%8B%AC%EC%8B%9D%EC%82%AC_03.jpg)(CC BY 2.0 KR), [오프레 런치 코스 03](https://commons.wikimedia.org/wiki/File:%EC%98%A4%ED%94%84%EB%A0%88_%EB%9F%B0%EC%B9%98_%EC%BD%94%EC%8A%A4_03.jpg)(CC BY 4.0), [South Korean Lunch Menu Item (1)](https://commons.wikimedia.org/wiki/File:South_Korean_Lunch_Menu_Item_(1).jpg)·[(2)](https://commons.wikimedia.org/wiki/File:South_Korean_Lunch_Menu_Item_(2).jpg)(CC BY-SA 4.0), [Rotary Korean Traditional Set Menu](https://commons.wikimedia.org/wiki/File:Rotary_Korean_Traditional_Set_Menu.jpg)(CC BY-SA 4.0), [Yanggakdo International Hotel Menu 02](https://commons.wikimedia.org/wiki/File:Yanggakdo_International_Hotel_Menu_02.JPG)(CC BY-SA 3.0).
+
+| 사진 | 사람이 읽은 메뉴 | 서비스가 읽은 메뉴 | 시간 | 눈에 띈 것 |
+| --- | --- | --- | --- | --- |
+| 카페 벽 메뉴판(비스듬, 반사) | 17 | 16(빠짐 없음, "핫 초콜릿 (어린이용)"만 줄여 읽음) | 처음 60초 넘음 / 다시 22.5초 | 아이스 카페 아메리카노에 레시피 검색이 "베이컨"을 붙여 Check first |
+| 한식 코스 메뉴 카드(작은 글씨) | 9 | 7(타락죽·잣무침 빠짐), 지어낸 것 없음 | 30.8초 | 카드에 "떡 – 막걸리", "후식 – 땅콩"이 적혀 있는데 둘 다 **Safe** |
+| 프랑스·한국어 메뉴 카드 | 9 | 10(머리글 "런치 코스"를 메뉴로 읽음) | 36.9초 | "보리새우, 비트"처럼 재료 줄을 메뉴 이름으로 씀, "커피 또는 차"에 "미림" |
+| 비빔밥(일반 그릇) 2장 | 비빔밥 | 비빔밥 | 3.9·5.5초 | Check first(기대대로) |
+| 한상차림 | 여러 요리 | 김치찌개 1개 | 7.1초 | Avoid. 요리명 1개 규칙대로 가운데 찌개를 고름 |
+| 국수 | 국수 | 칼국수 | 8.1초 | Safe |
+
+### 후속 조치
+
+| ID | 내용 | 담당 |
+| --- | --- | --- |
+| F1 | 판독 이름이 시드와 조금 달라도(`돌솥비빔밥`·`김치비빔국수`) 시드 메뉴로 이어지게 한다. 예: 판독 프롬프트에 기본 요리명을 따로 받기, 판정 전에 시드 이름이 들어 있는지 먼저 보기. 이미 `RECIPE_SEARCH`로 저장된 `돌솥비빔밥`·`김치비빔국수`는 지운다 | ②·③ |
+| F2 | 메뉴판에 재료가 함께 적혀 있으면(코스 카드의 "막걸리", "땅콩") 판독에서 같이 받아 판정 근거로 쓸지 정한다. 지금은 버려져 Safe가 나온다 | 팀 결정 → ②·③ |
+| F3 | 만개의 레시피 검색 결과가 메뉴 이름과 맞는지 확인한다(뜻 없는 입력에 상관없는 레시피, 아메리카노→베이컨, 커피→미림) | ③ |
+| F4 | 음식점 시드를 팀이 조사한 실제 음식점으로 바꾼다(지금 `(예시)`·`TODO(확인)`) | ① |
+| F5 | 프록시에서 `expect` 헤더도 빼고 넘긴다(`frontend/src/app/api/v1/[...path]/route.ts`의 HOP_BY_HOP) | ① |
+| F6 | 처음 보는 메뉴가 많은 메뉴판은 재료 찾기가 메뉴마다 약 2초씩 차례로 돌아 60초를 넘길 수 있다. 동시에 찾거나 화면에 진행 상태를 보인다 | ③·① |
+| F7 | 기획 질문: 시드에 없는 메뉴는 이름에 "돈"이 있어도 Estimated라 Halal에게 돈까스가 Check first다. 이대로 둘지 정한다 | 팀 결정 |
+
+- AI 호출은 이번 실험에서 약 75회(판독 약 70, 재료 추정 몇 회)였다. 쓴 금액은 대시보드에서 확인해 progress.md 4단계에 적는다.
