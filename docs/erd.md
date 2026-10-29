@@ -5,7 +5,7 @@
 ## 전제
 
 - DB는 PostgreSQL, ORM은 JPA(Hibernate), 마이그레이션은 Flyway다([tech-stack.md](tech-stack.md)). DB 호스트(Neon 또는 AWS RDS)는 정해지지 않았다.
-- 사용자는 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 회원가입·로그인(OPT-4)은 선택이다. 가입하면 `users`의 그 행에 `email`·`password_hash`가 채워지고, 가입하지 않은 행은 두 컬럼이 null이다(`scenarios.yaml`의 `login: optional`). 처음에 `user_id`를 어떻게 발급받는지는 [열린 질문](#열린-질문) 2번.
+- 사용자는 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 회원가입·로그인(OPT-4)은 선택이다. 가입하면 `users`의 그 행에 `email`·`password_hash`가 채워지고, 가입하지 않은 행은 두 컬럼이 null이다(로그인하는 흐름은 `scenarios.yaml` S3이고, `account: 유학생`의 시드 계정을 쓴다). 처음에 `user_id`를 어떻게 발급받는지는 [열린 질문](#열린-질문) 2번.
 - 메뉴 판독 결과와 판정 결과는 저장하지 않는다. 조회 API가 없고 요청마다 계산해 돌려준다. 기록 보기 같은 기능이 생기면 그때 테이블을 추가한다.
 
 ## 다이어그램
@@ -156,7 +156,7 @@ erDiagram
 | `restaurants` | `id` PK, `name`, `category`, `address` | 음식점 시드(`R__20_seed_restaurants.sql`). 지금은 `(예시)` 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다 |
 | `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
 
-| `restaurant_feedback` | `id` PK, `restaurant_id` FK, `user_id` FK, `item_code` FK, `menu_name`, `note`, `created_at`, (`restaurant_id`, `user_id`, `item_code`) UNIQUE | 사용자가 "이 가게에 이 항목을 쓰는 음식이 있다"고 보낸 제보(OPT-5) |
+| `restaurant_feedback` | `id` PK, `restaurant_id` FK, `user_id` FK, `item_code` FK, `menu_name`, `note`, `created_at`, (`restaurant_id`, `user_id`, `item_code`) UNIQUE | 사용자가 "이 가게에 이 항목을 쓰는 음식이 있다"고 보낸 제보(기능 명세 밖, 옛 OPT-5) |
 
 - 추천은 제보를 반영한다: `restaurant_restriction_items`에 있어도, 같은 (가게, 항목)에 제보한 사용자가 `HIDE_THRESHOLD`(1)명 이상이면 그 항목을 충족하지 않는 것으로 본다. 시드는 고치지 않는다.
 - 추천은 첫 화면의 "Other restaurants"와, 판정 결과에 '안전'이 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
@@ -171,7 +171,7 @@ E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 
 - 설렁탕: 소고기(`evidence = CONFIRMED`)가 `beef`·`meat`에 걸려 있어, 채식 프리셋과 "고기" 토글에서 "불가"(R1)와 소고기 근거가 나온다.
 - 비빔밥(E1): 고추장의 다진 돼지고기(`evidence = INFERRED`, `basis = COOKING_METHOD`)를 `pork`·`meat`에 연결해, 할랄 프리셋에서 "확인 필요"(R2)와 고추장 근거가 나온다. 확인된 재료 중에는 `pork`·`alcohol`에 걸리는 것이 없어야 한다.
 - 비빔국수(E2): 양념장의 땅콩(`evidence = INFERRED`, `basis = COOKING_METHOD`)을 `peanut`에 연결해, "땅콩" 토글에서 "확인 필요"(R2)와 양념장 근거가 나온다. 확인된 재료 중에는 `peanut`에 걸리는 것이 없어야 한다.
-- 된장찌개는 일부러 넣지 않는다. S4(`manual-input-unknown-menu`)가 DB에 없는 경로(만개의 레시피 → AI 추정)를 확인하는 시나리오이기 때문이다. AI 추정까지 있으니 외부 사이트가 막혀도 배지가 나온다.
+- 된장찌개는 일부러 넣지 않는다. S5(`manual-input-unknown-menu`)가 DB에 없는 경로(만개의 레시피 → AI 추정)를 확인하는 시나리오이기 때문이다. AI 추정까지 있으니 외부 사이트가 막혀도 배지가 나온다.
 - 사진 판독: 메뉴판 사진에서 읽힌 이름이 `foods.name`과 일치해야 한다.
 
 음식별 재료 값은 ③이 정한다.

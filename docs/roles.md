@@ -44,7 +44,7 @@
 - **사용자 제한은 서비스로 받는다.** ③은 `RestrictionService.findEnabledItemCodes(userId)`로 사용자가 켠 항목을 받는다(사용자가 없으면 empty, 저장한 적 없으면 빈 집합). `restriction` 도메인의 repository·entity를 직접 쓰지 않는다.
 - **브랜치는 각자 따로 쓴다.** [git-convention.md](git-convention.md)대로 `feat/base-settings`(①), `feat/photo-scan`(②), `feat/judgment-engine`(③)을 쓰고 작게 자주 PR로 합친다. 시작 전마다 `main`을 받는다.
 - **E2E는 ①이 만든다.** `e2e/scenarios/<id>.spec.ts`로 흐름마다 파일 하나다. 테스트 사진은 ②가 `e2e/fixtures/`에 넣는다. 판정 엔진 단위 테스트(JUnit 5)는 ③이 맡는다.
-- **E2E 메뉴는 시드에 넣는다.** 예외는 S4(`manual-input-unknown-menu`)의 "된장찌개" 하나다. DB에 없는 경로를 확인하는 흐름이고, 만개의 레시피가 막혀도 AI 추정으로 배지가 나오게 해서 외부 사이트와 상관없이 통과시킨다.
+- **E2E 메뉴는 시드에 넣는다.** 예외는 S5(`manual-input-unknown-menu`)의 "된장찌개" 하나다. DB에 없는 경로를 확인하는 흐름이고, 만개의 레시피가 막혀도 AI 추정으로 배지가 나오게 해서 외부 사이트와 상관없이 통과시킨다.
 
 ## 작업 순서
 
@@ -77,7 +77,7 @@
 
 ## 팀 확인 필요
 
-- 사용자 식별자 이름: `user_id`로 통일했다. 회원·로그인 없이 서버가 Auto Increment로 발급한다(`decisions.md`).
+- 사용자 식별자 이름: `user_id`로 통일했다. 서버가 Auto Increment로 발급하고, 로그인 없이도 쓴다. 회원가입·로그인(OPT-4)은 선택이라 가입하면 같은 `user_id`가 계정에 묶인다(`decisions.md`).
 - 만개의 레시피 검색: 사이트 이용약관과 robots.txt를 확인한다. 막히면 AI 추정으로 넘어가므로 기능은 멈추지 않는다.
 - 음식점 시드: 학교 주변 음식점을 조사해 `R__20_seed_restaurants.sql`에 넣는다(①). 지금은 "(예시)" 가짜 데이터다.
 - 배포 대상: [tech-stack.md](tech-stack.md) 열린 결정 1(화면 Vercel, 백엔드 AWS 컨테이너 후보)과 DB 호스트(Neon 또는 AWS RDS)를 정해야 ①이 배포를 진행한다.

@@ -83,7 +83,7 @@ export function RestaurantRecommendations() {
     );
   }
 
-  // 카드 안 첫 두 문단은 이름·종류 순서로 둔다(E2E S7·S8이 순서로 찾는다).
+  // 카드 안 첫 두 문단은 이름·종류 순서로 둔다(E2E S8과 e2e/extra 제보 확인이 순서로 찾는다).
   return (
     <div className="flex flex-col gap-4">
       {thanks}

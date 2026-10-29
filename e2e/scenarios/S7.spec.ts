@@ -1,26 +1,34 @@
-// docs/scenarios.yaml 흐름 S7 (옛 id other-restaurants-halal)
-// 음식점 시드(R__20)가 아직 예시 데이터라 이름이 아니라 제한 규칙으로 확인한다(docs/scenarios.yaml 머리 주석).
-// Halal 프리셋은 Pork·Alcohol을 켜고, 추천 화면은 음식점마다 쓰지 않는 항목을 "Free of ..."로 보여 준다(docs/api.md > 화면 문구).
-import { expect, test } from "@playwright/test";
+// docs/scenarios.yaml 흐름 S7 (옛 id peanut-allergy-bibimguksu)
+import path from "node:path";
+import { expect, test, type Page } from "@playwright/test";
 
-test('할랄 유학생이 "Other restaurants"를 누르면 돼지고기·술을 쓰지 않는 음식점만 추천된다', async ({ page }) => {
+const FIXTURES = path.join(__dirname, "..", "fixtures");
+// AI 판독·추정은 응답이 늦을 수 있다. 채점기는 팀 config(expect 30초)를 쓰지 않으므로 여기서 직접 기다린다.
+const AI_WAIT = { timeout: 60_000 };
+
+async function uploadPhoto(page: Page, file: string) {
+  await page.getByRole("link", { name: "Upload photo" }).click();
+  await page.locator('input[type="file"]').setInputFiles(path.join(FIXTURES, file));
+}
+
+test('땅콩 알레르기 유학생이 비빔국수를 찍으면 양념장 속 땅콩 가능성 때문에 "Check first"와 근거가 나온다', async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Diet settings" }).click();
-  await page.getByRole("button", { name: "Halal" }).click();
+  await page.getByRole("switch", { name: "Peanut", exact: true }).check();
   await page.getByRole("button", { name: "Save" }).click();
-  await page.getByRole("link", { name: "Other restaurants" }).click();
+  await uploadPhoto(page, "bibimguksu.jpg");
 
-  const cards = page.getByRole("listitem");
-  await expect(cards.first()).toBeVisible();
+  const card = page.getByRole("listitem").filter({ hasText: "비빔국수" });
+  await expect(card.getByText("Check first", { exact: true })).toBeVisible(AI_WAIT);
+  await expect(card.getByTestId("reason")).toContainText("양념장");
+  await expect(card.getByTestId("reason")).toContainText("땅콩");
+  // 근거 한 줄은 영어 문장이고 재료 이름만 한국어 원문이다(docs/api.md > 화면 문구).
+  await expect(card.getByTestId("reason")).toContainText(/^May contain .+\. Check for .+ before eating\.$/);
 
-  const count = await cards.count();
-  expect(count).toBeGreaterThan(0);
-  for (let i = 0; i < count; i += 1) {
-    const card = cards.nth(i);
-    const lines = card.getByRole("paragraph");
-    await expect(lines.nth(0)).not.toBeEmpty(); // 음식점 이름
-    await expect(lines.nth(1)).not.toBeEmpty(); // 종류(주소가 있으면 함께)
-    await expect(card).toContainText(/Free of .*Pork/); // 돼지고기를 쓰지 않는다
-    await expect(card).toContainText(/Free of .*Alcohol/); // 술을 쓰지 않는다
-  }
+  await card.getByRole("button", { name: /비빔국수/ }).click();
+  await expect(card).toContainText("양념장");
+  const peanutRow = card.getByRole("row").filter({ hasText: "땅콩" }).first();
+  await expect(peanutRow).toContainText("Estimated");
+  await expect(card.getByRole("columnheader", { name: "Confidence" })).toBeVisible();
+  await expect(card).toContainText("Rule");
 });
