@@ -28,6 +28,7 @@ export function useScan() {
   const router = useRouter();
   const [phase, setPhase] = useState<ScanPhase>("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [emptyInput, setEmptyInput] = useState(false);
   const busy = phase === "uploading" || phase === "reading" || phase === "done";
 
   async function scan(file: File, source: ImageSource) {
@@ -66,16 +67,16 @@ export function useScan() {
     }
   }
 
-  /** OPT-1 "판정하기". 이름이 비었으면 결과 화면과 같은 문구로 알리고 넘어가지 않는다. */
+  /** OPT-1 "판정하기". 이름이 비었으면 결과 화면과 같은 '입력 값이 없습니다.' 팝업을 띄우고 넘어가지 않는다. */
   function submitManual(name: string) {
     const trimmed = name.trim();
     if (!trimmed) {
-      window.alert("입력 값이 없습니다.");
+      setEmptyInput(true);
       return;
     }
     setPhase("done");
     router.push(resultUrl([trimmed]));
   }
 
-  return { phase, busy, message, scan, submitManual };
+  return { phase, busy, message, emptyInput, scan, submitManual, closeEmptyInput: () => setEmptyInput(false) };
 }

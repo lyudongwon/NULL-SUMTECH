@@ -11,7 +11,7 @@ const PROGRESS = {
 } as const;
 
 export function ScanFlow() {
-  const { phase, busy, message, scan, submitManual } = useScan();
+  const { phase, busy, message, emptyInput, scan, submitManual, closeEmptyInput } = useScan();
 
   return (
     <div className="flex flex-col gap-6">
@@ -30,6 +30,30 @@ export function ScanFlow() {
       )}
 
       {phase === "manual" && <ManualMenuInput disabled={busy} onSubmit={submitManual} />}
+
+      {/* 결과 화면(①)의 빈 입력 팝업과 같은 모양·문구다(problem.yaml > features > REQ-3). */}
+      {emptyInput && (
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="scan-empty-input"
+          className="fixed inset-0 z-10 flex items-center justify-center bg-black/40 px-6"
+        >
+          <div className="w-full max-w-xs rounded-xl bg-white p-5 shadow-lg">
+            <p id="scan-empty-input" className="mb-4 text-center font-semibold">
+              입력 값이 없습니다.
+            </p>
+            <button
+              type="button"
+              autoFocus
+              onClick={closeEmptyInput}
+              className="w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
