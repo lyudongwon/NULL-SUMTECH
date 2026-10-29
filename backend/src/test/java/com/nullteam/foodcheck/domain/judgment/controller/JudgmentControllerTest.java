@@ -151,6 +151,14 @@ class JudgmentControllerTest {
 	}
 
 	@Test
+	void 깨진_JSON은_500이_아니라_400과_공통_문구다() throws Exception {
+		mvc.perform(post("/api/v1/judgments").contentType(MediaType.APPLICATION_JSON).content("{\"user_id\": 7,"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.detail").value("The request is not in a valid format."));
+		verifyNoInteractions(ingredientInferenceService);
+	}
+
+	@Test
 	void JSON이_아닌_본문은_500이_아니라_415다() throws Exception {
 		mvc.perform(post("/api/v1/judgments").contentType(MediaType.TEXT_PLAIN).content("제육볶음"))
 				.andExpect(status().isUnsupportedMediaType())
