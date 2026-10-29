@@ -48,3 +48,6 @@ services:
           property: connectionString
       - key: AI_GATEWAY_API_KEY
         sync: false
+      # Render는 HTTPS로만 받으니 로그인 쿠키에 Secure를 붙인다(application.yml app.auth.cookie-secure).
+      - key: AUTH_COOKIE_SECURE
+        value: "true"
