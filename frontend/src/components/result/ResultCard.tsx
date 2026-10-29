@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { JudgmentResult } from "@/hooks/useJudgment";
+import type { JudgmentResult } from "@/types/judgment";
 import {
   BASIS_LABEL,
   CONFIDENCE_LABEL,
