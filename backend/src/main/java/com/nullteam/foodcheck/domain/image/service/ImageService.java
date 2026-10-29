@@ -21,7 +21,7 @@ import com.nullteam.foodcheck.global.exception.ApiException;
 public class ImageService {
 
 	public static final long MAX_BYTES = 10L * 1024 * 1024;
-	public static final String TOO_LARGE = "사진 용량이 너무 큽니다. (최대 10MB)";
+	private static final String TOO_LARGE = "사진 용량이 너무 큽니다. (최대 10MB)";
 
 	private static final SecureRandom RANDOM = new SecureRandom();
 
