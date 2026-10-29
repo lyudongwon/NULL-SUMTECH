@@ -227,6 +227,13 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 미확인(node·docker 없음): 새 spec 실행. 팀 브랜치 `docs/e2e-results`의 progress.md 3단계에 "로컬 E2E 흐름 7/7 통과 2회"가 적혀 있으나 아직 main에 없고, 새 spec(8번째 흐름)은 그 뒤에 생겨 돌린 적이 없다
   - 건드리지 않은 것: `docs/e2e-results`가 바꾸는 `.github/workflows/scenarios.yml`·`docker-compose.yml`·`e2e/playwright.config.ts`·`frontend/Dockerfile`·`frontend/src/app/%5F%5Fhealth`·README.md. `progress.md`는 이 절만 고침
   - 다음: `docs/e2e-results`가 main에 합쳐지면 8개 흐름을 다시 돌린 결과를 6단계에 옮겨 적을지 확인. 판정 규칙 R0~R4가 Flyway 시드(`R__30_seed_foods`)와 맞는지 보는 DB 통합 테스트는 docker(Testcontainers)가 없어 여기서 못 돌린다
+- 3회차(2026-10-30) 지난 심사(64점)의 tests·features 지적을 고침. `origin/main`은 새 커밋이 없어 합칠 것이 없었다(금지 파일 변경 없음)
+  - `IngredientInferenceServiceTest`(9개)를 더함: REQ-5 찾는 순서. 음식 DB에 있으면 CONFIRMED·DB이고 외부를 부르지 않음, 띄어쓰기만 다른 이름도 DB에서 찾음, DB에 없으면 만개의 레시피(INFERRED·HIGH, `source=RECIPE_SEARCH`로 저장)이고 AI는 부르지 않음, 레시피도 없으면 AI 추정(MEDIUM, `AI_ESTIMATE`로 저장), 사전에 있는 재료는 사전의 제한 항목, 겹치는 재료는 앞 단계 결과를 남김, 아무것도 없으면 빈 목록·저장 안 함, 저장 충돌에도 판정 진행, 빈 이름 400
+  - 화면: `page.tsx`의 지난 TODO("임시 서비스 이름")를 decisions.md 결정으로 바꿈. `useJudgment.ts`가 따로 두던 판정 타입·요청 함수를 ③의 `types/judgment.ts`·`services/judgmentService.ts`(`judge`)로 바꾸고 기존 이름(`JudgmentResult` 등)은 다시 내보냄(두 타입은 필드가 같다)
+  - `other-restaurants-halal.spec.ts`: 지금 시드에서 빠져야 하는 2·3·5번(술을 피하지 않음)이 화면에 없는지 확인을 더함
+  - 검사: `./gradlew --no-daemon test` 통과(86개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
+  - 미확인(node·docker 없음): `useJudgment.ts` 타입 검사·빌드와 바뀐 spec 실행. import 경로(`@/services/judgmentService`, `@/types/judgment`)와 쓰지 않게 된 `apiRequest` import 제거는 코드를 다시 읽어 확인함
+  - 다음: 위험 완화(추측하기 어려운 ID·설정 삭제·고지 문구)는 기능 추가라 아래 "팀 결정 필요"에 적었다. 남은 일은 대부분 팀 결정이나 node·docker 확인이다
 
 ### 팀 결정 필요
 
@@ -234,4 +241,6 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (OPT-2 시드) 음식점 시드는 "(예시)" 가짜 5곳이고 주소는 `TODO(확인)`이다. `problem.yaml > OPT-2 > done`은 "팀이 조사한 음식점"을 말한다. 실제 음식점 이름·종류·주소·안 쓰는 재료는 AI가 지어낼 수 없다. 제안: ①이 학교 주변 음식점 5곳 이상을 직접 조사해 `R__20_seed_restaurants.sql`을 바꾸거나, 시연에서 OPT-2를 "예시 데이터"라고 밝히고 보여 준다
 - (E2E 증거) `docs/e2e-results` 브랜치의 로컬 E2E 결과(흐름 7/7 2회)를 main에 합칠지 정한다. 합친 뒤 새 흐름 `other-restaurants-halal`까지 8개를 한 번 더 돌려 적으면 심사의 "E2E 실행 증거"가 채워진다
 - (E2E·CI) 흐름 E2E 7개를 돌린 기록이 없다. CI에 붙이면 실제 AI 호출로 팀 예산($10)이 준다. 제안: node·docker가 있는 PC에서 `docker compose up` 뒤 `npx playwright test --project=scenarios`를 한 번 돌려 결과를 6단계에 적고, CI에는 수동 실행(`workflow_dispatch`)으로만 붙일지 정한다
+- (위험 완화) 심사가 "위험은 문서에 있으나 완화 조치가 구현되지 않았다"고 본다: 순서대로 매기는 `user_id`로 남의 식단 설정을 읽고 고칠 수 있음, 설정 삭제 방법 없음, 알레르기·종교 정보와 사진 외부 AI 전송에 대한 고지 문구 없음. 모두 `features`에 없는 기능이거나 API·DB를 바꾸는 일이라 루프가 만들지 않는다. 제안: ①시연 범위에서는 첫 화면에 짧은 영어 고지(사진은 판독에만 쓰고 30분 뒤 지움, 외부 AI로 보냄)를 넣을지 정하고 api.md 화면 문구에 먼저 적는다 ②`user_id`를 UUID로 바꿀지는 새 V 마이그레이션과 api.md 변경이 필요해 제출 뒤로 미룰지 정한다
+- (병합과 금지 파일) 심사는 `origin/main` 병합으로 들어온 팀원의 `CLAUDE.md` 변경도 금지 파일 변경으로 감점했다. 루프는 지시대로 main을 합칠 수밖에 없다. 제안: 금지 파일을 고치는 팀 PR은 루프 회차 사이에 합치거나, 심사 기준에 "병합으로 들어온 변경은 제외"를 적을지 정한다
 - (실행 조건) `build.gradle`은 Java 21을 요구한다. 팀원 PC에 JDK 17만 있으면 테스트가 컴파일 단계에서 멈춘다. 제안: README 실행 조건에 "JDK 21"을 분명히 적거나 Gradle toolchain 자동 내려받기를 쓸지 정한다
