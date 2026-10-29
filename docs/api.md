@@ -396,7 +396,9 @@
 | `R3` | 걸리는 재료는 없지만 재료가 모두 `AI_ESTIMATE`에서 왔다 | `CHECK` |
 | `R4` | 걸리는 재료가 없다 | `SAFE` |
 
-- AI 추정(`AI_ESTIMATE`) 재료는 항상 `INFERRED`다. 그래서 AI 추정만으로는 `BLOCKED`가 나오지 않는다(REQ-5).
+- AI 추정(`AI_ESTIMATE`) 재료는 항상 `INFERRED`다. 그래서 AI 추정만으로는 `BLOCKED`가 나오지 않고, 제한이 있는 사용자에게는 걸리면 `R2`, 걸리지 않으면 `R3`로 늘 `CHECK`가 나온다(REQ-5).
+- 재료를 하나도 찾지 못해 `ingredients`가 비어도 `R3`(`CHECK`)이다. 제한이 없는 사용자는 그보다 먼저 `R0`(`SAFE`)이 된다.
+- `R0`·`R3`의 `reason`은 응답 예시에 없어 지금 구현(`JudgmentRules`) 문구를 적는다. `R0`: `You have no diet restrictions set.` / `R3`(재료 없음): `No ingredients were found. Please check before eating.` / `R3`(모두 AI 추정): `Ingredients are AI estimates only. Please check before eating.`
 - 판정은 코드(`backend` `domain/judgment/service`)가 한다. AI는 재료를 찾을 때만 쓴다. 규칙마다 JUnit 테스트를 둔다.
 
 ### 예외 상황
@@ -490,7 +492,7 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 | 예외 상황 | 처리 방식 |
 | --- | --- |
 | `menu_name` 누락 또는 빈 문자열 | 400 Bad Request `{ "detail": "Please enter a menu name." }` |
-| 1~4 모두 재료를 찾지 못함 | 200 OK, `ingredients: []` → 판정은 `R3`과 같이 `CHECK` |
+| 1~4 모두 재료를 찾지 못함 | 200 OK, `ingredients: []` → 판정은 `R3`(`CHECK`). 제한이 없는 사용자는 `R0`(`SAFE`) |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
