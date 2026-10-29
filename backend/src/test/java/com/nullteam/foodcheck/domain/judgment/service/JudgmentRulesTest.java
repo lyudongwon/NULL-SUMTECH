@@ -27,6 +27,12 @@ class JudgmentRulesTest {
 	private static final Set<String> HALAL = Set.of("pork", "alcohol");
 	private static final Set<String> VEGETARIAN = Set.of("meat", "seafood");
 
+	// reason 문구는 docs/api.md > REQ-3 > 판정 규칙 아래 설명과 응답 예시가 원본이다.
+	private static final String R3_ESTIMATED_ONLY =
+			"Ingredients are only estimated, not from the food database or 10000recipe. Please check before eating.";
+	private static final String R3_NOT_FOUND = "No ingredients were found. Please check before eating.";
+	private static final String R4_SAFE = "No ingredients conflict with your diet restrictions.";
+
 	private static IngredientView confirmed(String name, String... restrictions) {
 		return new IngredientView(name, Evidence.CONFIRMED, Confidence.HIGH, Basis.DB, List.of(restrictions));
 	}
@@ -46,6 +52,7 @@ class JudgmentRulesTest {
 		assertEquals(Level.SAFE, result.level());
 		assertEquals(Rule.R0, result.rule());
 		assertEquals(List.of(), result.matchedRestrictions());
+		assertEquals("You have no diet restrictions set.", result.reason());
 	}
 
 	@Test
@@ -111,6 +118,8 @@ class JudgmentRulesTest {
 
 		assertEquals(Level.CHECK, result.level());
 		assertEquals(Rule.R3, result.rule());
+		assertEquals(List.of(), result.matchedRestrictions());
+		assertEquals(R3_ESTIMATED_ONLY, result.reason());
 	}
 
 	@Test
@@ -123,6 +132,8 @@ class JudgmentRulesTest {
 
 		assertEquals(Level.CHECK, result.level());
 		assertEquals(Rule.R3, result.rule());
+		assertEquals(List.of(), result.matchedRestrictions());
+		assertEquals(R3_ESTIMATED_ONLY, result.reason());
 	}
 
 	@Test
@@ -132,6 +143,8 @@ class JudgmentRulesTest {
 
 		assertEquals(Level.CHECK, result.level());
 		assertEquals(Rule.R3, result.rule());
+		assertEquals(List.of(), result.matchedRestrictions());
+		assertEquals(R3_ESTIMATED_ONLY, result.reason());
 	}
 
 	@Test
@@ -143,6 +156,7 @@ class JudgmentRulesTest {
 
 		assertEquals(Level.SAFE, result.level());
 		assertEquals(Rule.R4, result.rule());
+		assertEquals(R4_SAFE, result.reason());
 	}
 
 	@Test
@@ -151,6 +165,8 @@ class JudgmentRulesTest {
 
 		assertEquals(Level.CHECK, result.level());
 		assertEquals(Rule.R3, result.rule());
+		assertEquals(List.of(), result.matchedRestrictions());
+		assertEquals(R3_NOT_FOUND, result.reason());
 	}
 
 	@Test
@@ -162,6 +178,7 @@ class JudgmentRulesTest {
 
 		assertEquals(Level.SAFE, result.level());
 		assertEquals(Rule.R4, result.rule());
+		assertEquals(R4_SAFE, result.reason());
 		assertEquals(List.of(), result.matchedRestrictions());
 	}
 
