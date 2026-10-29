@@ -239,7 +239,14 @@
 | `file` 누락 | 400 Bad Request `{ "detail": "업로드할 사진이 없습니다." }` |
 | 이미지가 아닌 파일 / 지원하지 않는 형식 | 415 Unsupported Media Type `{ "detail": "지원하지 않는 이미지 형식입니다." }` |
 | 10MB 초과 | 413 Payload Too Large `{ "detail": "사진 용량이 너무 큽니다. (최대 10MB)" }` |
+| 잘못된 `source` 값 | 400 Bad Request `{ "detail": "source 값이 올바르지 않습니다." }` |
 | 서버 내부 오류 | 500 Internal Server Error |
+
+### 사진 본문 저장 (②가 정함, 2026-10-29)
+
+- 형식은 브라우저가 보낸 Content-Type이 아니라 파일 앞부분(JPEG·PNG·WEBP 서명)으로 판단하고, `width`·`height`도 서버가 사진에서 읽는다.
+- 메타데이터는 `images` 표에, 본문은 **잠정으로 백엔드 메모리**(최대 200장, 30분)에 둔다. 판독(REQ-2)은 업로드 직후 한 번만 하므로 오래 둘 필요가 없다. 서버를 다시 켜면 본문이 사라져 그 뒤의 판독 요청은 404다.
+- 목표는 Postgres `bytea`다. ①에게 `images.data bytea` 컬럼(V 마이그레이션)을 요청했고, 추가되면 DB에 저장하도록 바꾼다. S3는 쓰지 않는다(키·버킷 설정이 늘고, 보관 기간이 짧다).
 
 ---
 
