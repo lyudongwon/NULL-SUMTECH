@@ -4,7 +4,7 @@
 
 ## 전제
 
-- DB는 PostgreSQL(Neon), ORM은 Drizzle이다(노션 기능 명세서 기술 스택 표, [tech-stack.md](tech-stack.md)).
+- DB는 PostgreSQL, ORM은 JPA(Hibernate), 마이그레이션은 Flyway다([tech-stack.md](tech-stack.md)). DB 호스트(Neon 또는 AWS RDS)는 정해지지 않았다.
 - 로그인이 없다. 사용자는 클라이언트가 만든 `session_id`(UUID)로 구분하고, 식단 제한을 처음 저장할 때 서버에 등록한다(`problem.yaml > features > OPT-2`의 입력, `scenarios.yaml`의 `login: false`).
 - **저장하지 않는 것:** 메뉴 판독 결과와 판정 결과. 조회 API가 없고 요청마다 계산해서 돌려준다. 기록 보기 같은 기능이 생기면 테이블을 추가한다.
 
@@ -150,7 +150,7 @@ E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 
 
 ## 열린 질문
 
-1. **사진 본문을 어디에 두는가.** 배포가 Vercel + Neon이라 서버 디스크가 없다. Postgres `bytea`에 넣을지 Vercel Blob 같은 외부 저장소를 쓸지 정해야 하고, 보관 기간도 정해야 한다.
+1. **사진 본문을 어디에 두는가.** 백엔드는 AWS 컨테이너라 재배포하면 컨테이너 디스크가 사라진다. Postgres `bytea`에 넣을지 S3 같은 외부 저장소를 쓸지, 업로드와 판독을 한 요청으로 합칠지 정해야 하고, 보관 기간도 정해야 한다.
 2. **`session_id`인가 `user_id`인가.** 팀 합의본(`problem.yaml`의 OPT-2)은 `session_id`인데 [api.md](api.md)는 `/users/{user_id}/restrictions`로 적혀 있다. 이 문서는 `session_id`를 따랐다.
 3. **로그인.** 팀 합의본은 로그인이 없다. 로그인을 넣기로 한다면 `sessions`를 `users`(식별자, 비밀번호 해시)로 바꾸거나 `users`를 추가해야 한다. [decisions.md](decisions.md) 참고.
 4. **프리셋·항목 코드 목록.** 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 쓴다. 전체 목록이 필요하다.

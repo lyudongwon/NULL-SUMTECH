@@ -34,4 +34,4 @@ SUMTECH 2026 루프톤 NULL 팀 서비스 저장소. 학식당 메뉴판·음식
 
 ## 기술 스택
 
-TypeScript + Next.js(App Router) + PostgreSQL(Drizzle) + Vercel AI SDK. 전체 표와 실행 조건은 [docs/tech-stack.md](docs/tech-stack.md), 설치·실행 방법은 README에 적는다.
+Next.js(화면) + Spring Boot(백엔드) + PostgreSQL(JPA·Flyway) + Spring AI. 잠정이며 작업 중 바뀐다. 전체 표와 실행 조건은 [docs/tech-stack.md](docs/tech-stack.md), 설치·실행 방법은 README에 적는다.
