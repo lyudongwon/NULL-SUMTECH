@@ -63,6 +63,7 @@
 | 설정 화면 | 프리셋 | Halal · Vegetarian · Vegan |
 | 설정 화면 | 토글 | Meat · Pork · Beef · Seafood · Egg · Dairy · Peanut · Alcohol |
 | 설정 화면·버튼 | 저장 | Save |
+| 설정 화면(REQ-4) | 동시 저장 충돌(409 `detail`) | Another request was saved first. Please try again. |
 | 입력칸(OPT-1) | 메뉴 이름 입력칸 | Menu name |
 | 입력칸(OPT-1)·버튼 | 판정하기 | Can I eat it? |
 | 판정 화면 | 배지 | Safe · Check first · Avoid |

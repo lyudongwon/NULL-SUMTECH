@@ -4,6 +4,7 @@
 
 | 날짜 | 결정 | 이유 | 반영 상태 |
 | --- | --- | --- | --- |
+| 2026-10-30 | `api.md > 화면 문구` 표에 REQ-4 동시 저장 충돌 문구 "Another request was saved first. Please try again."을 더했다. 문구는 이미 `api.md > REQ-4` 409 응답과 백엔드에 있던 것이다 | `problem.yaml > features > REQ-4 > done`이 이 문구를 쓰는데 화면 문구 표에 없어 정합성(C3) 점검에서 걸렸다 | 반영: `api.md > 화면 문구` |
 | 2026-10-30 | R4를 쓴 문장 세 곳(root_problem, five_whys 4단계, solution_paths)의 "일부 학교만 감당한다"를 R4가 말하는 사실("서울대도 2018년에야 식당 한 곳에 들였고 적자로 운영")로 좁혔다. 확인 시간 지표에 측정 방법(사진 선택 → 배지 표시, E1·E2 사진 10회 중 10회 15초 이내)을 적고, 포기 끼니 측정은 해커톤 뒤에 한다고 밝혔다 | progress.md 기획 검토 E에서 R4 인용이 근거보다 넓고, 지표에 측정 조건이 없다고 지적됐다(A4·B3) | 반영: `problem.yaml > canvas > root_problem·impact > measurable`, `five_whys`, `solution_paths` |
 | 2026-10-30 | OPT-2 흐름 `other-restaurants-halal`을 추가했다. 할랄로 저장한 뒤 첫 화면의 "Other restaurants"를 누르면 돼지고기·술을 쓰는 음식점은 보이지 않는다. 음식점 시드가 예시 데이터라 이름이 아니라 제한 규칙으로 확인한다 | 평가에서 OPT-2 시나리오가 없어 C3가 감점됐다. 음식점 시드(`R__20`)와 화면은 이미 있다 | 반영: `scenarios.yaml`. E2E spec(`e2e/scenarios/other-restaurants-halal.spec.ts`)은 ①이 만든다 |
 | 2026-10-30 | 식단 제한 때문에 포기한 학식 끼니의 목표를 "한 달 10끼 → 5끼 이하"로 정하고, 측정 방법(사용 전후 각 한 달 기록)을 적었다 | 평가에서 포기한 끼니 수에 목표 값이 없어 B3가 감점됐다. '확인 필요'는 직원에게 재료 하나만 물으면 풀리지만 레시피를 모르는 메뉴는 남아 절반으로 잡았다 | 반영: `problem.yaml > canvas > impact > measurable` |
