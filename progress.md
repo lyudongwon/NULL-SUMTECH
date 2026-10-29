@@ -301,6 +301,10 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `./gradlew --no-daemon test` 통과(112개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`). `MAX_INGREDIENTS`를 잠시 13으로 바꾸면 12개 테스트가 실패하는 것을 확인하고 되돌림
   - 미확인(node·docker 없음): 흐름 E2E 8개 실행
   - 다음: 팀 브랜치(`docs/e2e-results`·`feat/opt2-nearby-restaurants`)가 main에 합쳐지면 "현재 상태"·api.md 405·415·OPT-2 계약과 코드를 맞춘다. 그 전에는 팀 결정과 node·docker 확인만 남는다
+- 14회차(2026-10-30) 지난 심사(69점)의 "가장 먼저 고칠 것"은 docker에서 흐름 E2E 8개 실행과 api.md 405·415다. `origin/main`은 새 커밋이 없었다. 팀 브랜치도 새 커밋이 없어, 심사가 짚은 남은 어긋남(api.md 405·415, OPT-2 done과 "(예시)" 시드, "현재 상태"·3~7단계)은 모두 팀 브랜치(`feat/opt2-nearby-restaurants`·`fix/seed-name-match`·`docs/e2e-results`·`docs/readme-design`)가 고치는 파일에 있다. 13회차 심사는 중요도가 낮은 테스트 보강을 고른 것도 감점했으므로, 이번에는 새 변경을 만들지 않고 상태만 확인했다
+  - 검사: `./gradlew --no-daemon test` 통과(112개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
+  - 미확인(node·docker 없음): 흐름 E2E 8개 실행
+  - 결론: 루프가 혼자 할 일은 남지 않았다. 남은 일은 아래 "팀 결정 필요"(특히 OPT-2 시드 조사, 팀 브랜치 병합, E2E 결과 반영)와 node·docker가 있는 PC에서의 E2E 실행이다. 팀 브랜치가 main에 합쳐지면 루프를 다시 돌려 api.md 405·415와 "현재 상태"를 맞춘다
 
 ### 팀 결정 필요
 
