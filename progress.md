@@ -320,6 +320,8 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 아직 안 한 것: 카카오 로컬 API 호출(지금은 api.md의 "카카오맵 호출 실패" 경로처럼 DB에 쌓인 음식점만 돌려준다), 화면(지도·핑·보고 토글·주의 음식점 숨기기), 옛 `/recommendations`·`restaurant_restriction_items` 제거. 아래 "OPT-2 전환"을 본다
   - 건드리지 않은 것: `docs/api.md`(`fix/seed-name-match`·`revert-14-main`이 고침), `docs/scenarios.yaml`·`e2e/scenarios/S8.spec.ts`(`fix/scenario-ids-for-grader`가 고침), 옛 `RestaurantService`·화면
   - 다음: 카카오 로컬 API 클라이언트(키가 없거나 실패하면 건너뜀, `kakao_place_id`로 upsert)를 더하고 테스트한다
+- 17회차(2026-10-30) blocked. 지난 심사(69점)의 "가장 먼저 고칠 것"은 `fix/scenario-ids-for-grader`를 합친 뒤 S8·화면을 새 OPT-2 계약으로 맞추는 것이다. `origin/main`에 그 브랜치(PR #27, b9226c3)가 합쳐졌으나 `git merge origin/main`이 `e2e/scenarios/S3.spec.ts`·`S4.spec.ts`에서 충돌했다. 이 브랜치의 e7ff95c(이전 main 병합)와 main의 흐름 id·대기 시간 변경(`AI_WAIT`)이 같은 주석 줄을 고쳐서 생긴다(예: S4 "입력칸 이름 …" vs "입력칸 …"). 지시대로 임의로 풀지 않고 `git merge --abort`로 되돌렸다. 코드·테스트는 바꾸지 않았다
+  - 필요한 일: 팀(또는 학생)이 이 브랜치에 main을 합치며 두 spec의 충돌을 main 쪽(`origin/main`)으로 푼다. 주석 문구 차이뿐이라 main 쪽을 그대로 받으면 된다. 그 뒤 루프가 S8·`restaurantService.ts`·화면을 `/nearby`(지도·핑·보고)로 바꾼다
 
 ### 팀 결정 필요
 
