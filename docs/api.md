@@ -590,3 +590,6 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 2. AI 호출 남용: 로그인이 없는데 팀 AI 예산은 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 4에서 다룬다.
 3. 메뉴 이름 표기 차이: 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)를 어떻게 맞출지는 ③이 정한다([erd.md](erd.md) 열린 질문 5).
 4. 사진 본문 저장 위치: `images`에는 메타데이터만 있다. ②가 잠정 방식을 정했고(위 REQ-1 > 사진 본문 저장), ①에게 요청한 `images.data bytea` 컬럼은 아직 없다([erd.md](erd.md) 열린 질문 1).
+5. 민감정보 고지: 식단 제한(알레르기·종교)은 `user_id`와 함께 서버 DB에 남고, 사진은 판독을 위해 외부 AI(AI Gateway)로 간다([tech-stack.md](tech-stack.md)). 화면에는 REQ-7 고지("For guidance only. …")만 있고 저장·외부 전송을 알리는 문구는 없다. 문구를 넣으면 위 화면 문구 표에 먼저 적는다(progress.md > 팀 결정 필요 > 위험 완화).
+6. 설정 삭제: 저장한 식단 제한을 지우는 API·화면이 없다. `features`에 없는 기능이라 지금은 만들지 않는다(progress.md > 팀 결정 필요 > 위험 완화).
+7. `R4`(`SAFE`)의 근거 범위: 음식 DB에 없는 메뉴는 만개의 레시피 재료로 판정한다. 일반 레시피는 학식당 레시피와 다를 수 있어, 걸리는 재료가 없으면 `SAFE`가 나와도 학식당 실제 재료와 다를 수 있다. 근거 상세에는 `Estimated`·`10000recipe`로 보인다(progress.md > 팀 결정 필요 > C, REQ-3·REQ-5).
