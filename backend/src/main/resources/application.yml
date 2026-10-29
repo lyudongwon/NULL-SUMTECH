@@ -20,9 +20,9 @@ spring:
       max-request-size: 10MB
   ai:
     openai:
-      # TODO(확인): AI Gateway의 OpenAI 호환 주소로 실제 호출되는지 아직 확인 전이다(tech-stack.md AI 행).
+      # base-url은 /v1까지 적는다. SDK가 뒤에 chat/completions만 붙여서, /v1이 없으면 404가 난다. 텍스트 호출은 확인했고 이미지(비전) 호출은 확인 전이다.
       api-key: ${AI_GATEWAY_API_KEY:unset}
-      base-url: ${AI_GATEWAY_BASE_URL:https://ai-gateway.vercel.sh}
+      base-url: ${AI_GATEWAY_BASE_URL:https://ai-gateway.vercel.sh/v1}
 
 server:
   port: ${PORT:8080}
