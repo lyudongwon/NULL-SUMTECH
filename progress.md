@@ -5,8 +5,8 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 ## 현재 상태
 
 - 실제 서비스 저장소 폴더: `C:\Users\a4710\NULL-SUMTECH` (안내 폴더: `C:\Users\a4710\loopthon-starter`)
-- 현재 단계 / 다음 행동: 3단계. docker·/__health·scenarios CI는 연결됨. 첫 배포는 학생의 배포 대상 결정·계정 연결·Secrets 등록 대기(blocked, 3단계 "학생이 할 일")
-- 학생에게 확인할 내용: 배포 대상(`docs/tech-stack.md > 열린 결정` 1). E1·E2의 시점과 출처는 2026-10-30 확인해 `problem.yaml > experiences`에 반영함
+- 현재 단계 / 다음 행동: 3단계. docker·/__health·scenarios CI는 연결됨. 배포 대상은 Render로 정했다(decisions.md 2026-10-30, `render.yaml`). 첫 배포는 학생의 Render 계정 연결·Blueprint 생성·입력값 등록 대기(3단계 "학생이 할 일")
+- 학생에게 확인할 내용: Render Blueprint 배포를 했는지(README > 배포 (Render)). E1·E2의 시점과 출처는 2026-10-30 확인해 `problem.yaml > experiences`에 반영함
 - 참고: 운영진의 검색·AI 사용 허락 받음(학생 확인, 2026-10-29). 조직 이름 `NULL`·`NULL-team`은 이미 다른 계정이 사용 중이고, `NULL-sumtech-team` 조직은 GitHub에서 확인되지 않아 학생 요청으로 개인 계정 레포를 사용함
 
 ## 1. GitHub 준비
@@ -55,13 +55,13 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [x] README 설치·빌드·실행 안내와 환경변수 표
 - [~] GET /__health: docker 앱에서 200, 리다이렉트 없음, `Cache-Control: no-store`, releaseId = 실행 commit 확인. 배포는 아직 없음
 - [ ] 공개 HTTPS URL 첫 배포 — **blocked(학생)**: 아래 "학생이 할 일" 1~3
-- [~] CI 실제 검사: `.github/workflows/scenarios.yml`(키트 복사, releaseId=commit 검사 추가) 추가. 자동 배포 연결은 배포 대상이 정해진 뒤
+- [~] CI 실제 검사: `.github/workflows/scenarios.yml`(키트 복사, releaseId=commit 검사 추가) 추가. 자동 배포는 Render Blueprint가 `main` 병합마다 다시 배포한다(README > 배포 (Render))
 - [ ] Agent가 대시보드 배포 URL 저장, UP·배포 commit 일치 확인 — 배포 뒤
 - 로컬 E2E(2026-10-30, 빈 DB docker, AI 키 없음): smoke 4/4·manual-input-fallback·manual-input-unknown-menu 통과, 사진 판독이 필요한 5개 흐름 실패. 원인: 백엔드 로그 `NotFoundException: 404`(Gateway base-url `/v1` 누락, 열린 PR #10이 고침) + 로컬·GitHub Secrets에 AI 키 없음
 - 로컬 E2E 재실행(2026-10-30, PR #10 반영 main, 로컬 .env에 AI 키): smoke 4/4, 흐름 7/7 통과를 2회 연속 확인(사진 판독 비전 호출 포함, 흐름당 4~8초). E1·E2(Check first)도 2회 모두 같은 결과
 - 학생이 할 일(blocked):
-  1. 배포 대상 결정(`docs/tech-stack.md > 열린 결정` 1): 화면 Vercel + 백엔드 컨테이너 호스트(AWS 등) + 무료 Postgres(Neon 등) 중 무엇을 쓸지, 무료 등급 확인
-  2. 고른 플랫폼에 학생 계정으로 로그인해 GitHub 레포 연결, 배포 환경변수(`BACKEND_URL`, `SPRING_DATASOURCE_*`, `AI_GATEWAY_API_KEY`, `RELEASE_ID`는 플랫폼 commit 변수) 직접 입력
+  1. ~~배포 대상 결정~~ → Render로 정함(decisions.md 2026-10-30, `render.yaml`)
+  2. Render에 학생 계정으로 로그인해 GitHub 레포 연결, New → Blueprint로 `main` 선택, 묻는 값(백엔드 `AI_GATEWAY_API_KEY`, 화면 `BACKEND_URL`) 직접 입력(README > 배포 (Render))
   3. GitHub 레포 Settings → Secrets and variables → Actions에 `AI_GATEWAY_API_KEY` 직접 등록(지금 Secrets 비어 있음)
   4. PR #10(Gateway `/v1`) 확인·병합
 - 배포 URL / CI·배포 링크 / 첫 배포 commit SHA: 아직 없음
