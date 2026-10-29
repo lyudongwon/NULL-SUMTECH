@@ -134,3 +134,31 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: 고치기 전후 백틱 토큰·링크·REQ/OPT 번호·(제안) 표시 목록을 `diff`로 비교해 똑같음, `git diff --word-diff`로 바뀐 줄을 다시 읽음. tech-stack.md 열린 결정 4가 "AI 호출 남용 방지"임을 확인함
 - 남은 문서: 없음. 다듬기 대상(problem.yaml, README.md, decisions.md, api.md, scenarios.yaml, erd.md, tech-stack.md, folder-structure.md)을 모두 마침. ai-rules.md·git-convention.md·roles.md는 작업 규칙이라 손대지 않음
 - 다음 행동: 팀원이 `chore/ralph-loop` 변경을 읽어 보고 main으로 PR할지 정함
+
+## 기획 검토(랄프 루프)
+
+10년차 서비스 기획자 관점의 검토. 이미 정해진 뜻을 분명히 쓰거나 문서끼리 어긋난 곳은 직접 고치고, 기능·한도·판정 규칙·API·화면 이름을 바꾸는 일은 아래 "팀 결정 필요"에 적는다.
+
+- [x] A. `problem.yaml > features`: 입력·입력 조건·완료 조건·예외 처리, 관찰 가능한 완료 조건, 구현 방식 섞임
+- [ ] B. 문서끼리 일치(problem.yaml ↔ scenarios.yaml ↔ api.md ↔ decisions.md ↔ erd.md)
+- [ ] C. 판정 기준 R0~R4와 프로필이 비었을 때·판독 실패 시 동작
+- [ ] D. 해커톤 범위(MVP REQ / 부가 OPT 구분과 이유, 시연 흐름)
+- [ ] E. 문제 정의·성공 지표
+- [ ] F. 개인정보·윤리(알레르기·종교 정보, 사진 저장 동의·보관)
+
+### 회차 기록
+
+- 1회차(2026-10-30) A 검토: 11개 기능 모두 input·output·done은 있으나, 입력 조건과 예외가 `api.md`에만 있고 `done`에 빠진 곳이 많았다. `api.md`·`decisions.md`에서 이미 정한 내용만 `done`에 옮겨 적었다.
+  - 고친 것(`problem.yaml > features`): REQ-1에 형식·10MB 한도와 거절 시 문구, REQ-2에 판독 실패·45초 초과 시 입력칸, REQ-3에 식단 제한 미저장 시 R0(안전), REQ-4에 다시 열었을 때 보이는 상태와 동시 저장 시 보이는 문구(요구사항 자리의 "version 불일치 → 409"를 화면 결과로 바꿈), REQ-5에 재료를 못 찾았을 때, REQ-6의 "따로 요청하지 않는다"(구현 방식)를 화면 결과로 바꿈, OPT-1에 빈 입력 팝업
+  - 그대로 둔 것: 필드 구조(input·output·done). `input_condition`·`exceptions` 키를 새로 두면 대시보드 캔버스 표시가 바뀔 수 있어 `done` 안에 적었다
+  - 검사: `yaml.safe_load` 통과(features ID 11개 그대로), `git diff --word-diff`로 `done` 7곳만 바뀐 것을 확인. scenarios.yaml·api.md는 손대지 않음
+  - 다음: B
+
+### 팀 결정 필요
+
+- (A, REQ-2) 학식 식판처럼 음식 사진 한 장에 요리가 여러 개 있을 때 동작이 없다. 지금 규칙은 "요리명 1개"뿐이라 나머지 요리는 판정되지 않는다. 제안: 시연 범위에서는 한 그릇 사진만 다룬다고 `REQ-2 input`에 적을지 팀이 정한다
+- (A, REQ-1·OPT-3) 10MB 한도를 지키는 수단이 부가 기능 OPT-3(축소)이다. 휴대폰 원본 사진은 10MB를 넘을 수 있어, OPT-3을 빼면 MVP 업로드가 막힐 수 있다. 제안: OPT-3을 REQ로 올리거나 REQ-1 done에 "휴대폰 카메라 원본도 올라간다"를 넣을지 정한다(D에서 다시 본다)
+- (A, REQ-2·OPT-1) MVP인 REQ-2의 실패 처리가 부가 기능 OPT-1(수동 입력)에 기댄다. 제안: OPT-1을 REQ로 올리거나, OPT-1이 없을 때 REQ-2 실패 화면을 정한다(D에서 다시 본다)
+- (A, REQ-3) 식단 제한을 저장하지 않은 사용자는 모든 메뉴가 "Safe"로 나온다(R0). 설정을 잊은 알레르기 사용자가 "Safe"를 믿을 위험이 있다. 제안: 제한이 없을 때 판정 화면에 설정 안내를 보여 줄지 정한다(C에서 다시 본다)
+- (A, OPT-2) 식단 제한이 없는 사용자가 첫 화면의 "Other restaurants"를 누를 때 어떤 음식점이 보이는지 정해져 있지 않다. 제안: 시드 음식점 전부를 보여 줄지 정한다
+- (A, 형식) features에 입력 조건·예외를 따로 적을 칸이 없어 `done` 문장이 길다. 제안: `input_condition`·`exceptions` 키를 둘지 대시보드 표시를 확인한 뒤 정한다
