@@ -3,5 +3,9 @@
 export const dynamic = "force-dynamic";
 
 export function GET() {
-  return Response.json({ status: "ok", releaseId: process.env.RELEASE_ID ?? null });
+  return Response.json(
+    { status: "ok", releaseId: process.env.RELEASE_ID ?? null },
+    // 대시보드가 이전 배포의 응답을 캐시해서 보지 않게 한다.
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }

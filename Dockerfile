@@ -11,7 +11,9 @@ RUN npm run build
 
 FROM node:22-alpine
 WORKDIR /app
-ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
+# 빌드한 commit을 이미지에 남긴다. 실행할 때 환경변수 RELEASE_ID를 주면 그 값이 우선한다.
+ARG RELEASE_ID=dev
+ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 RELEASE_ID=$RELEASE_ID
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public

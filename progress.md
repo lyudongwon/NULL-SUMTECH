@@ -5,7 +5,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 ## 현재 상태
 
 - 실제 서비스 저장소 폴더: `C:\Users\a4710\NULL-SUMTECH` (안내 폴더: `C:\Users\a4710\loopthon-starter`)
-- 현재 단계 / 다음 행동: 2단계 기획 문서 통일 완료(2026-10-29, `docs/decisions.md`). ①의 뼈대와 REQ-4·OPT-2는 `main`에 올라왔다. 다음은 ②·③이 자기 dto와 `src/types` 파일부터 시작
+- 현재 단계 / 다음 행동: 3단계. docker·/__health·scenarios CI는 연결됨. 첫 배포는 학생의 배포 대상 결정·계정 연결·Secrets 등록 대기(blocked, 3단계 "학생이 할 일")
 - 학생에게 확인할 내용: E1이 언제 겪은 일인지, E2가 누구의 경험인지, 배포 대상(`docs/tech-stack.md > 열린 결정` 1)
 - 참고: 운영진의 검색·AI 사용 허락 받음(학생 확인, 2026-10-29). 조직 이름 `NULL`·`NULL-team`은 이미 다른 계정이 사용 중이고, `NULL-sumtech-team` 조직은 GitHub에서 확인되지 않아 학생 요청으로 개인 계정 레포를 사용함
 
@@ -47,17 +47,24 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 
 ## 3. 최소 화면 docker 실행·CI·첫 배포
 
-- [ ] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만)
-- [ ] docker-compose.example.yml을 docker-compose.yml로 복사: app·db, app만 ports "3000:3000", 앱은 컨테이너 안 3000에서 받음, 앱 설정에 localhost:3000 같은 절대 주소 없음
-- [ ] app 말고는 ports·container_name이 없고, 어느 서비스에도 env_file 없음
-- [ ] 환경변수 이름 그대로(RELEASE_ID·SEED_USER_*·AI_GATEWAY_API_KEY), 시드 계정 값은 `${}` 없이 직접 적음
-- [ ] 빈 DB에서 `docker compose up --build`만으로 앱·시드 데이터가 2분 안에 뜸(docker를 못 쓰면 GitHub Actions 결과로 확인)
-- [ ] README 설치·빌드·실행 안내와 환경변수 표(이름·용도·설정 위치)
-- [ ] GET /__health가 인증·리다이렉트 없이 200 응답(docker 앱·배포 둘 다, Next.js는 app/%5F%5Fhealth), 실제 배포 commit을 releaseId로 제공
-- [ ] 공개 HTTPS URL 첫 배포(발표용, 배포용 DB는 학생 확인 후 무료 등급)
-- [ ] CI 실제 검사(workflows/scenarios.yml 복사)와 성공 뒤 자동 배포 연결, 실제 push로 확인
-- [ ] Agent가 대시보드 배포 URL 저장, UP·배포 commit 일치 확인
-- 배포 URL / CI·배포 링크 / 첫 배포 commit SHA:
+- [x] 설계에 맞는 최소 화면과 서버 실행 구성 준비, Dockerfile 작성(빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만) — 루트 `Dockerfile`(app), `backend/Dockerfile`
+- [x] docker-compose.yml: app·backend·db, app만 ports "3000:3000", 앱은 컨테이너 안 3000에서 받음, 절대 주소 없음(BACKEND_URL은 내부 서비스 이름)
+- [x] app 말고는 ports·container_name이 없고, 어느 서비스에도 env_file 없음. db는 이름 붙은 볼륨 `db-data`
+- [x] 환경변수 이름 그대로(RELEASE_ID `${RELEASE_ID:-dev}`·AI_GATEWAY_API_KEY). 로그인이 없어(`scenarios.yaml` login: false) SEED_USER_*는 두지 않음
+- [x] 빈 DB에서 `docker compose down -v` → `RELEASE_ID=<HEAD> docker compose up -d --build`로 67초(빌드 포함) 만에 `/__health` 200 (2026-10-30 로컬 Docker Desktop)
+- [x] README 설치·빌드·실행 안내와 환경변수 표
+- [~] GET /__health: docker 앱에서 200, 리다이렉트 없음, `Cache-Control: no-store`, releaseId = 실행 commit 확인. 배포는 아직 없음
+- [ ] 공개 HTTPS URL 첫 배포 — **blocked(학생)**: 아래 "학생이 할 일" 1~3
+- [~] CI 실제 검사: `.github/workflows/scenarios.yml`(키트 복사, releaseId=commit 검사 추가) 추가. 자동 배포 연결은 배포 대상이 정해진 뒤
+- [ ] Agent가 대시보드 배포 URL 저장, UP·배포 commit 일치 확인 — 배포 뒤
+- 로컬 E2E(2026-10-30, 빈 DB docker, AI 키 없음): smoke 4/4·manual-input-fallback·manual-input-unknown-menu 통과, 사진 판독이 필요한 5개 흐름 실패. 원인: 백엔드 로그 `NotFoundException: 404`(Gateway base-url `/v1` 누락, 열린 PR #10이 고침) + 로컬·GitHub Secrets에 AI 키 없음
+- 로컬 E2E 재실행(2026-10-30, PR #10 반영 main, 로컬 .env에 AI 키): smoke 4/4, 흐름 7/7 통과를 2회 연속 확인(사진 판독 비전 호출 포함, 흐름당 4~8초). E1·E2(Check first)도 2회 모두 같은 결과
+- 학생이 할 일(blocked):
+  1. 배포 대상 결정(`docs/tech-stack.md > 열린 결정` 1): 화면 Vercel + 백엔드 컨테이너 호스트(AWS 등) + 무료 Postgres(Neon 등) 중 무엇을 쓸지, 무료 등급 확인
+  2. 고른 플랫폼에 학생 계정으로 로그인해 GitHub 레포 연결, 배포 환경변수(`BACKEND_URL`, `SPRING_DATASOURCE_*`, `AI_GATEWAY_API_KEY`, `RELEASE_ID`는 플랫폼 commit 변수) 직접 입력
+  3. GitHub 레포 Settings → Secrets and variables → Actions에 `AI_GATEWAY_API_KEY` 직접 등록(지금 Secrets 비어 있음)
+  4. PR #10(Gateway `/v1`) 확인·병합
+- 배포 URL / CI·배포 링크 / 첫 배포 commit SHA: 아직 없음
 
 ## 4. 서비스 AI API 설정 (필요할 때만)
 
@@ -68,7 +75,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [ ] 서버가 환경변수 AI_GATEWAY_API_KEY에서 키를 읽음(주최 측 실행도 이 이름으로 키를 넣음), docker-compose.yml app에 `AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}`
 - [ ] 학생이 AI_GATEWAY_API_KEY를 로컬·배포 환경과 GitHub Secrets에 직접 설정, .env.example에는 이름만 기록
 - [ ] 서버에서 Gateway 호출, 접근 제한·예산 부족·지연·실패 처리
-- [ ] 팀 예산 안의 작은 실제 요청으로 연결 확인
+- [x] 팀 예산 안의 작은 실제 요청으로 연결 확인(2026-10-30 로컬 E2E로 텍스트·비전 호출 확인)
 - 키 값을 제외한 설정·연결 확인 결과 / 준비 대기 사항:
 
 ## 5. 핵심 기능 구현
@@ -102,6 +109,11 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 빈 DB·`chore/submission-requirements`만: **6/8 통과**(S1~S5, S8). S6·S7은 판독 이름이 시드 메뉴와 달라(`돌솥비빔밥`, `김치비빔국수`) 재료를 못 찾고 "Safe"가 나와 실패했다
   - 빈 DB·위 브랜치 + `fix/seed-name-match`(PR #22) 병합: **8/8 통과**, 전체 13.5초. 즉 S6·S7은 PR #22가 고친다
   - 흐름 하나 최대 11초(1분 조건 안), 빈 DB 기동은 `/__health` 200까지 20초 안, `docker compose build --no-cache`는 1분 25초(10분 조건 안)
+  - **옛 7개 흐름 spec 기록(PR #15 작성 당시, 2026-10-30).** 흐름이 `S1~S8`로 바뀌기 전에 `<id>.spec.ts` 7개로 측정한 것이라 지금 spec에는 다시 확인하지 않았다. 당시 결과는 smoke 4/4, 흐름 7/7 통과(`RELEASE_ID=da60b58`, `/__health` releaseId 일치)
+    - spec 점검: 금지 패턴(skip·only·route·addInitScript·evaluate·viewport·try/catch) 없음, 파일마다 goto·test 1개, Pixel 7 화면만
+    - 약한 확인(통과는 하지만 expected보다 느슨함): `scan-food-photo-single-dish`는 근거 한 줄과 "모두 영어"를 따로 확인하지 않음, `scan-menu-board`는 "소고기"를 근거 칸이 아닌 카드 전체에서 찾음, `diet-toggle-only`는 "소고기" 대신 "고기"로 찾음, `manual-input-fallback` 주석에 옛 한국어 이름("메뉴 이름"·"판정하기")이 남음
+    - 실패 동작: 틀린 AI 키로 백엔드를 띄우면 Gateway 401 → 화면에 "We couldn't read the menu. Please type the menu name."과 "Menu name" 입력칸이 뜸(api.md 판독 오류 행과 같음)
+    - 프로젝트 검사: `./gradlew test` 성공, 화면 `eslint`·`tsc --noEmit`·`next build` 성공, 없는 주소(`/no-such-page`, `/api/v1/no-such`) 404, 추적 파일·커밋 이력에 AI 키 값 없음
 
 ## 7. 최종 검증
 
