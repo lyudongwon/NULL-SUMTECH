@@ -234,6 +234,13 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `./gradlew --no-daemon test` 통과(86개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
   - 미확인(node·docker 없음): `useJudgment.ts` 타입 검사·빌드와 바뀐 spec 실행. import 경로(`@/services/judgmentService`, `@/types/judgment`)와 쓰지 않게 된 `apiRequest` import 제거는 코드를 다시 읽어 확인함
   - 다음: 위험 완화(추측하기 어려운 ID·설정 삭제·고지 문구)는 기능 추가라 아래 "팀 결정 필요"에 적었다. 남은 일은 대부분 팀 결정이나 node·docker 확인이다
+- 4회차(2026-10-30) 지난 심사(72점)의 위반 두 건을 다룸. `origin/main`은 새 커밋이 없어 합칠 것이 없었다
+  - `other-restaurants-halal.spec.ts`: 3회차에 넣은 시드 이름('(예시) …') 확인을 뺐다. scenarios.yaml 머리 주석("실제 조사 데이터로 바뀌어도 그대로 통과")과 spec 3행 주석에 맞춘다. 빠져야 할 음식점이 나오면 그 카드에 "Free of … Alcohol"이 없어 카드별 확인에서 실패하므로 확인 범위는 줄지 않는다(`RestaurantRecommendations.tsx`가 `matched_restrictions`로 문구를 만듦)
+  - OPT-2 시드 위반: 실제 음식점 데이터는 지어낼 수 없고, `problem.yaml`은 팀 브랜치 `docs/measurements-in-problem`이 고치는 중이라 건드리지 않았다. 아래 "팀 결정 필요 > OPT-2 시드"에 그대로 남긴다
+  - 판정 규칙 점검: 심사가 짚은 "AI 추정에 이름 단어 추정이 섞이면 R4(Safe)" 경우를 코드로 확인했다. 아래 "팀 결정 필요 > R3 범위"에 적었다(규칙 뜻을 바꾸는 일이라 고치지 않음)
+  - 검사: 백엔드를 바꾸지 않아 gradle은 돌리지 않았다. spec은 다시 읽어 남은 선택자·import를 확인함
+  - 미확인(node·docker 없음): 바뀐 spec 실행
+  - 다음: 팀이 R3 범위를 정하면 `JudgmentRules`·`JudgmentRulesTest`·api.md 판정 규칙 표를 같은 커밋에서 고친다
 
 ### 팀 결정 필요
 
@@ -242,5 +249,6 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (E2E 증거) `docs/e2e-results` 브랜치의 로컬 E2E 결과(흐름 7/7 2회)를 main에 합칠지 정한다. 합친 뒤 새 흐름 `other-restaurants-halal`까지 8개를 한 번 더 돌려 적으면 심사의 "E2E 실행 증거"가 채워진다
 - (E2E·CI) 흐름 E2E 7개를 돌린 기록이 없다. CI에 붙이면 실제 AI 호출로 팀 예산($10)이 준다. 제안: node·docker가 있는 PC에서 `docker compose up` 뒤 `npx playwright test --project=scenarios`를 한 번 돌려 결과를 6단계에 적고, CI에는 수동 실행(`workflow_dispatch`)으로만 붙일지 정한다
 - (위험 완화) 심사가 "위험은 문서에 있으나 완화 조치가 구현되지 않았다"고 본다: 순서대로 매기는 `user_id`로 남의 식단 설정을 읽고 고칠 수 있음, 설정 삭제 방법 없음, 알레르기·종교 정보와 사진 외부 AI 전송에 대한 고지 문구 없음. 모두 `features`에 없는 기능이거나 API·DB를 바꾸는 일이라 루프가 만들지 않는다. 제안: ①시연 범위에서는 첫 화면에 짧은 영어 고지(사진은 판독에만 쓰고 30분 뒤 지움, 외부 AI로 보냄)를 넣을지 정하고 api.md 화면 문구에 먼저 적는다 ②`user_id`를 UUID로 바꿀지는 새 V 마이그레이션과 api.md 변경이 필요해 제출 뒤로 미룰지 정한다
+- (R3 범위, 안전) `api.md > 판정 규칙`의 R3는 "재료가 모두 `AI_ESTIMATE`에서 왔다"이고 `JudgmentRules`도 글자 그대로 `allMatch(AI_ESTIMATE)`다. 그런데 `IngredientInferenceService`는 AI 추정 결과에 이름 단어(`NAME_KEYWORD`)·조리법(`COOKING_METHOD`) 추정을 합친다. 예: DB·만개의 레시피에 없는 "두부조림"을 AI가 [두부, 간장]으로 추정하면 조리법 "조림"이 `맛술`(COOKING_METHOD)을 더해 "모두 AI_ESTIMATE"가 깨지고, 땅콩 알레르기 사용자에게 R4 `SAFE`가 나온다. AI가 실패해 이름 단어 하나(예: "치즈…" → 치즈)만 남아도 같다. 같은 문서 아래 줄("AI 추정만으로는 … 걸리지 않으면 R3로 늘 CHECK")의 뜻과 어긋난다. 제안: R3를 "걸리는 재료가 없고, 음식 DB(`DB`)나 만개의 레시피(`RECIPE_SEARCH`)에서 온 재료가 하나도 없다"로 바꿀지 ③이 정한다. 정하면 `JudgmentRules`·`JudgmentRulesTest`·api.md 표를 함께 고친다
 - (병합과 금지 파일) 심사는 `origin/main` 병합으로 들어온 팀원의 `CLAUDE.md` 변경도 금지 파일 변경으로 감점했다. 루프는 지시대로 main을 합칠 수밖에 없다. 제안: 금지 파일을 고치는 팀 PR은 루프 회차 사이에 합치거나, 심사 기준에 "병합으로 들어온 변경은 제외"를 적을지 정한다
 - (실행 조건) `build.gradle`은 Java 21을 요구한다. 팀원 PC에 JDK 17만 있으면 테스트가 컴파일 단계에서 멈춘다. 제안: README 실행 조건에 "JDK 21"을 분명히 적거나 Gradle toolchain 자동 내려받기를 쓸지 정한다
