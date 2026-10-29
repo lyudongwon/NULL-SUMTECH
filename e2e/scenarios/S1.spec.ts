@@ -3,6 +3,8 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 const FIXTURES = path.join(__dirname, "..", "fixtures");
+// AI 판독·추정은 응답이 늦을 수 있다. 채점기는 팀 config(expect 30초)를 쓰지 않으므로 여기서 직접 기다린다.
+const AI_WAIT = { timeout: 60_000 };
 
 async function uploadPhoto(page: Page, file: string) {
   await page.getByRole("link", { name: "Upload photo" }).click();
@@ -19,7 +21,7 @@ test("메뉴판 사진을 올리면 메뉴마다 3단계 판정 배지와 근거
   const cards = page.getByRole("listitem");
   for (const menu of ["설렁탕", "콩나물국", "그린샐러드", "버섯리조또"]) {
     const card = cards.filter({ hasText: menu });
-    await expect(card).toHaveCount(1);
+    await expect(card).toHaveCount(1, AI_WAIT);
     await expect(card.getByText(/^(Safe|Check first|Avoid)$/)).toBeVisible();
     await expect(card.getByTestId("reason")).not.toBeEmpty();
   }
