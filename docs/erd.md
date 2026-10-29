@@ -156,7 +156,7 @@ erDiagram
 | `restaurants` | `id` PK, `name`, `category`, `address` | 음식점 시드(`R__20_seed_restaurants.sql`). 지금은 `(예시)` 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다 |
 | `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
 
-| `restaurant_feedback` | `id` PK, `restaurant_id` FK, `user_id` FK, `item_code` FK, `menu_name`, `note`, `created_at`, (`restaurant_id`, `user_id`, `item_code`) UNIQUE | 사용자가 "이 가게에 이 항목을 쓰는 음식이 있다"고 보낸 제보(OPT-5) |
+| `restaurant_feedback` | `id` PK, `restaurant_id` FK, `user_id` FK, `item_code` FK, `menu_name`, `note`, `created_at`, (`restaurant_id`, `user_id`, `item_code`) UNIQUE | 사용자가 "이 가게에 이 항목을 쓰는 음식이 있다"고 보낸 제보(기능 명세 밖, 옛 OPT-5) |
 
 - 추천은 제보를 반영한다: `restaurant_restriction_items`에 있어도, 같은 (가게, 항목)에 제보한 사용자가 `HIDE_THRESHOLD`(1)명 이상이면 그 항목을 충족하지 않는 것으로 본다. 시드는 고치지 않는다.
 - 추천은 첫 화면의 "Other restaurants"와, 판정 결과에 '안전'이 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).

@@ -1,4 +1,4 @@
-// 가입부터 하는 로그인(OPT-4)과 음식점 성분 제보(OPT-5·OPT-2) 확인. docs/problem.yaml > features > OPT-4·OPT-5 > done
+// 가입부터 하는 로그인(OPT-4)과 음식점 성분 제보(기능 명세 밖, OPT-2 목록) 확인. docs/problem.yaml > features > OPT-4 > done, docs/api.md > 음식점 성분 제보
 // 고른 해결 경로(사진 판정)의 흐름이 아니라서 scenarios.yaml 흐름에 넣지 않고 e2e/extra에서 돌린다(채점기는 돌리지 않는다).
 // 로그인 전 제보 안내 → 가입 → 제보와 되돌리기(Undo) → 로그아웃 → 다시 로그인했을 때 식단 제한이 남아 있는지 차례로 본다.
 // 제보는 끝에서 Undo로 되돌리므로 DB에 남지 않는다.

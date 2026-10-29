@@ -9,7 +9,7 @@
 | --- | --- |
 | 기본 경로 | 모든 API는 `/api/v1`로 시작한다. 예외: `GET /__health`(대회 실행 조건) |
 | 서버 | Spring Boot 백엔드(`backend/`의 `domain/<도메인>/controller`). 브라우저는 같은 출처 `/api/v1/**`을 부르고 Next.js(`frontend/src/app/api/v1/[...path]`)가 백엔드로 넘긴다. [tech-stack.md](tech-stack.md) |
-| 인증 | 선택이다(OPT-4). 로그인 없이도 쓰고, 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 처음 접속하면 `POST /api/v1/users`로 받아 브라우저 `localStorage`에 보관한다. 가입·로그인하면 서버가 `session` 쿠키(HttpOnly, SameSite=Lax, 14일)를 주고, 가입한 계정의 `user_id`는 그 쿠키를 보낸 요청만 읽고 고친다. 음식점 제보(OPT-5)는 로그인이 필요하다 |
+| 인증 | 선택이다(OPT-4). 로그인 없이도 쓰고, 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 처음 접속하면 `POST /api/v1/users`로 받아 브라우저 `localStorage`에 보관한다. 가입·로그인하면 서버가 `session` 쿠키(HttpOnly, SameSite=Lax, 14일)를 주고, 가입한 계정의 `user_id`는 그 쿠키를 보낸 요청만 읽고 고친다. 음식점 성분 제보(기능 명세 밖)는 로그인이 필요하다 |
 | 요청 형식 | `application/json`. 사진 업로드(REQ-1)만 `multipart/form-data` |
 | 응답 필드 | snake_case |
 | 화면 언어 | 영어(REQ-8). 사용자에게 보이는 값(프리셋·항목 `name`, `reason`, `detail`)은 영어로 돌려준다. 메뉴·재료 이름(`menu_name`·`ingredients[].name`)은 메뉴판에 적힌 한국어 원문 그대로 준다. 화면 문구는 아래 [화면 문구](#화면-문구-req-8) |
@@ -34,9 +34,9 @@
 | OPT-4 | 로그인 | auth | POST | `/api/v1/auth/login` | ① | Log in |
 | OPT-4 | 로그아웃 | auth | POST | `/api/v1/auth/logout` | ① | 첫 화면 |
 | OPT-4 | 내 계정 조회 | auth | GET | `/api/v1/auth/me` | ① | 첫 화면 |
-| OPT-5 | 음식점 성분 제보 | restaurant | POST | `/api/v1/restaurants/{restaurant_id}/feedback` | ① | Other restaurants |
-| OPT-5 | 음식점 제보 조회 | restaurant | GET | `/api/v1/restaurants/{restaurant_id}/feedback` | ① | Other restaurants |
-| OPT-5 | 내 제보 취소 | restaurant | DELETE | `/api/v1/restaurants/{restaurant_id}/feedback/{item_code}` | ① | Other restaurants |
+| (기능 명세 밖) | 음식점 성분 제보 | restaurant | POST | `/api/v1/restaurants/{restaurant_id}/feedback` | ① | Other restaurants |
+| (기능 명세 밖) | 음식점 제보 조회 | restaurant | GET | `/api/v1/restaurants/{restaurant_id}/feedback` | ① | Other restaurants |
+| (기능 명세 밖) | 내 제보 취소 | restaurant | DELETE | `/api/v1/restaurants/{restaurant_id}/feedback/{item_code}` | ① | Other restaurants |
 | OPT-3 | 이미지 축소 | client | — | 없음 (브라우저 처리) | ② | 사진 올리기 |
 | REQ-7 | 고지 문구 | client | — | 없음 (공통 레이아웃) | ① | 모든 화면 |
 
@@ -121,14 +121,14 @@
 | 가입·로그인(OPT-4) | 비밀번호가 짧음(400 `detail`) | Password must be at least 8 characters. |
 | 가입(OPT-4) | 이미 가입한 이메일(409 `detail`) | That email is already registered. |
 | 로그인(OPT-4) | 이메일·비밀번호 불일치(401 `detail`) | Incorrect email or password. |
-| 로그인이 필요한 요청(OPT-4·5) | 쿠키 없음·만료(401 `detail`) | Please log in. |
+| 로그인이 필요한 요청(OPT-4, 음식점 성분 제보) | 쿠키 없음·만료(401 `detail`) | Please log in. |
 | 남의 계정(OPT-4) | 다른 사용자의 식단 제한(403 `detail`) | This account belongs to someone else. |
-| 음식점 추천(OPT-5) | 제보 버튼 · 로그인 안 함 | Report an ingredient · Log in to report an ingredient. |
-| 음식점 추천(OPT-5) | 제보 양식 | Which ingredient is used? · Dish name (optional) · Note (optional) · Send · Cancel |
-| 음식점 추천(OPT-5) | 항목을 고르지 않고 보냄 | Please choose an ingredient. |
-| 음식점 추천(OPT-5) | 제보 성공(뒤에 항목 이름) | Thanks! We'll hide this restaurant from people who avoid |
-| 음식점 추천(OPT-5) | 서버가 이유를 주지 않은 오류 | Couldn't send your report. |
-| 음식점 추천(OPT-5) | 제보 되돌리기 · 되돌린 뒤 · 실패 | Undo · Your report was removed. · Couldn't remove your report. |
+| 음식점 성분 제보(기능 명세 밖) | 제보 버튼 · 로그인 안 함 | Report an ingredient · Log in to report an ingredient. |
+| 음식점 성분 제보(기능 명세 밖) | 제보 양식 | Which ingredient is used? · Dish name (optional) · Note (optional) · Send · Cancel |
+| 음식점 성분 제보(기능 명세 밖) | 항목을 고르지 않고 보냄 | Please choose an ingredient. |
+| 음식점 성분 제보(기능 명세 밖) | 제보 성공(뒤에 항목 이름) | Thanks! We'll hide this restaurant from people who avoid |
+| 음식점 성분 제보(기능 명세 밖) | 서버가 이유를 주지 않은 오류 | Couldn't send your report. |
+| 음식점 성분 제보(기능 명세 밖) | 제보 되돌리기 · 되돌린 뒤 · 실패 | Undo · Your report was removed. · Couldn't remove your report. |
 | 설정 화면(OPT-4) | 가입한 계정의 번호인데 로그인이 풀림(앞뒤로 "Log in" 링크가 들어감) | This diet belongs to an account. Log in to see and change it. |
 | 팝업(REQ-3·OPT-1) | 메뉴 이름이 비었음 | Please enter a menu name. |
 | 팝업·버튼 | 팝업 닫기 | OK |
@@ -596,7 +596,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 - `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
 - 음식점 데이터는 시드(`R__20_seed_restaurants.sql`)다. 지금은 이름 앞에 `(예시)`가 붙은 예시 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다
-- 제보(OPT-5)가 있는 항목은 시드가 "충족한다"고 해도 충족하지 않는 것으로 본다. 그래서 사용자가 켠 항목 중 하나라도 제보된 음식점은 목록에서 빠진다(제보한 사람이 1명 이상이면). 가입한 계정의 `user_id`는 위 REQ-4와 같은 쿠키 확인을 거친다
+- 제보(기능 명세 밖)가 있는 항목은 시드가 "충족한다"고 해도 충족하지 않는 것으로 본다. 그래서 사용자가 켠 항목 중 하나라도 제보된 음식점은 목록에서 빠진다(제보한 사람이 1명 이상이면). 가입한 계정의 `user_id`는 위 REQ-4와 같은 쿠키 확인을 거친다
 
 ### 예외 상황
 
@@ -706,7 +706,9 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 ---
 
-## OPT-5 음식점 성분 제보
+## 음식점 성분 제보 (기능 명세 밖)
+
+> 옛 OPT-5. 경험 사례·근본 원인·해법과 이어지지 않아 이번 제출의 기능 명세(`problem.yaml > features`)에서 뺐다(2026-10-30). 코드와 화면은 남아 있어 이 절과 아래 두 절을 그대로 둔다.
 
 `POST /api/v1/restaurants/{restaurant_id}/feedback` — 로그인한 사용자가 "이 가게에 이 항목을 쓰는 음식이 있다"고 알린다. 같은 사용자가 같은 가게·같은 항목을 다시 보내면 새로 만들지 않고 메뉴 이름·메모만 덮어쓴다.
 
@@ -749,7 +751,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 ---
 
-## OPT-5 음식점 제보 조회
+## 음식점 제보 조회 (기능 명세 밖)
 
 `GET /api/v1/restaurants/{restaurant_id}/feedback` — 이 가게에 대해 항목별로 제보가 몇 건인지 돌려준다. 로그인하지 않아도 부를 수 있다.
 
@@ -774,7 +776,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 ---
 
-## OPT-5 내 제보 취소
+## 내 제보 취소 (기능 명세 밖)
 
 `DELETE /api/v1/restaurants/{restaurant_id}/feedback/{item_code}` — 내가 보낸 제보를 지운다. 없으면 아무 일도 하지 않는다.
 
@@ -805,7 +807,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 ## 열린 질문
 
 1. `user_id` 보호: 가입하지 않은 번호는 `user_id`만 알면 남의 식단 제한을 보고 고칠 수 있다. 가입한 계정(OPT-4)만 쿠키로 막는다. 판정(`/judgments`)이 받는 `user_id`는 아직 쿠키를 확인하지 않는다([decisions.md](decisions.md)).
-1-1. 제보(OPT-5) 남용: 가입만 하면 누구나 제보할 수 있고 1명의 제보로 가게가 빠진다. 악의적인 제보를 막는 기준(제보 수 문턱, 신고)은 팀이 정한다. 문턱은 코드의 `RestaurantService.HIDE_THRESHOLD` 하나다.
+1-1. 제보(기능 명세 밖) 남용: 가입만 하면 누구나 제보할 수 있고 1명의 제보로 가게가 빠진다. 악의적인 제보를 막는 기준(제보 수 문턱, 신고)은 팀이 정한다. 문턱은 코드의 `RestaurantService.HIDE_THRESHOLD` 하나다.
 2. AI 호출 남용: 로그인이 없는데 팀 AI 예산은 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 4에서 다룬다.
 3. 메뉴 이름 표기 차이: 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)를 어떻게 맞출지는 ③이 정한다([erd.md](erd.md) 열린 질문 5).
 4. 사진 본문 저장 위치: `images`에는 메타데이터만 있다. ②가 잠정 방식을 정했고(위 REQ-1 > 사진 본문 저장), ①에게 요청한 `images.data bytea` 컬럼은 아직 없다([erd.md](erd.md) 열린 질문 1).
