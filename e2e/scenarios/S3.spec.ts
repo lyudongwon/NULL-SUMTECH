@@ -1,4 +1,4 @@
-// docs/scenarios.yaml 흐름 S3 (옛 id diet-toggle-only)
+// docs/scenarios.yaml 흐름 S3 (옛 id manual-input-fallback)
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
@@ -11,21 +11,20 @@ async function uploadPhoto(page: Page, file: string) {
   await page.locator('input[type="file"]').setInputFiles(path.join(FIXTURES, file));
 }
 
-test("프리셋 없이 토글만으로 식단 제한을 정해 판정받는다", async ({ page }) => {
+test("사진에서 메뉴를 하나도 못 읽으면 이름을 직접 입력해 판정받는다", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Diet settings" }).click();
-  await page.getByRole("switch", { name: "Meat", exact: true }).check();
+  await page.getByRole("button", { name: "Halal" }).click();
   await page.getByRole("button", { name: "Save" }).click();
+  await uploadPhoto(page, "no-menu.jpg");
 
-  // 저장한 설정이 남아 있는지 설정 화면에서 다시 본다.
-  await page.getByRole("link", { name: "Diet settings" }).click();
-  await expect(page.getByRole("switch", { name: "Meat", exact: true })).toBeChecked();
-  await page.getByRole("link", { name: "Home" }).click();
+  // 입력칸 "Menu name"과 버튼 "Can I eat it?"은 ②의 /scan 화면 이름이다(docs/scenarios.yaml).
+  const input = page.getByLabel("Menu name");
+  await expect(input).toBeVisible(AI_WAIT);
+  await input.fill("김치찌개");
+  await page.getByRole("button", { name: "Can I eat it?" }).click();
 
-  await uploadPhoto(page, "seolleongtang.jpg");
-
-  const card = page.getByRole("listitem").filter({ hasText: "설렁탕" });
-  await expect(card.getByText("Avoid", { exact: true })).toBeVisible(AI_WAIT);
-  await expect(card.getByTestId("reason")).toContainText("소고기");
-  await expect(card.getByTestId("reason")).toContainText(/, which is not allowed for your .*Meat.* restriction\.$/);
+  const card = page.getByRole("listitem").filter({ hasText: "김치찌개" });
+  await expect(card.getByText(/^(Safe|Check first|Avoid)$/)).toBeVisible(AI_WAIT);
+  await expect(card.getByTestId("reason")).not.toBeEmpty();
 });
