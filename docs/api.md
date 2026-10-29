@@ -60,11 +60,17 @@
 | 첫 화면 | 하는 일 | Snap a cafeteria menu or dish, and see if it fits your diet: Safe, Check first, or Avoid. |
 | 첫 화면·버튼 | 식단 제한 설정 | Diet settings |
 | 첫 화면·버튼 | 사진 올리기 | Upload photo |
+| 첫 화면 | 배지 설명 제목 | What you'll get for each dish |
+| 첫 화면 | 배지 설명(Safe · Check first · Avoid 순서) | No restricted ingredient, and hidden ones look unlikely. · Might hide one, like broth or sauce. Ask before you eat. · Contains something your diet excludes. |
+| 첫 화면 | 사진 올리기 카드 보조 문구 | Take a photo · Choose from album |
+| 모든 화면 머리글·링크 | 머리글 메뉴(처음으로 · 사진 올리기 · 식단 제한 설정) | Home · Photo check · Restrictions |
+| 모든 화면 머리글·링크 | 저장한 식단 제한(뒤에 프리셋 이름이나 켠 항목이 붙음) · 저장 전 · 아무것도 켜지 않음 | My rules · Not set · None |
 | 설정 화면 | 프리셋 | Halal · Vegetarian · Vegan |
 | 설정 화면 | 토글 | Meat · Pork · Beef · Seafood · Egg · Dairy · Peanut · Alcohol |
 | 설정 화면·버튼 | 저장 | Save |
 | 설정 화면 | 안내 | Pick a preset or turn foods on and off, then save. |
 | 설정 화면 | 묶음 제목 | Presets · Foods I can't eat |
+| 설정 화면 | 켠 항목 수(앞에 숫자가 붙음) | selected |
 | 설정 화면·버튼 | 저장 중 | Saving… |
 | 설정 화면 | 서버가 이유를 주지 않은 오류 · 다시 시도 버튼 | Couldn't load your settings. · Couldn't save your settings. · Try again |
 | 설정 화면(REQ-4) | 동시 저장 충돌(409 `detail`) | Another request was saved first. Please try again. |
@@ -82,6 +88,8 @@
 | 입력칸(OPT-1)·버튼 | 판정하기 | Can I eat it? |
 | 판정 화면 | 배지 | Safe · Check first · Avoid |
 | 판정 화면·링크 | 다시 찍기 | Retake |
+| 판정 화면 | 제목 · 안내(앞에 "Diet: <내 식단 제한> · "가 붙을 수 있음) | Results · Tap a menu to see why. |
+| 판정 화면 | 판정 중 | Checking… |
 | 판정 화면 | 서버가 이유를 주지 않은 오류 | Couldn't load the results. |
 | 근거 상세(REQ-6) | 확인/추정 | Confirmed · Estimated |
 | 근거 상세(REQ-6) | 확신도 | High · Medium · Low |
@@ -103,6 +111,7 @@
 
 - 메뉴·재료 이름은 메뉴판에 적힌 한국어 원문 그대로 보인다(예: `비빔밥`, `고추장`). 학식당의 한국어 메뉴판과 대조하고, 직원에게 그대로 보여 줄 수 있어야 하기 때문이다. 판정 근거 문장은 영어이고, 그 안에 재료 이름이 한국어 원문으로 들어간다(예: `May contain 고추장 속 다진 돼지고기. Check for Pork before eating.`).
 - 한국어 화면은 만들지 않는다.
+- 머리글 메뉴는 "Photo check"·"Restrictions"로 쓰고 "Upload photo"·"Diet settings" 링크는 첫 화면 본문에만 둔다. 식단 제한을 저장하면 첫 화면으로 넘어가는데, 흐름(E2E)은 이 두 링크가 보이는 것으로 저장이 끝났음을 안다. 머리글에 같은 이름을 두면 저장 중에 다음 단계를 눌러 버린다.
 
 ---
 

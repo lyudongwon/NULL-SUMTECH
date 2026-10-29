@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { btnPrimary } from "@/components/ui/styles";
 
 type Props = { disabled: boolean; onSubmit: (name: string) => void };
 
@@ -14,24 +15,21 @@ export function ManualMenuInput({ disabled, onSubmit }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-2">
-      <label htmlFor="manual-menu-name" className="text-sm font-semibold text-neutral-600">
+    <form onSubmit={submit} className="flex flex-col gap-3">
+      <label htmlFor="manual-menu-name" className="text-sm font-semibold text-muted">
         Menu name
       </label>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <input
           id="manual-menu-name"
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="e.g. 김치찌개"
           autoFocus
-          className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2"
+          autoComplete="off"
+          className="h-12 min-w-0 flex-1 basis-48 rounded-xl border-[1.5px] border-olive bg-surface px-3.5 text-base"
         />
-        <button
-          type="submit"
-          disabled={disabled}
-          className="rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white disabled:opacity-60"
-        >
+        <button type="submit" disabled={disabled} className={btnPrimary}>
           Can I eat it?
         </button>
       </div>

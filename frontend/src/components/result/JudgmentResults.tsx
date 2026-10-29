@@ -2,8 +2,17 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { EMPTY_INPUT_MESSAGE, parseMenus, useJudgment } from "@/hooks/useJudgment";
+import { PageHead } from "@/components/layout/PageHead";
+import { OtherRestaurantsCta } from "@/components/restaurants/OtherRestaurantsCta";
+import { EmptyInputDialog } from "@/components/scan/ScanFlow";
+import { LEVEL_LABEL } from "@/components/ui/LevelBadge";
+import { btnPrimary, card } from "@/components/ui/styles";
+import { parseMenus, useJudgment } from "@/hooks/useJudgment";
+import { useMyRules } from "@/hooks/useMyRules";
+import type { Level } from "@/types/judgment";
 import { ResultCard } from "./ResultCard";
+
+const COUNT_TONE: Record<Level, string> = { BLOCKED: "text-avoid", CHECK: "text-check", SAFE: "text-safe" };
 
 export function JudgmentResults() {
   const router = useRouter();
@@ -12,56 +21,70 @@ export function JudgmentResults() {
   // ③의 판정 API가 나오기 전 화면 개발용. 개발 서버에서만 ?demo=1을 받는다.
   const demo = process.env.NODE_ENV !== "production" && params.get("demo") === "1";
   const state = useJudgment(menus, demo);
+  const rules = useMyRules();
+
+  const retake = (
+    <Link href="/scan" className={btnPrimary}>
+      Retake
+    </Link>
+  );
+  const head = (title: string, lead?: string) => <PageHead title={title} lead={lead} actions={retake} />;
 
   if (state.status === "loading") {
-    return <p className="text-neutral-500">Checking…</p>;
+    return (
+      <div className="flex flex-col gap-6">
+        {head("Results")}
+        <p role="status" className="flex items-center gap-3 text-body">
+          <span className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-edge border-t-olive" />
+          Checking…
+        </p>
+      </div>
+    );
   }
 
   if (state.status === "empty") {
     return (
-      <div role="alertdialog" aria-modal="true" aria-labelledby="empty-input" className="fixed inset-0 z-10 flex items-center justify-center bg-black/40 px-6">
-        <div className="w-full max-w-xs rounded-xl bg-white p-5 shadow-lg">
-          <p id="empty-input" className="mb-4 text-center font-semibold">
-            {EMPTY_INPUT_MESSAGE}
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push("/scan")}
-            className="w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white"
-          >
-            OK
-          </button>
-        </div>
+      <div className="flex flex-col gap-6">
+        {head("Results")}
+        <EmptyInputDialog onClose={() => router.push("/scan")} />
       </div>
     );
   }
 
   if (state.status === "error") {
     return (
-      <p role="alert" className="text-red-600">
-        {state.message}
-      </p>
+      <div className="flex flex-col gap-6">
+        {head("Results")}
+        <p role="alert" className="rounded-[14px] bg-avoid-bg px-4 py-3 text-sm font-medium text-avoid">
+          {state.message}
+        </p>
+      </div>
     );
   }
 
-  const noSafe = state.results.every((r) => r.level !== "SAFE");
+  const count = (level: Level) => state.results.filter((r) => r.level === level).length;
+  const noSafe = count("SAFE") === 0;
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-sm text-neutral-600">Tap a menu to see why.</p>
-      <ul className="flex flex-col gap-3">
+    <div className="flex flex-col gap-6">
+      {head("Results", rules.label ? `Diet: ${rules.label} · Tap a menu to see why.` : "Tap a menu to see why.")}
+      <div className="grid grid-cols-3 gap-2">
+        {(["BLOCKED", "CHECK", "SAFE"] as Level[]).map((level) => (
+          <div
+            key={level}
+            className={`flex flex-col gap-1 rounded-[14px] bg-surface px-4 py-3.5 text-[13px] font-semibold sm:flex-row sm:items-baseline sm:justify-between ${COUNT_TONE[level]}`}
+          >
+            <span>{LEVEL_LABEL[level]}</span>
+            <span className="font-mono text-2xl font-medium">{count(level)}</span>
+          </div>
+        ))}
+      </div>
+      <ul className={`${card} overflow-hidden`}>
         {state.results.map((result) => (
           <ResultCard key={result.menu_name} result={result} itemNames={state.itemNames} />
         ))}
       </ul>
-      {noSafe && (
-        <Link
-          href="/restaurants"
-          className="rounded-lg border border-emerald-600 px-4 py-3 text-center font-semibold text-emerald-700"
-        >
-          Other restaurants
-        </Link>
-      )}
+      {noSafe && <OtherRestaurantsCta />}
     </div>
   );
 }
