@@ -4,6 +4,7 @@
 
 | 날짜 | 결정 | 이유 | 반영 상태 |
 | --- | --- | --- | --- |
+| 2026-10-30 | `scenarios.yaml` 흐름 S1~S8의 `expected`를 목록에서 문자열 하나로 바꿨다. 목록 항목을 그대로 두고 문장으로 이어 붙였고, 흐름 내용(steps·결과·메뉴·배지)은 그대로다. 함께 S6·S7 spec에 근거 한 줄이 영어 문장인지 보는 확인을 더했다(S1~S3과 같은 방식) | 대시보드가 "1번째 흐름: Invalid input: expected string, received array"로 흐름을 읽지 못했다. 스타터 키트는 `expected`를 1~500자 문자열 하나로 받는다. 키트에 없는 키(흐름의 `features`, 최상위 `login`)는 병합 뒤 대시보드 오류를 보고 학생과 정한다 | 반영: `scenarios.yaml`, `e2e/scenarios/S6·S7.spec.ts` |
 | 2026-10-30 | 토마토 토글은 이번에 만들지 않는다. README "이번에 하지 않는 것"에 적고 `problem.yaml` E3 주석이 그곳을 가리키게 했다. REQ-4 토글 목록은 그대로다 | E3의 토마토가 REQ-4 토글에 없는데 범위 밖인지 미정인지 문서에 없었다. 학생이 "이번에 하지 않는 것"으로 정했다 | 반영: `README.md`, `problem.yaml > experiences` 주석 |
 | 2026-10-30 | OPT-2 완료 조건과 `api.md`·`erd.md`의 음식점 데이터 설명을 지금 시드에 맞췄다. "팀이 직접 조사한 음식점" 대신 "지금은 (예시) 데이터이고, 팀이 조사해 바꾼다"로 적는다. 동작과 흐름 S8은 그대로다 | 시드(`R__20`)가 아직 예시 데이터라 문서가 실제보다 앞서 있었다. 학생이 문구를 지금 상태에 맞추기로 정했다 | 반영: `problem.yaml > features > OPT-2 > done`, `api.md`, `erd.md` |
 | 2026-10-30 | 옛 흐름 id를 쓰던 곳을 S1~S8에 맞췄다(`problem.yaml` features 주석 → S6·S7, `erd.md` → S5, `progress.md` 기획 검토 D 항목). `progress.md`의 지난 상태(이미 확인한 E1·E2 질문, "OPT-2 흐름이 없다")를 지금 상태로 고쳤다. `scenarios.yaml`의 옛 이름 주석과 `progress.md` 회차 기록은 이력이라 그대로 둔다 | 재채점(5b312d9)에서 문서끼리 어긋난 작은 곳으로 지적됐다 | 반영: `problem.yaml`, `erd.md`, `progress.md` |
