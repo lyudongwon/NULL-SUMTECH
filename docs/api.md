@@ -9,7 +9,7 @@
 | --- | --- |
 | 기본 경로 | 모든 API는 `/api/v1`로 시작한다. 예외: `GET /__health`(대회 실행 조건) |
 | 서버 | Spring Boot 백엔드(`backend/`의 `domain/<도메인>/controller`). 브라우저는 같은 출처 `/api/v1/**`을 부르고 Next.js(`frontend/src/app/api/v1/[...path]`)가 백엔드로 넘긴다. [tech-stack.md](tech-stack.md) |
-| 인증 | 없다. 로그인 없이 쓰고(`scenarios.yaml` `login: false`), 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 처음 접속하면 `POST /api/v1/users`로 받아 브라우저 `localStorage`에 보관한다 |
+| 인증 | 선택이다(OPT-4). 로그인 없이도 쓰고, 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 처음 접속하면 `POST /api/v1/users`로 받아 브라우저 `localStorage`에 보관한다. 가입·로그인하면 서버가 `session` 쿠키(HttpOnly, SameSite=Lax, 14일)를 주고, 가입한 계정의 `user_id`는 그 쿠키를 보낸 요청만 읽고 고친다. 음식점 제보(OPT-5)는 로그인이 필요하다 |
 | 요청 형식 | `application/json`. 사진 업로드(REQ-1)만 `multipart/form-data` |
 | 응답 필드 | snake_case |
 | 화면 언어 | 영어(REQ-8). 사용자에게 보이는 값(프리셋·항목 `name`, `reason`, `detail`)은 영어로 돌려준다. 메뉴·재료 이름(`menu_name`·`ingredients[].name`)은 메뉴판에 적힌 한국어 원문 그대로 준다. 화면 문구는 아래 [화면 문구](#화면-문구-req-8) |
@@ -30,6 +30,13 @@
 | OPT-1 | 수동 입력 판정 | judgment | POST | `/api/v1/judgments/manual` | ③ | 메뉴 이름 입력칸 |
 | REQ-5 | 숨은 성분 추론 | ingredient | POST | `/api/v1/ingredients/infer` | ③ | 판정 화면(내부 호출) |
 | OPT-2 | 음식점 추천 | restaurant | GET | `/api/v1/restaurants/recommendations` | ① | Other restaurants |
+| OPT-4 | 회원가입 | auth | POST | `/api/v1/auth/signup` | ① | Sign up |
+| OPT-4 | 로그인 | auth | POST | `/api/v1/auth/login` | ① | Log in |
+| OPT-4 | 로그아웃 | auth | POST | `/api/v1/auth/logout` | ① | 첫 화면 |
+| OPT-4 | 내 계정 조회 | auth | GET | `/api/v1/auth/me` | ① | 첫 화면 |
+| OPT-5 | 음식점 성분 제보 | restaurant | POST | `/api/v1/restaurants/{restaurant_id}/feedback` | ① | Other restaurants |
+| OPT-5 | 음식점 제보 조회 | restaurant | GET | `/api/v1/restaurants/{restaurant_id}/feedback` | ① | Other restaurants |
+| OPT-5 | 내 제보 취소 | restaurant | DELETE | `/api/v1/restaurants/{restaurant_id}/feedback/{item_code}` | ① | Other restaurants |
 | OPT-3 | 이미지 축소 | client | — | 없음 (브라우저 처리) | ② | 사진 올리기 |
 | REQ-7 | 고지 문구 | client | — | 없음 (공통 레이아웃) | ① | 모든 화면 |
 
@@ -99,6 +106,20 @@
 | 음식점 추천(OPT-2) | 식단 제한을 저장하기 전 | Please set your diet first. |
 | 음식점 추천(OPT-2) | 음식점이 피하는 항목(뒤에 항목 이름이 붙음) | Free of |
 | 음식점 추천(OPT-2) | 서버가 이유를 주지 않은 오류 | Couldn't load recommendations. |
+| 첫 화면·버튼(OPT-4) | 가입 · 로그인 · 로그아웃 | Sign up · Log in · Log out |
+| 가입·로그인 화면(OPT-4) | 입력칸 | Email · Password (8+ characters) |
+| 가입·로그인 화면(OPT-4) | 진행 중 · 서버가 이유를 주지 않은 오류 | Please wait… · Something went wrong. Please try again. |
+| 가입·로그인 화면(OPT-4) | 다른 화면으로 가는 링크 | Already have an account? Log in · New here? Sign up |
+| 가입·로그인(OPT-4) | 이메일 형식 오류(400 `detail`) | Please enter a valid email. |
+| 가입·로그인(OPT-4) | 비밀번호가 짧음(400 `detail`) | Password must be at least 8 characters. |
+| 가입(OPT-4) | 이미 가입한 이메일(409 `detail`) | That email is already registered. |
+| 로그인(OPT-4) | 이메일·비밀번호 불일치(401 `detail`) | Incorrect email or password. |
+| 로그인이 필요한 요청(OPT-4·5) | 쿠키 없음·만료(401 `detail`) | Please log in. |
+| 남의 계정(OPT-4) | 다른 사용자의 식단 제한(403 `detail`) | This account belongs to someone else. |
+| 음식점 추천(OPT-5) | 제보 버튼 · 로그인 안 함 | Report an ingredient · Log in to report an ingredient. |
+| 음식점 추천(OPT-5) | 제보 양식 | Which ingredient is used? · Dish name (optional) · Note (optional) · Send · Cancel |
+| 음식점 추천(OPT-5) | 제보 성공(뒤에 항목 이름) | Thanks! We'll hide this restaurant from people who avoid |
+| 음식점 추천(OPT-5) | 서버가 이유를 주지 않은 오류 | Couldn't send your report. |
 | 팝업(REQ-3·OPT-1) | 메뉴 이름이 비었음 | Please enter a menu name. |
 | 팝업·버튼 | 팝업 닫기 | OK |
 | 설정·음식점 추천 화면 | 불러오는 중 | Loading… |
@@ -209,6 +230,8 @@
 | 예외 상황 | 처리 방식 |
 | --- | --- |
 | 발급되지 않았거나 아직 한 번도 저장하지 않은 `user_id` | 404 Not Found → 클라이언트는 기본값(제한 없음) 표시 |
+| 가입한 계정의 `user_id`인데 `session` 쿠키가 없거나 만료됨 | 401 Unauthorized `{ "detail": "Please log in." }` |
+| 가입한 계정의 `user_id`인데 쿠키가 다른 사용자의 것 | 403 Forbidden `{ "detail": "This account belongs to someone else." }` |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
@@ -262,6 +285,7 @@
 | 같은 사용자의 저장이 동시에 들어옴(`version` 불일치, 처음 저장이 겹침) | 409 Conflict → 클라이언트는 다시 조회한 뒤 재요청 |
 | 존재하지 않는 preset / 토글 코드 | 400 Bad Request |
 | 발급되지 않은 `user_id` | 404 Not Found `{ "detail": "User not found." }` → 클라이언트는 번호를 다시 발급받는다 |
+| 가입한 계정의 `user_id`인데 `session` 쿠키가 없거나 다른 사용자의 것 | 401 `Please log in.` · 403 `This account belongs to someone else.` (가입하지 않은 `user_id`는 지금처럼 번호만으로 쓴다) |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
@@ -560,6 +584,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 - `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
 - 음식점 데이터는 시드(`R__20_seed_restaurants.sql`)다. 지금은 이름 앞에 `(예시)`가 붙은 예시 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다
+- 제보(OPT-5)가 있는 항목은 시드가 "충족한다"고 해도 충족하지 않는 것으로 본다. 그래서 사용자가 켠 항목 중 하나라도 제보된 음식점은 목록에서 빠진다(제보한 사람이 1명 이상이면). 가입한 계정의 `user_id`는 위 REQ-4와 같은 쿠키 확인을 거친다
 
 ### 예외 상황
 
@@ -569,6 +594,185 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 | `user_id`가 존재하지 않음 | 404 Not Found `{ "detail": "User not found." }` |
 | 조건에 맞는 음식점 없음 | 200 OK, `restaurants: []` → 화면에 "No restaurants match your diet yet." |
 | 서버 내부 오류 | 500 Internal Server Error |
+
+---
+
+## OPT-4 회원가입
+
+`POST /api/v1/auth/signup` — 이메일과 비밀번호로 계정을 만들고 바로 로그인시킨다. 가입 전에 쓰던 `user_id`를 함께 보내면 그 번호가 계정이 되어, 저장해 둔 식단 제한이 그대로 남는다.
+
+### 요청
+
+```json
+{
+  "email": "student@example.com",
+  "password": "at-least-8-chars",
+  "user_id": 1
+}
+```
+
+- `email`: 필수. 공백을 없애고 소문자로 바꿔 저장한다. 같은 이메일은 한 번만 가입할 수 있다
+- `password`: 필수. 8자 이상. 서버는 bcrypt 해시만 저장한다
+- `user_id`: 선택. 아직 아무도 가입하지 않은 번호일 때만 쓴다. 없거나 쓸 수 없으면(없는 번호, 이미 가입된 번호) 새 번호를 만든다
+
+### 응답 201 Created
+
+```json
+{
+  "user_id": 1,
+  "email": "student@example.com",
+  "created_at": "2026-10-30T12:00:00+09:00"
+}
+```
+
+`Set-Cookie: session=<토큰>; HttpOnly; SameSite=Lax; Path=/; Max-Age=1209600` (HTTPS 배포에서는 `Secure`도 붙인다. 환경변수 `AUTH_COOKIE_SECURE`)
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| 이메일 형식이 아님 | 400 Bad Request `{ "detail": "Please enter a valid email." }` |
+| 비밀번호가 8자 미만 | 400 Bad Request `{ "detail": "Password must be at least 8 characters." }` |
+| 이미 가입한 이메일 | 409 Conflict `{ "detail": "That email is already registered." }` |
+| 서버 내부 오류 | 500 Internal Server Error |
+
+---
+
+## OPT-4 로그인
+
+`POST /api/v1/auth/login` — 로그인하고 `session` 쿠키를 받는다. 쿠키는 이 기기의 세션 하나이고, 다른 기기의 세션은 그대로 둔다.
+
+### 요청
+
+```json
+{ "email": "student@example.com", "password": "at-least-8-chars" }
+```
+
+### 응답 200 OK
+
+```json
+{ "user_id": 1, "email": "student@example.com", "created_at": "2026-10-30T12:00:00+09:00" }
+```
+
+`Set-Cookie`는 가입과 같다. 클라이언트는 응답의 `user_id`를 `localStorage`에 저장해, 설정·판정·추천이 이 계정의 번호로 동작하게 한다.
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| 없는 이메일이거나 비밀번호가 틀림(둘을 구분하지 않는다) | 401 Unauthorized `{ "detail": "Incorrect email or password." }` |
+| 이메일·비밀번호 누락 | 400 Bad Request |
+| 서버 내부 오류 | 500 Internal Server Error |
+
+---
+
+## OPT-4 로그아웃
+
+`POST /api/v1/auth/logout` — 이 기기의 세션을 서버에서 지우고 쿠키를 비운다. 로그인하지 않았어도 오류 없이 끝난다.
+
+### 응답 204 No Content
+
+`Set-Cookie: session=; Max-Age=0; Path=/`. 클라이언트는 `localStorage`의 `user_id`를 지워, 다음 사용자가 계정의 식단 제한을 보지 못하게 한다.
+
+---
+
+## OPT-4 내 계정 조회
+
+`GET /api/v1/auth/me` — 쿠키로 로그인 상태를 확인한다. 첫 화면이 "Log in"을 보일지 이메일과 "Log out"을 보일지 정하는 데 쓴다.
+
+### 응답 200 OK
+
+```json
+{ "user_id": 1, "email": "student@example.com", "created_at": "2026-10-30T12:00:00+09:00" }
+```
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| 쿠키가 없거나 만료되거나 이미 로그아웃함 | 401 Unauthorized `{ "detail": "Please log in." }` → 화면은 로그아웃 상태로 본다 |
+
+---
+
+## OPT-5 음식점 성분 제보
+
+`POST /api/v1/restaurants/{restaurant_id}/feedback` — 로그인한 사용자가 "이 가게에 이 항목을 쓰는 음식이 있다"고 알린다. 같은 사용자가 같은 가게·같은 항목을 다시 보내면 새로 만들지 않고 메뉴 이름·메모만 덮어쓴다.
+
+### 요청
+
+| 위치 | key | 필수 | 설명 |
+| --- | --- | --- | --- |
+| Path | `restaurant_id` | O | 음식점 번호 |
+| Cookie | `session` | O | 로그인 쿠키 |
+| Body | `item_code` | O | 제한 항목 코드(`pork`, `peanut` … `GET /restrictions/presets`의 `items`) |
+| Body | `menu_name` | X | 그 항목이 쓰이는 음식 이름. 100자까지 |
+| Body | `note` | X | 메모. 500자까지 |
+
+```json
+{ "item_code": "pork", "menu_name": "김치찌개", "note": "The broth has pork." }
+```
+
+### 응답 201 Created
+
+```json
+{
+  "restaurant_id": 12,
+  "item_code": "pork",
+  "menu_name": "김치찌개",
+  "note": "The broth has pork.",
+  "report_count": 1
+}
+```
+
+- `report_count`: 이 가게에서 이 항목을 제보한 사용자 수(방금 것 포함)
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| 쿠키가 없거나 만료됨 | 401 Unauthorized `{ "detail": "Please log in." }` |
+| 없는 `restaurant_id` | 404 Not Found `{ "detail": "Restaurant not found." }` |
+| 없는 `item_code` | 400 Bad Request `{ "detail": "Unknown ingredient." }` |
+| 서버 내부 오류 | 500 Internal Server Error |
+
+---
+
+## OPT-5 음식점 제보 조회
+
+`GET /api/v1/restaurants/{restaurant_id}/feedback` — 이 가게에 대해 항목별로 제보가 몇 건인지 돌려준다. 로그인하지 않아도 부를 수 있다.
+
+### 응답 200 OK
+
+```json
+{
+  "restaurant_id": 12,
+  "items": [
+    { "item_code": "pork", "name": "Pork", "report_count": 2, "reported_by_me": true }
+  ]
+}
+```
+
+- `reported_by_me`: 로그인했고 내가 제보한 항목이면 `true`. 로그인하지 않았으면 항상 `false`
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| 없는 `restaurant_id` | 404 Not Found `{ "detail": "Restaurant not found." }` |
+
+---
+
+## OPT-5 내 제보 취소
+
+`DELETE /api/v1/restaurants/{restaurant_id}/feedback/{item_code}` — 내가 보낸 제보를 지운다. 없으면 아무 일도 하지 않는다.
+
+### 응답 204 No Content
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| 쿠키가 없거나 만료됨 | 401 Unauthorized `{ "detail": "Please log in." }` |
 
 ---
 
@@ -588,7 +792,8 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 ## 열린 질문
 
-1. `user_id` 보호: 로그인이 없어서 `user_id`만 알면 남의 식단 제한을 보고 고칠 수 있다. 해커톤에서는 이대로 간다([decisions.md](decisions.md)).
+1. `user_id` 보호: 가입하지 않은 번호는 `user_id`만 알면 남의 식단 제한을 보고 고칠 수 있다. 가입한 계정(OPT-4)만 쿠키로 막는다. 판정(`/judgments`)이 받는 `user_id`는 아직 쿠키를 확인하지 않는다([decisions.md](decisions.md)).
+1-1. 제보(OPT-5) 남용: 가입만 하면 누구나 제보할 수 있고 1명의 제보로 가게가 빠진다. 악의적인 제보를 막는 기준(제보 수 문턱, 신고)은 팀이 정한다. 문턱은 코드의 `RestaurantService.HIDE_THRESHOLD` 하나다.
 2. AI 호출 남용: 로그인이 없는데 팀 AI 예산은 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 4에서 다룬다.
 3. 메뉴 이름 표기 차이: 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)를 어떻게 맞출지는 ③이 정한다([erd.md](erd.md) 열린 질문 5).
 4. 사진 본문 저장 위치: `images`에는 메타데이터만 있다. ②가 잠정 방식을 정했고(위 REQ-1 > 사진 본문 저장), ①에게 요청한 `images.data bytea` 컬럼은 아직 없다([erd.md](erd.md) 열린 질문 1).

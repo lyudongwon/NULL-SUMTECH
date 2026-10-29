@@ -5,7 +5,7 @@
 ## 전제
 
 - DB는 PostgreSQL, ORM은 JPA(Hibernate), 마이그레이션은 Flyway다([tech-stack.md](tech-stack.md)). DB 호스트(Neon 또는 AWS RDS)는 정해지지 않았다.
-- 회원과 로그인이 없다. 사용자는 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다(`problem.yaml > features > OPT-2`의 입력, `scenarios.yaml`의 `login: false`). `users`에는 회원 정보(아이디·비밀번호)를 두지 않는다. 처음에 `user_id`를 어떻게 발급받는지는 [열린 질문](#열린-질문) 2번.
+- 사용자는 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 회원가입·로그인(OPT-4)은 선택이다. 가입하면 `users`의 그 행에 `email`·`password_hash`가 채워지고, 가입하지 않은 행은 두 컬럼이 null이다(`scenarios.yaml`의 `login: optional`). 처음에 `user_id`를 어떻게 발급받는지는 [열린 질문](#열린-질문) 2번.
 - 메뉴 판독 결과와 판정 결과는 저장하지 않는다. 조회 API가 없고 요청마다 계산해 돌려준다. 기록 보기 같은 기능이 생기면 그때 테이블을 추가한다.
 
 ## 다이어그램
@@ -14,6 +14,10 @@
 erDiagram
     users ||--o| user_restrictions : "식단 제한 프로필"
     users ||--o{ user_restriction_items : "토글 상태"
+    users ||--o{ auth_sessions : "로그인 세션"
+    users ||--o{ restaurant_feedback : "제보"
+    restaurants ||--o{ restaurant_feedback : "제보 받음"
+    restriction_items ||--o{ restaurant_feedback : "제보된 항목"
     restriction_presets |o--o{ user_restrictions : "선택한 프리셋"
     restriction_items ||--o{ user_restriction_items : "참조"
     restriction_presets ||--o{ preset_items : "구성"
@@ -27,6 +31,23 @@ erDiagram
 
     users {
         bigint id PK "Auto Increment"
+        text email UK "nullable, 가입한 계정만"
+        text password_hash "nullable, bcrypt"
+        timestamptz created_at
+    }
+    auth_sessions {
+        text token_hash PK "SHA-256"
+        bigint user_id FK
+        timestamptz created_at
+        timestamptz expires_at
+    }
+    restaurant_feedback {
+        bigint id PK
+        int restaurant_id FK
+        bigint user_id FK
+        text item_code FK
+        text menu_name "nullable"
+        text note "nullable"
         timestamptz created_at
     }
     user_restrictions {
@@ -98,7 +119,8 @@ erDiagram
 
 | 테이블 | 컬럼 | 설명 |
 | --- | --- | --- |
-| `users` | `id` bigint PK(Auto Increment), `created_at` | 회원 정보 없이 사용자를 구분하는 번호(`user_id`) |
+| `users` | `id` bigint PK(Auto Increment), `email` UK(null 가능), `password_hash`(null 가능), `created_at` | 사용자를 구분하는 번호(`user_id`). 가입(OPT-4)하면 `email`(소문자)과 bcrypt 해시가 채워진다. 가입하지 않은 사용자는 둘 다 null |
+| `auth_sessions` | `token_hash` PK, `user_id` FK(삭제 시 같이 삭제), `created_at`, `expires_at` | 로그인 세션(OPT-4). 쿠키 값은 서버만 알고, DB에는 SHA-256 해시만 둔다. 로그아웃하면 지운다 |
 | `user_restrictions` | `user_id` PK·FK, `preset_code` FK(null 가능), `version` int, `updated_at` | 사용자당 한 행. 마지막으로 고른 프리셋과 낙관적 락용 `version` |
 | `user_restriction_items` | (`user_id`, `item_code`) PK, `enabled` | 토글 하나당 한 행. 프리셋을 고르면 그 프리셋의 항목이 켜진다 |
 | `restriction_presets` | `code` PK, `name` | 프리셋 목록. `name`은 화면에 보일 영어 이름(Halal, Vegetarian, Vegan, REQ-8). `GET /restrictions/presets`의 `presets` |
@@ -134,6 +156,9 @@ erDiagram
 | `restaurants` | `id` PK, `name`, `category`, `address` | 음식점 시드(`R__20_seed_restaurants.sql`). 지금은 `(예시)` 데이터이고, 팀이 학교 주변 음식점을 조사해 바꾼다 |
 | `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
 
+| `restaurant_feedback` | `id` PK, `restaurant_id` FK, `user_id` FK, `item_code` FK, `menu_name`, `note`, `created_at`, (`restaurant_id`, `user_id`, `item_code`) UNIQUE | 사용자가 "이 가게에 이 항목을 쓰는 음식이 있다"고 보낸 제보(OPT-5) |
+
+- 추천은 제보를 반영한다: `restaurant_restriction_items`에 있어도, 같은 (가게, 항목)에 제보한 사용자가 `HIDE_THRESHOLD`(1)명 이상이면 그 항목을 충족하지 않는 것으로 본다. 시드는 고치지 않는다.
 - 추천은 첫 화면의 "Other restaurants"와, 판정 결과에 '안전'이 하나도 없을 때 판정 화면에 나타나는 "Other restaurants"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
 
 ## 시드 데이터 최소 요구
@@ -159,7 +184,7 @@ E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 
 
 1. 사진 본문을 어디에 두는가. 백엔드는 AWS 컨테이너라 재배포하면 컨테이너 디스크가 사라진다. Postgres `bytea`에 넣을지 S3 같은 외부 저장소를 쓸지, 업로드와 판독을 한 요청으로 합칠지 정해야 하고, 보관 기간도 정해야 한다. 잠정: ②가 우선 백엔드 메모리(최대 200장, 30분)에 두고 `images.data bytea` 컬럼이 생기면 DB로 옮기기로 했다([api.md](api.md) REQ-1 사진 본문 저장). 컬럼은 아직 마이그레이션에 없다.
 2. ~~`user_id` 발급 방법.~~ 잠정: 클라이언트가 `POST /api/v1/users`로 번호를 받아 브라우저에 보관한다([api.md](api.md) REQ-4 사용자 번호 발급).
-3. 로그인. 회원가입과 로그인을 두지 않기로 했다(`decisions.md`).
+3. ~~로그인.~~ 2026-10-30에 선택 기능(OPT-4)으로 두기로 했다(`decisions.md`). 비밀번호 재설정·이메일 확인은 없다.
 4. ~~프리셋·항목 코드 목록.~~ 문서 통일 때 확정했다([api.md](api.md) 열거형). 잠정으로 프리셋 `HALAL`(할랄)·`VEGETARIAN`(채식)·`VEGAN`(비건), 항목 `meat`(고기)·`pork`·`beef`·`seafood`·`egg`·`dairy`·`peanut`·`alcohol`을 시드(`R__10_seed_restrictions.sql`)에 넣었다. 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 썼는데, 이 차이를 위 목록으로 정리했다.
 5. 메뉴 이름 매칭. 판독으로 읽은 이름이 DB의 이름과 정확히 같아야 하는가? 띄어쓰기, 표기 차이, 동의어(`돈까스`/`돈가스`)를 어떻게 처리할지 정해야 한다.
 6. ~~외부 검색 결과의 저장.~~ 저장한다. 만개의 레시피에도 없으면 AI 추정으로 판정한다([decisions.md](decisions.md)).

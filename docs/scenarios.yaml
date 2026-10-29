@@ -16,7 +16,7 @@ platformReason: |-
   웹 서비스지만 학식당에서 메뉴를 고르는 그 자리에서 휴대폰 브라우저로 연다.
   메뉴판이나 음식을 휴대폰 카메라로 찍어 바로 먹을지 말지 정하기 때문이다.
 
-login: false # 회원·로그인 없이 서버가 Auto Increment로 발급한 user_id로 사용자를 구분한다
+login: optional # 로그인 없이도 쓴다(서버가 발급한 user_id). 가입·로그인(OPT-4)하면 같은 user_id가 계정에 묶인다
 
 scenarios:
   # scan-menu-board
@@ -133,3 +133,36 @@ scenarios:
     expected:
       - 음식점 목록이 보이고, 음식점마다 이름과 종류가 보인다
       - 목록에는 돼지고기(Pork)·술(Alcohol)을 쓰지 않는 음식점만 있고, 둘 중 하나라도 쓰는 음식점은 보이지 않는다
+
+  # signup-login-logout
+  - id: S9
+    title: 가입하면 식단 제한이 계정에 남고, 로그아웃했다가 다시 로그인해도 불러와진다
+    features: [OPT-4, REQ-4]
+    steps:
+      - 첫 화면에서 "Diet settings"를 누른다
+      - 프리셋에서 "Halal"을 누른다
+      - '"Save"를 누른다'
+      - 첫 화면에서 "Sign up"을 누른다
+      - 이메일과 8자 이상 비밀번호를 넣고 "Sign up"을 누른다
+      - 첫 화면에서 "Log out"을 누른다
+      - 첫 화면에서 "Log in"을 누르고 같은 이메일·비밀번호로 "Log in"을 누른다
+      - 첫 화면에서 "Diet settings"를 누른다
+    expected:
+      - 가입하면 첫 화면에 로그인한 이메일과 "Log out"이 보인다
+      - 로그아웃하면 첫 화면에 "Log in"과 "Sign up"이 다시 보인다
+      - 다시 로그인한 뒤 "Diet settings"에 "Halal"이 선택돼 있다
+      - 틀린 비밀번호로 로그인하면 "Incorrect email or password."가 보인다
+
+  # restaurant-feedback-filter
+  - id: S10
+    title: 로그인한 사용자가 가게에 돼지고기가 쓰인다고 제보하면 할랄 사용자의 추천에서 그 가게가 빠진다
+    features: [OPT-5, OPT-2, OPT-4]
+    steps:
+      - 가입·로그인한 뒤 프리셋 "Halal"을 저장한다
+      - 첫 화면에서 "Other restaurants"를 누르고 첫 번째 음식점 이름을 기억한다
+      - 그 음식점의 "Report an ingredient"를 누르고 "Pork"를 골라 "Send"를 누른다
+      - 첫 화면으로 돌아가 "Other restaurants"를 다시 누른다
+    expected:
+      - 제보를 보내면 "Thanks! We'll hide this restaurant from people who avoid Pork."가 보인다
+      - 다시 연 목록에서 방금 제보한 음식점이 보이지 않는다
+      - 로그인하지 않은 상태의 "Other restaurants"에는 "Log in to report an ingredient."가 보인다
