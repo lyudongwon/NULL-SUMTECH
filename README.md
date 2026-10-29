@@ -42,6 +42,16 @@ cd frontend && npm install && npm run dev
 
 `backend/src/main/resources/db/migration/`에 다음 번호의 `V<번호>__설명.sql`을 추가한다. 이미 올라간 V 파일은 고치지 않는다. 시드는 `R__` 파일을 고친다.
 
+## 테스트
+
+| 종류 | 명령 | 내용 |
+| --- | --- | --- |
+| 백엔드 단위 | `cd backend && ./gradlew test` | JUnit 5 |
+| 스모크 | `cd e2e && npm ci && npx playwright install chromium && npm run smoke` | 앱이 떠 있는 상태에서 health·API 프록시·첫 화면·식단 제한 저장·음식점 추천·빈 메뉴 팝업을 빠르게 본다 |
+| 흐름 E2E | `cd e2e && npm test` | `docs/scenarios.yaml` 흐름 7개(`e2e/scenarios/<id>.spec.ts`). 테스트 사진은 `e2e/fixtures/` |
+
+E2E는 앱을 따로 띄운 뒤 돌린다(기본 `http://localhost:3000`, 다른 주소는 `BASE_URL`). CI(`.github/workflows/ci.yml`)는 푸시·PR마다 백엔드 테스트, 화면 lint·타입·빌드, 빈 DB에서 `docker compose up` 후 2분 안의 `/__health`와 스모크 테스트를 돌린다.
+
 ## 환경변수
 
 | 이름 | 쓰는 곳 | 용도 | 설정 위치 |
