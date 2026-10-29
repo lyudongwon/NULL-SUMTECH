@@ -106,6 +106,10 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [ ] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
 - [ ] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
 - 흐름별 E2E 결과(통과 / 실패 단계와 이유): 2026-10-30 로컬에서 `docker compose down -v` → `up -d --build` → `/__health` 200 → `npx playwright test --project=scenarios`(390x844)로 확인했다.
+  - **채점기 재현(2026-10-30, main d10fd38):** 빈 DB, app `cpus: 2`·`mem_limit: 4g`, 팀 config 대신 채점기 값(390x844 isMobile·hasTouch, workers 1, retries 0, timeout 120초, expect 10초, ko-KR, Asia/Seoul, service worker 차단)으로 **8/8 통과**(52초). `build --no-cache` 93초, `up` 시작부터 `/__health` 200까지 15초, releaseId 일치. 없는 주소 404, 모든 화면 가로 스크롤 없음. 예측 구현 점수 17.4/20
+    - 감점 원인과 고친 PR: D3 spec이 영어 근거·소고기를 확인하지 않음 → #31, G1 근거 상세 표가 390px에서 열이 붙음 → #32, D4 결과 화면 판정 실패 시 다음 행동 없음 → #34, U2·U3 첫 화면·결과 화면에 지금 식단 표시 없음 → #35
+    - 네 PR을 각각, 그리고 함께 병합한 상태에서 같은 조건으로 **8/8 통과**(빌드 35~41초, `/__health` 15초). 위 "약한 확인" 중 근거 칸·소고기 확인은 #31이 고친다
+    - 남은 위험: S6에서 AI가 `돌솥비빔밥`으로 판독한다(spec은 부분 일치로 통과). retries 0이라 AI 판독이 흔들리면 그 흐름이 실패할 수 있다
   - **최신(main a3caf59, PR #22·#27·#28 반영, OPT-2 목록 방식):** 빈 DB에서 두 번 연속 **8/8 통과**(1 worker, 390x844 isMobile·hasTouch, expect 10초). 전체 49초·1분, 흐름 하나 최대 16초, 빌드 55초, `up` 시작부터 `/__health` 200까지 16~20초
   - 빈 DB·`chore/submission-requirements`만: **6/8 통과**(S1~S5, S8). S6·S7은 판독 이름이 시드 메뉴와 달라(`돌솥비빔밥`, `김치비빔국수`) 재료를 못 찾고 "Safe"가 나와 실패했다
   - 빈 DB·위 브랜치 + `fix/seed-name-match`(PR #22) 병합: **8/8 통과**, 전체 13.5초. 즉 S6·S7은 PR #22가 고친다
