@@ -1,0 +1,29 @@
+# 비밀값
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 의존성·빌드 산출물
+node_modules/
+.next/
+dist/
+build/
+out/
+coverage/
+
+# E2E 결과물
+e2e/test-results/
+e2e/playwright-report/
+playwright-report/
+test-results/
+
+# 큰 데이터 파일은 커밋하지 않음
+data/raw/
+
+# 기타
+.DS_Store
+Thumbs.db
+*.log
+.vercel/
