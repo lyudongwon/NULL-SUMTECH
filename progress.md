@@ -285,6 +285,11 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: 백엔드를 바꾸지 않아 gradle은 돌리지 않았다. spec은 다시 읽어 선택자·import를 확인하고 금지 패턴(route·skip·evaluate)이 없는 것을 grep으로 확인함
   - 미확인(node·docker 없음): 바뀐 spec 4개 실행
   - 다음: OPT-2 브랜치 병합 뒤 api.md 공통 에러에 405·415를 적는다. 시드를 실제 PostgreSQL로 확인하는 테스트는 아래 "팀 결정 필요 > 시드 DB 테스트"를 본다
+- 11회차(2026-10-30) 지난 심사(67점)의 "가장 먼저 고칠 것"은 docker에서 흐름 E2E 8개 실행과 api.md 405·415다. `origin/main`은 새 커밋이 없었다. `docs/api.md`·`docs/problem.yaml`은 `feat/opt2-nearby-restaurants`가, "현재 상태"·3~6단계는 `docs/e2e-results`가 아직 고치는 중이라(새 커밋 없음) 건드리지 않았다. 대신 테스트가 하나도 없던 REQ-4 첫 단계 API를 채웠다
+  - `UserControllerTest`를 더함: `POST /api/v1/users`가 바디 없이 201과 snake_case `user_id`·`created_at`을 돌려주는지(camelCase 이름이 새지 않는지), 부를 때마다 새 번호를 주는지, `GET`이면 405와 공통 에러 `detail`을 주는지 본다. 서비스는 진짜, 저장소만 가짜(Auto Increment 흉내)
+  - 검사: `./gradlew --no-daemon test` 통과(103개, 실패 0, skip 0, JDK 21은 저장소 밖 `~/jdks`)
+  - 미확인(node·docker 없음): 흐름 E2E 8개 실행
+  - 다음: OPT-2 브랜치 병합 뒤 api.md 공통 에러에 405·415를 적는다. 남은 큰 일은 팀 결정과 node·docker 확인이다
 
 ### 팀 결정 필요
 
