@@ -127,5 +127,8 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
   - 검사: `yaml.safe_load` 통과(시나리오 7개), HEAD와 파싱 결과 비교해 `scenarios`·`platform`·`login` 값이 똑같음, 주석의 REQ/OPT·F번호 대응·파일 경로 토큰 목록 `diff` 동일
 - 6회차(2026-10-30) `docs/erd.md`: 머리말·전제·판정 설명 문장을 다듬고, 굵은 글씨 22곳(목록 머리말·열린 질문 제목)을 뺌. 다이어그램·테이블·컬럼·시드 요구·열린 질문 내용은 그대로
   - 검사: 고치기 전후 백틱 토큰·링크·REQ/OPT/R/E 번호·따옴표 문구 목록을 뽑아 `diff`로 비교해 똑같음, `git diff --word-diff`로 바뀐 줄을 다시 읽음. "AI가 아니라 코드가 판정"은 tech-stack.md·problem.yaml에 있는 내용
-- 남은 문서(순서대로): tech-stack.md · folder-structure.md
-- 다음 행동: docs/tech-stack.md 설명 칸 말투 다듬기(버전·이름·환경변수·명령은 그대로)
+- 7회차(2026-10-30) `docs/tech-stack.md`: 머리말·실행 조건·열린 결정 문장을 읽기 쉬운 말투로 고치고 굵은 글씨 13곳을 뺌. 버전·표 13행·환경변수·명령·경로·열린 결정 번호 1~6은 그대로
+  - 검사: 고치기 전후 백틱 토큰·링크·REQ/OPT/R 번호·용량·따옴표 문구 목록을 `diff`로 비교함. 다른 점은 열린 결정 1에서 "Next.js가 `app`이다"를 "잠정으로 Next.js입니다"로 줄여 `app` 토큰 하나가 빠진 것뿐(뜻은 그대로). `git diff --word-diff`로 바뀐 줄을 다시 읽음
+  - 발견: `docs/api.md` 열린 질문 2가 AI 호출 남용을 "tech-stack.md 열린 결정 2"로 가리키지만 실제로는 4번. 이번엔 고치지 않음
+- 남은 문서: folder-structure.md
+- 다음 행동: docs/folder-structure.md 설명 문장 다듬기(폴더·파일 경로는 그대로), api.md의 열린 결정 번호(2→4) 바로잡기
