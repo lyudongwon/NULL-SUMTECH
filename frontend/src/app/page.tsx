@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { PageHead } from "@/components/layout/PageHead";
-import { OtherRestaurantsCta } from "@/components/restaurants/OtherRestaurantsCta";
 import { Icon } from "@/components/ui/icons";
 import { LevelBadge } from "@/components/ui/LevelBadge";
 import { btnOutline, btnPrimary, card, sectionLabel } from "@/components/ui/styles";
@@ -50,7 +49,6 @@ export default function Home() {
               Diet settings
             </Link>
           </section>
-          <OtherRestaurantsCta />
         </aside>
       </div>
     </div>
