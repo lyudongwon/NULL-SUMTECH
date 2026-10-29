@@ -1,40 +1,47 @@
 # 기술 스택
 
-> 2026-10-29 문서 통일 때 **Next.js 하나(화면 + API)**로 정했다. 앞서 정한 Spring Boot 분리안을 대신한다(이유는 [decisions.md](decisions.md)). 실제 구성은 `feat/base-settings` 브랜치의 뼈대와 같다. 작업하면서 바뀌면 이 파일과 요약한 곳(`CLAUDE.md`, `erd.md`, `README.md`)을 **그 변경과 같은 커밋에서** 고친다([ai-rules.md](ai-rules.md) 5번).
+> **잠정.** 2026-10-29 팀 논의로 백엔드를 Spring Boot로 정했다(노션 기능 명세서 표는 Next.js 단일 프로젝트 전제였다). 작업하면서 바뀔 수 있고, 바뀌면 이 파일과 연관 문서를 **그 변경과 같은 커밋에서** 고친다. 확정되면 아래 "상태" 열의 `미정`을 지우고 노션 원본에도 반영한다. 노션과 어긋나면 레포 기준으로 진행하고 어긋난 위치를 보고한다([ai-rules.md](ai-rules.md) 4번).
 
-상태: `사용` = 쓰기로 했다. `미정` = 쓰기로 했지만 세부가 아직 안 정해졌다.
+상태: `사용` = 쓰기로 했다. `미정` = 쓰기로 했지만 세부(버전, 연결 방식 등)가 아직 안 정해졌다.
 
 ## 구성
 
-화면과 API를 Next.js 한 프로젝트에 둔다. API는 Route Handler(`app/api/v1/...`)이고 계약은 [api.md](api.md)다.
+화면(Next.js)과 API(Spring Boot)를 따로 만든다. 두 쪽의 계약은 [api.md](api.md)다.
 
 | 영역 | 선택 | 상태 | 메모 |
 | --- | --- | --- | --- |
-| 언어·프레임워크 | TypeScript + Next.js 15.5 (App Router), React 19 | 사용 | `output: "standalone"`으로 빌드 |
-| 화면 | Tailwind CSS 4 | 사용 | 모바일 웹(`scenarios.yaml` `platform: mobile`) |
-| DB | PostgreSQL 16 | 사용 | 로컬·E2E는 `docker-compose.yml`의 `db`. 배포용 호스트는 `미정`(Neon 무료 등급 후보) |
-| ORM·마이그레이션 | Drizzle ORM + drizzle-kit | 사용 | 스키마 `lib/db/schema.ts`, 마이그레이션 `drizzle/`. 서버 시작 시 `instrumentation.ts`가 마이그레이션과 시드를 실행한다 |
-| AI | Vercel AI SDK(`ai`) + AI Gateway | 사용 | `AI_GATEWAY_API_KEY`를 읽는다. 메뉴 판독(REQ-2, 비전)과 숨은 성분 AI 추정(REQ-5)에만 쓴다. 판정 규칙은 AI가 아니라 코드다. 모델은 `미정` |
-| 검증 | Zod | 사용 | API 입력과 AI 구조화 출력 검사 |
-| 사진 저장 | Postgres `bytea`(`images.data`) | 사용 | 외부 저장소 없이 DB 하나로 끝낸다 |
-| 만개의 레시피 검색 | 서버 `fetch` + HTML 파싱 | 미정 | 파서 라이브러리는 ③이 고른다. 실패하면 AI 추정으로 넘어간다(REQ-5) |
-| 테스트 | Vitest(판정 규칙 단위 테스트) + Playwright(E2E) | 사용 | `npm test`, `npm run e2e` |
-| 배포 | 공개 HTTPS URL 하나 | 미정 | 같은 Docker 이미지를 그대로 올릴 수 있는 곳(예: Render, Fly.io, Railway) 또는 Vercel + Neon |
+| 백엔드 언어·프레임워크 | Java 21 + Spring Boot 4.1.2, Gradle 9.8.2(wrapper, Groovy DSL) | 사용 | 뼈대(`backend/`)에 쓴 잠정값. 기본 패키지 `com.nullteam.foodcheck`는 `TODO(확인)` |
+| 화면 | TypeScript + Next.js 15.5 (App Router), React 19.1, Tailwind CSS 4 | 사용 | 모바일 웹. `frontend/` |
+| DB | PostgreSQL | 사용 | 호스트(Neon 또는 AWS RDS)는 `미정` |
+| ORM | JPA(Hibernate) | 사용 | |
+| 마이그레이션 | Flyway | 사용 | 시작 시 자동 실행되어 시작 명령을 서버 실행만으로 유지한다. `ddl-auto`는 `validate` |
+| AI | Spring AI 2.0.1(구조화 출력) + AI Gateway | 미정 | 메뉴 판독(REQ-2, 비전)과 재료 AI 추정(REQ-5)에만 쓴다. 판정 규칙은 AI가 아니라 코드다. `AI_GATEWAY_API_KEY`를 읽는다. Gateway가 OpenAI 호환 엔드포인트를 주면 Spring AI의 OpenAI 모듈에서 base-url만 바꿔 쓴다. 되는지 확인 전이다. 안 되면 모델사 SDK나 키를 직접 쓴다 |
+| 검증 | Jakarta Bean Validation + Jackson | 사용 | AI 응답과 API 입력의 형식 검사 |
+| API 명세 연동 | springdoc-openapi → TypeScript 타입 생성 | 미정 | 두 언어 사이 어긋남을 줄이려는 제안 |
+| 테스트 | JUnit 5(판정 엔진) + Playwright(E2E) | 사용 | Playwright는 화면 쪽 |
+| 사진 저장 | S3, Postgres `bytea`, 또는 업로드·판독을 한 요청으로 합침 | 미정 | [erd.md](erd.md) 열린 질문 1 |
+| 배포 | 화면은 Vercel, 백엔드는 AWS 컨테이너 | 미정 | 아래 "열린 결정" 1 |
 
 ## 실행 조건
 
-[progress.md](../progress.md) 3단계(최소 화면 docker 실행·CI·첫 배포)의 조건이고, 이 구성은 그대로 만족한다.
+[progress.md](../progress.md)의 3단계(최소 화면 docker 실행·CI·첫 배포)에서 옮긴 것이다. 이 조건은 Next.js 하나를 전제로 쓰였다.
 
-- `docker compose`의 `app`(Next.js)은 컨테이너 안 3000 포트에서 받는다. `app`만 `ports`를 갖고 `env_file`은 쓰지 않는다.
-- `GET /__health`는 인증·리다이렉트 없이 200을 준다(`app/%5F%5Fhealth/route.ts`). `RELEASE_ID`를 돌려준다.
-- 빌드는 Dockerfile에서 끝내고 시작 명령은 `node server.js`만 한다.
-- `docker compose up --build`만으로 빈 DB에서 앱과 시드 데이터가 2분 안에 떠야 한다.
-- 환경변수 이름은 [README.md](../README.md)의 표를 따른다(`DATABASE_URL`, `RELEASE_ID`, `AI_GATEWAY_API_KEY`).
+- `docker compose`의 `app`은 컨테이너 안 3000 포트에서 받는다. `app`만 `ports`를 갖고 `env_file`은 쓰지 않는다.
+- `GET /__health`는 인증·리다이렉트 없이 200을 준다. Spring Boot에서는 컨트롤러로 직접 만든다. Next.js를 쓸 때는 `app/%5F%5Fhealth`다.
+- 빌드는 Dockerfile에서 끝내고 시작 명령은 서버 실행만 한다. Flyway가 시작 시 마이그레이션을 실행하는 이유가 이것이다.
+- `docker compose up --build`만으로 빈 DB에서 앱과 시드 데이터가 2분 안에 떠야 한다. JVM 기동 시간을 포함해 확인한다. 컨테이너 메모리는 1GB 이상을 권한다.
+- 환경변수 이름은 [README.md](../README.md)의 표를 따른다(`AI_GATEWAY_API_KEY` 등).
 
 ## 열린 결정
 
-1. **배포 대상.** 위 "배포" 행. 정하면 CI(`.github/`)에 자동 배포를 붙인다.
-2. **AI 호출 남용 방지.** 로그인이 없고 팀 AI 예산이 $10이라, `user_id`·IP당 분당 호출 수 제한을 둔다. 방식은 ②·③이 AI 호출을 만들 때 정한다.
-3. **E2E에서 AI 응답.** 실제 모델을 부르고 결과를 기다려 확인한다([progress.md](../progress.md) 6단계: AI 기능은 실제 응답). 기대 결과는 판정이 흔들려도 통과하도록 "세 배지 중 하나"처럼 쓰고, 고정 판정이 필요한 메뉴(설렁탕)는 시드 재료로 R1이 나오게 한다.
+1. **어느 서비스가 `app`인가.** **잠정: Next.js가 `app`이다.** 3000 포트에서 받고 `/__health`(`frontend/src/app/%5F%5Fhealth`)를 준다. 백엔드(`backend`, 8080)와 DB는 `ports` 없이 내부 네트워크로만 쓴다. 팀이 다른 안을 고르면 `docker-compose.yml`과 이 항목을 같이 고친다.
+   - 남은 안: Spring Boot가 `app`이 되어 3000 포트에서 받고 화면을 정적 빌드로 함께 서빙한다.
+
+   배포(Vercel + AWS)도 이 구성에 맞춰 정한다.
+2. **브라우저가 백엔드를 직접 부르는가.** **잠정: 직접 부르지 않는다.** 브라우저는 같은 출처의 `/api/v1/**`을 부르고, Next.js 라우트(`frontend/src/app/api/v1/[...path]/route.ts`)가 실행 시점의 `BACKEND_URL`로 넘긴다. CORS가 필요 없다. Vercel에 배포하면 이 프록시를 거치므로 요청 본문 4.5MB 제한이 걸린다. OPT-3으로 줄인 사진은 이보다 작다.
+3. ~~**업로드 한도.**~~ 10MB로 정했다([api.md](api.md) REQ-1). Spring 기본값 `spring.servlet.multipart.max-file-size` 1MB를 `application.yml`에서 10MB로 올려야 한다(①).
+4. **AI 호출 남용 방지.** 로그인이 없고 팀 AI 예산이 $10이라 세션 단위 호출 제한이 필요하다(예: Bucket4j). 방식은 `미정`.
+5. **REQ-5의 만개의 레시피 검색 수단.** HTML 파싱이라면 Jsoup이 후보다. 사이트 차단과 이용약관 문제가 있다. 검색이 실패하면 AI 추정으로 넘어가므로 기능은 멈추지 않는다([api.md](api.md) REQ-5).
+6. **E2E에서 AI 응답을 어떻게 다루는가.** 실제 모델을 부르고 결과를 기다려 확인한다([progress.md](../progress.md) 6단계). 흔들리는 판정은 기대 결과를 "세 배지 중 하나"로 쓰고, 고정 판정이 필요한 메뉴(설렁탕)는 시드 재료로 R1이 나오게 한다. 판독 응답을 고정할지는 ②가 정한다.
 
 DB 구조는 [erd.md](erd.md)를 본다.

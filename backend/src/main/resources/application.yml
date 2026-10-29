@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: foodcheck
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/foodcheck}
+    username: ${SPRING_DATASOURCE_USERNAME:foodcheck}
+    password: ${SPRING_DATASOURCE_PASSWORD:foodcheck}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate # 표는 Flyway(db/migration)만 만든다
+  flyway:
+    locations: classpath:db/migration
+  jackson:
+    property-naming-strategy: SNAKE_CASE # api.md의 JSON 필드 이름(snake_case)과 맞춘다
+  ai:
+    openai:
+      # TODO(확인): AI Gateway의 OpenAI 호환 주소로 실제 호출되는지 아직 확인 전이다(tech-stack.md AI 행).
+      api-key: ${AI_GATEWAY_API_KEY:unset}
+      base-url: ${AI_GATEWAY_BASE_URL:https://ai-gateway.vercel.sh}
+
+server:
+  port: ${PORT:8080}
+
+app:
+  release-id: ${RELEASE_ID:}

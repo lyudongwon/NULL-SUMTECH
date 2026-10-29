@@ -5,7 +5,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 ## 현재 상태
 
 - 실제 서비스 저장소 폴더: `C:\Users\a4710\NULL-SUMTECH` (안내 폴더: `C:\Users\a4710\loopthon-starter`)
-- 현재 단계 / 다음 행동: 2단계 기획 문서 통일 완료(2026-10-29, `docs/decisions.md`). 다음은 ①이 `feat/base-settings`에 `docs/erd.md > 스키마에 반영할 것`을 고쳐 `main`에 올리고, ②·③이 contracts 파일부터 시작
+- 현재 단계 / 다음 행동: 2단계 기획 문서 통일 완료(2026-10-29, `docs/decisions.md`). ①의 뼈대와 REQ-4·OPT-2는 `main`에 올라왔다. 다음은 ②·③이 자기 dto와 `src/types` 파일부터 시작
 - 학생에게 확인할 내용: E1이 언제 겪은 일인지, E2가 누구의 경험인지, 배포 대상(`docs/tech-stack.md > 열린 결정` 1)
 - 참고: 운영진의 검색·AI 사용 허락 받음(학생 확인, 2026-10-29). 조직 이름 `NULL`·`NULL-team`은 이미 다른 계정이 사용 중이고, `NULL-sumtech-team` 조직은 GitHub에서 확인되지 않아 학생 요청으로 개인 계정 레포를 사용함
 

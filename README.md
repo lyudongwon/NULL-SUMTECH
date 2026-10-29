@@ -1,19 +1,55 @@
 # NULL-SUMTECH
 
-SUMTECH 2026 루프톤 NULL 팀 서비스 저장소.
+SUMTECH 2026 루프톤 NULL 팀 서비스 저장소. 학식당 메뉴판·음식 사진 한 장으로 내 식단 제한에 맞는지 안전 / 확인 필요 / 불가로 알려 주는 웹 서비스.
 
 ## 문서
 
-- 문제정의·기능 명세: `docs/problem.yaml` (작성 예정)
-- 사용자 핵심 흐름: `docs/scenarios.yaml` (작성 예정)
-- 진행 기록: `progress.md`
+문서 목록과 언제 읽는지는 [CLAUDE.md](CLAUDE.md)의 문서 지도를 본다. 기술 스택은 [docs/tech-stack.md](docs/tech-stack.md), 폴더는 [docs/folder-structure.md](docs/folder-structure.md)다.
+
+## 구성
+
+| 폴더 | 내용 | 포트 |
+| --- | --- | --- |
+| `frontend/` | Next.js 15 화면. `docker compose`의 `app`. `/api/v1/**`은 백엔드로 넘긴다 | 3000 |
+| `backend/` | Spring Boot 4.1 (Java 21) API. 시작할 때 Flyway가 표와 시드를 만든다 | 8080 (내부) |
+| `db` | PostgreSQL 16 | 내부 |
 
 ## 설치·실행
 
-(기술 구성이 정해지면 작성)
+### Docker (빈 DB에서 한 번에)
+
+```bash
+docker compose up --build
+```
+
+`http://localhost:3000`에서 열린다. 상태 확인은 `http://localhost:3000/__health`.
+
+### 로컬 개발
+
+PostgreSQL을 따로 띄운 뒤 백엔드와 화면을 각각 실행한다.
+
+```bash
+cd backend && ./gradlew bootRun
+```
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
+백엔드는 `SPRING_DATASOURCE_*`가 없으면 `localhost:5432/foodcheck`(사용자·비밀번호 `foodcheck`)에 붙는다. 화면은 `BACKEND_URL`이 없으면 `http://localhost:8080`으로 넘긴다.
+
+### DB 표를 바꿀 때 (역할 ①)
+
+`backend/src/main/resources/db/migration/`에 다음 번호의 `V<번호>__설명.sql`을 추가한다. 이미 올라간 V 파일은 고치지 않는다. 시드는 `R__` 파일을 고친다.
 
 ## 환경변수
 
-| 이름 | 용도 | 설정 위치 |
-| --- | --- | --- |
-| `AI_GATEWAY_API_KEY` | 서비스 AI 기능 호출(필요할 때만) | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
+| 이름 | 쓰는 곳 | 용도 | 설정 위치 |
+| --- | --- | --- | --- |
+| `BACKEND_URL` | 화면 | `/api/v1/**`을 넘길 백엔드 주소 | 배포 환경변수, `docker-compose.yml` |
+| `RELEASE_ID` | 화면·백엔드 | `/__health`가 돌려주는 배포 commit | 배포 환경변수(CI에서 commit SHA), `docker-compose.yml` |
+| `SPRING_DATASOURCE_URL` | 백엔드 | PostgreSQL 접속 주소(`jdbc:postgresql://...`) | 로컬 `.env`, 배포 환경변수, `docker-compose.yml` |
+| `SPRING_DATASOURCE_USERNAME` | 백엔드 | DB 사용자 | 같은 곳 |
+| `SPRING_DATASOURCE_PASSWORD` | 백엔드 | DB 비밀번호 | 같은 곳 |
+| `AI_GATEWAY_API_KEY` | 백엔드 | 서비스 AI 기능 호출(필요할 때만) | 로컬 `.env`, 배포 환경변수, GitHub Secrets |
+| `AI_GATEWAY_BASE_URL` | 백엔드 | AI Gateway 주소(기본값 있음, 바꿀 때만) | 배포 환경변수 |

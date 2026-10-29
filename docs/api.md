@@ -8,7 +8,7 @@
 | 항목 | 값 |
 | --- | --- |
 | 기본 경로 | 모든 API는 `/api/v1`로 시작한다. 예외: `GET /__health`(대회 실행 조건) |
-| 서버 | Next.js Route Handler(`app/api/v1/<도메인>/.../route.ts`). [tech-stack.md](tech-stack.md) |
+| 서버 | Spring Boot 백엔드(`backend/`의 `domain/<도메인>/controller`). 브라우저는 같은 출처 `/api/v1/**`을 부르고 Next.js(`frontend/src/app/api/v1/[...path]`)가 백엔드로 넘긴다. [tech-stack.md](tech-stack.md) |
 | 인증 | 없다. 로그인 없이 쓰고(`scenarios.yaml` `login: false`), 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 처음 접속하면 `POST /api/v1/users`로 받아 브라우저 `localStorage`에 보관한다 |
 | 요청 형식 | `application/json`. 사진 업로드(REQ-1)만 `multipart/form-data` |
 | 응답 필드 | snake_case |
@@ -39,14 +39,14 @@
 | `level` | REQ-3, OPT-1 | `SAFE`(안전) · `CHECK`(확인 필요) · `BLOCKED`(불가) |
 | `image_type` | REQ-2 | `MENU_BOARD`(메뉴판, 메뉴 전부) · `FOOD`(음식 사진, `menus` 1개) |
 | `source` (사진) | REQ-1 | `FILE` · `DRAG_DROP` · `CAMERA` |
-| `preset` | REQ-4 | `HALAL`(할랄) · `VEGETARIAN`(채식: 고기·해산물 제외, 계란·유제품 허용) |
+| `preset` | REQ-4 | `HALAL`(할랄: 돼지고기·술) · `VEGETARIAN`(채식: 고기·해산물 제외, 계란·유제품 허용) · `VEGAN`(비건: 고기·해산물·계란·유제품 제외) |
 | 제한 항목 `code` | REQ-4, REQ-3, OPT-2 | `meat`(고기) · `pork`(돼지고기) · `beef`(소고기) · `seafood`(해산물) · `egg`(계란) · `dairy`(우유·유제품) · `peanut`(땅콩) · `alcohol`(술) |
 | `evidence` | REQ-5, REQ-6 | `CONFIRMED`(확인: 음식 DB에 등록된 재료) · `INFERRED`(추정) |
-| `confidence` | REQ-5, REQ-6 | `high`(높음) · `medium`(보통) · `low`(낮음) |
+| `confidence` | REQ-5, REQ-6 | `HIGH`(높음) · `MEDIUM`(보통) · `LOW`(낮음) |
 | `basis` | REQ-5, REQ-6 | `DB`(음식 DB) · `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정) · `RECIPE_SEARCH`(만개의 레시피) · `AI_ESTIMATE`(AI 추정) |
 | `rule` | REQ-3, REQ-6 | 아래 [판정 규칙](#판정-규칙)의 `R0`~`R4` |
 
-- 제한 항목은 위계가 있다. `pork`·`beef`는 `meat`에 속한다. `meat`를 켜면 `pork`·`beef` 재료도 걸린다. 재료는 가장 구체적인 항목 하나에 연결한다(돼지고기 → `pork`).
+- 재료 하나는 걸리는 제한 항목 전부에 연결한다(`ingredient_restriction_items`). 돼지고기는 `pork`와 `meat`, 소고기는 `beef`와 `meat`에 걸린다. 그래서 "고기"를 켜도, "돼지고기"만 켜도 돼지고기가 걸린다.
 - 알레르기는 프리셋 없이 `egg`·`dairy`·`peanut`·`seafood` 토글로 고른다.
 
 ---
@@ -63,7 +63,8 @@
 
 ```json
 {
-  "user_id": 1
+  "user_id": 1,
+  "created_at": "2026-10-29T12:00:00+09:00"
 }
 ```
 
@@ -89,17 +90,18 @@
 {
   "presets": [
     { "code": "HALAL", "name": "할랄", "items": ["pork", "alcohol"] },
-    { "code": "VEGETARIAN", "name": "채식", "items": ["meat", "seafood"] }
+    { "code": "VEGETARIAN", "name": "채식", "items": ["meat", "seafood"] },
+    { "code": "VEGAN", "name": "비건", "items": ["meat", "seafood", "egg", "dairy"] }
   ],
   "items": [
-    { "code": "meat", "name": "고기", "parent": null },
-    { "code": "pork", "name": "돼지고기", "parent": "meat" },
-    { "code": "beef", "name": "소고기", "parent": "meat" },
-    { "code": "seafood", "name": "해산물", "parent": null },
-    { "code": "egg", "name": "계란", "parent": null },
-    { "code": "dairy", "name": "우유·유제품", "parent": null },
-    { "code": "peanut", "name": "땅콩", "parent": null },
-    { "code": "alcohol", "name": "술", "parent": null }
+    { "code": "meat", "name": "고기" },
+    { "code": "pork", "name": "돼지고기" },
+    { "code": "beef", "name": "소고기" },
+    { "code": "seafood", "name": "해산물" },
+    { "code": "egg", "name": "계란" },
+    { "code": "dairy", "name": "우유·유제품" },
+    { "code": "peanut", "name": "땅콩" },
+    { "code": "alcohol", "name": "술" }
   ]
 }
 ```
@@ -169,9 +171,9 @@
 }
 ```
 
-- `preset`: 고르면 그 프리셋의 `items`가 켜진다. 프리셋을 풀려면 `null`
-- `toggles`: 바뀐 항목만 보내도 된다(on-click 단위). 프리셋으로 켜진 항목도 토글로 끌 수 있다
-- `version`: 마지막으로 조회한 버전. 처음 저장할 때는 생략한다
+- `preset`: 키를 보내지 않으면 프리셋을 바꾸지 않는다. 프리셋 코드를 보내면 모든 토글을 끄고 그 프리셋의 항목을 켠 뒤 `toggles`를 덮어쓴다. `null`이면 프리셋 선택만 지우고 토글은 그대로 둔다
+- `toggles`: 바뀐 항목만 보내도 된다(on-click 단위)
+- `version`: 마지막으로 조회한 버전. 처음 저장할 때는 생략한다. 이미 저장한 적이 있는데 생략하면 409
 
 ### 응답 200 OK
 
@@ -208,7 +210,7 @@
 
 ## REQ-1 사진 업로드
 
-`POST /api/v1/images` — 파일 선택, 드래그 앤 드롭, 모바일 카메라 촬영으로 고른 사진을 서버에 올리고 `image_id`를 받는다. 사진은 DB(`images.data`, bytea)에 저장한다.
+`POST /api/v1/images` — 파일 선택, 드래그 앤 드롭, 모바일 카메라 촬영으로 고른 사진을 서버에 올리고 `image_id`를 받는다. 사진 본문을 어디에 둘지는 ②가 정한다([erd.md](erd.md) 열린 질문 1).
 
 ### 요청
 
@@ -310,9 +312,9 @@
       "matched_restrictions": ["pork"],
       "rule": "R1",
       "ingredients": [
-        { "name": "돼지고기", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": "pork" },
-        { "name": "고추장", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": null },
-        { "name": "양파", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": null }
+        { "name": "돼지고기", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["pork", "meat"] },
+        { "name": "고추장", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
+        { "name": "양파", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] }
       ]
     },
     {
@@ -322,9 +324,9 @@
       "matched_restrictions": [],
       "rule": "R2",
       "ingredients": [
-        { "name": "미역", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": null },
-        { "name": "소고기", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": "beef" },
-        { "name": "맛술", "evidence": "INFERRED", "confidence": "medium", "basis": "COOKING_METHOD", "restriction": "alcohol" }
+        { "name": "미역", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": [] },
+        { "name": "소고기", "evidence": "CONFIRMED", "confidence": "HIGH", "basis": "DB", "restrictions": ["beef", "meat"] },
+        { "name": "맛술", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["alcohol"] }
       ]
     }
   ]
@@ -334,12 +336,12 @@
 - `reason`: 근거 한 줄(배지 옆에 보인다)
 - `matched_restrictions`: **확인된** 재료로 걸린 제한 항목(`BLOCKED`의 근거)
 - `rule`: 적용된 판정 규칙(REQ-6)
-- `ingredients[].restriction`: 그 재료가 연결된 제한 항목 코드(사용자와 상관없이 재료에 정해진 값). 어느 항목에도 걸리지 않는 재료는 `null`
+- `ingredients[].restrictions`: 그 재료가 연결된 제한 항목 코드 전부(사용자와 상관없이 재료에 정해진 값). 어느 항목에도 걸리지 않으면 `[]`
 - 예시는 할랄(`pork`·`alcohol`) 사용자 기준이다
 
 ### 판정 규칙
 
-사용자가 켠 제한 항목(위계 포함)과 재료의 `restriction`을 맞대어 위에서부터 처음 맞는 규칙을 쓴다.
+사용자가 켠 제한 항목과 재료의 `restrictions`를 맞대어 위에서부터 처음 맞는 규칙을 쓴다.
 
 | 규칙 | 조건 | `level` |
 | --- | --- | --- |
@@ -350,7 +352,7 @@
 | `R4` | 걸리는 재료가 없다 | `SAFE` |
 
 - AI 추정(`AI_ESTIMATE`) 재료는 항상 `INFERRED`다. 그래서 AI 추정만으로는 `BLOCKED`가 나오지 않는다(REQ-5).
-- 판정은 코드(`lib/judge/`)가 한다. AI는 재료를 찾을 때만 쓴다. 규칙마다 단위 테스트를 둔다.
+- 판정은 코드(`backend` `domain/judgment/service`)가 한다. AI는 재료를 찾을 때만 쓴다. 규칙마다 JUnit 테스트를 둔다.
 
 ### 예외 상황
 
@@ -388,8 +390,8 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
   "matched_restrictions": [],
   "rule": "R4",
   "ingredients": [
-    { "name": "된장", "evidence": "INFERRED", "confidence": "high", "basis": "RECIPE_SEARCH", "restriction": null },
-    { "name": "멸치 육수", "evidence": "INFERRED", "confidence": "medium", "basis": "RECIPE_SEARCH", "restriction": "seafood" }
+    { "name": "된장", "evidence": "INFERRED", "confidence": "HIGH", "basis": "RECIPE_SEARCH", "restrictions": [] },
+    { "name": "멸치 육수", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "RECIPE_SEARCH", "restrictions": ["seafood"] }
   ]
 }
 ```
@@ -413,9 +415,9 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 1. **음식 DB**(`foods`): 등록된 재료는 `CONFIRMED`, `basis: DB`. 시드에 함께 넣은 숨은 재료(육수, 젓갈, 맛술 등)는 `INFERRED`, `basis: COOKING_METHOD`
 2. **이름 속 재료 단어·조리법**: 이름의 재료 단어(예: "돈" → 돼지고기)는 `NAME_KEYWORD`, 조리법(예: "튀김" → 밀가루·계란)은 `COOKING_METHOD`. 모두 `INFERRED`
 3. **만개의 레시피 검색**(1에 없을 때): 찾은 재료는 `INFERRED`, `basis: RECIPE_SEARCH`
-4. **AI 추정**(3이 실패하거나 결과가 없을 때): `INFERRED`, `basis: AI_ESTIMATE`, `confidence`는 최대 `medium`
+4. **AI 추정**(3이 실패하거나 결과가 없을 때): `INFERRED`, `basis: AI_ESTIMATE`, `confidence`는 최대 `MEDIUM`
 
-3·4에서 찾은 재료는 `foods`(`source`가 `recipe_search` 또는 `ai_estimate`)에 저장해 다음 요청부터 1에서 찾는다.
+3·4에서 찾은 재료는 `foods`(`source`가 `RECIPE_SEARCH` 또는 `AI_ESTIMATE`)에 저장해 다음 요청부터 1에서 찾는다.
 
 ### 요청
 
@@ -431,9 +433,9 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 {
   "menu_name": "돈가스",
   "ingredients": [
-    { "name": "돼지고기", "evidence": "INFERRED", "confidence": "high", "basis": "NAME_KEYWORD", "restriction": "pork" },
-    { "name": "밀가루", "evidence": "INFERRED", "confidence": "high", "basis": "COOKING_METHOD", "restriction": null },
-    { "name": "계란", "evidence": "INFERRED", "confidence": "medium", "basis": "COOKING_METHOD", "restriction": "egg" }
+    { "name": "돼지고기", "evidence": "INFERRED", "confidence": "HIGH", "basis": "NAME_KEYWORD", "restrictions": ["pork", "meat"] },
+    { "name": "밀가루", "evidence": "INFERRED", "confidence": "HIGH", "basis": "COOKING_METHOD", "restrictions": [] },
+    { "name": "계란", "evidence": "INFERRED", "confidence": "MEDIUM", "basis": "COOKING_METHOD", "restrictions": ["egg"] }
   ]
 }
 ```
@@ -480,7 +482,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 ```
 
 - `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
-- 음식점 데이터는 팀이 조사한 학교 주변 음식점 시드(`lib/db/seed/restaurants.ts`)다
+- 음식점 데이터는 팀이 조사한 학교 주변 음식점 시드(`R__20_seed_restaurants.sql`)다
 
 ### 예외 상황
 
@@ -511,4 +513,5 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 
 1. **`user_id` 보호.** 로그인이 없어 `user_id`만 알면 남의 식단 제한을 조회·수정할 수 있다. 해커톤 범위에서는 그대로 간다([decisions.md](decisions.md)).
 2. **AI 호출 남용.** 로그인이 없고 팀 AI 예산이 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 2.
-3. **메뉴 이름 표기 차이.** 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)는 `foods.aliases`로 맞춘다. 공백 제거 외의 정규화 규칙은 ③이 정한다.
+3. **메뉴 이름 표기 차이.** 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)를 맞추는 방법은 ③이 정한다([erd.md](erd.md) 열린 질문 5).
+4. **사진 본문 저장 위치.** `images`에는 메타데이터만 있다. ②가 정해 ①에게 표 변경을 요청한다([erd.md](erd.md) 열린 질문 1).

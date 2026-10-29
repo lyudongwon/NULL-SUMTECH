@@ -1,83 +1,94 @@
 # ERD
 
-> 문서 통일(2026-10-29) 때 `feat/base-settings` 브랜치의 실제 스키마(`lib/db/schema.ts`)에 맞춰 다시 썼다. 이 문서와 스키마가 다르면 [아래 "스키마에 반영할 것"](#스키마에-반영할-것)을 먼저 본다. 근거는 [problem.yaml](problem.yaml)의 `features`, [scenarios.yaml](scenarios.yaml), [api.md](api.md)다.
+> 2026-10-29 문서 통일 반영. 표 정의의 원본은 `backend/src/main/resources/db/migration/V*__*.sql`이고, 이 문서와 다르면 마이그레이션을 따른다. 노션 기능 명세서(REQ-1~7, OPT-1~3와 기술 스택 표), [problem.yaml](problem.yaml)의 `features`, [scenarios.yaml](scenarios.yaml), [api.md](api.md)를 근거로 그렸다. 문서에 없는 부분은 **(제안)**으로 표시했고, 팀이 정해야 하는 것은 맨 아래 [열린 질문](#열린-질문)에 모았다.
 
 ## 전제
 
-- DB는 PostgreSQL 16, ORM은 Drizzle, 마이그레이션은 `drizzle/`(drizzle-kit로 생성)이다([tech-stack.md](tech-stack.md)). 서버가 시작될 때 `instrumentation.ts`가 마이그레이션과 시드를 실행한다.
-- 회원과 로그인이 없다. 사용자는 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 발급은 `POST /api/v1/users`([api.md](api.md)).
-- 사진은 `images.data`(bytea)에 저장한다. 해커톤 범위에서는 따로 지우지 않는다.
-- **저장하지 않는 것:** 메뉴 판독 결과와 판정 결과. 요청마다 계산해서 돌려준다.
+- DB는 PostgreSQL, ORM은 JPA(Hibernate), 마이그레이션은 Flyway다([tech-stack.md](tech-stack.md)). DB 호스트(Neon 또는 AWS RDS)는 정해지지 않았다.
+- 회원과 로그인이 없다. 사용자는 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다(`problem.yaml > features > OPT-2`의 입력, `scenarios.yaml`의 `login: false`). `users`에는 회원 정보(아이디·비밀번호)를 두지 않는다. 처음에 `user_id`를 어떻게 발급받는지는 [열린 질문](#열린-질문) 2번.
+- **저장하지 않는 것:** 메뉴 판독 결과와 판정 결과. 조회 API가 없고 요청마다 계산해서 돌려준다. 기록 보기 같은 기능이 생기면 테이블을 추가한다.
 
 ## 다이어그램
 
 ```mermaid
 erDiagram
     users ||--o| user_restrictions : "식단 제한 프로필"
-    presets |o--o{ user_restrictions : "선택한 프리셋"
-    restriction_items |o--o{ restriction_items : "parent (pork·beef → meat)"
-    restriction_items |o--o{ ingredients : "restriction_code"
+    users ||--o{ user_restriction_items : "토글 상태"
+    restriction_presets |o--o{ user_restrictions : "선택한 프리셋"
+    restriction_items ||--o{ user_restriction_items : "참조"
+    restriction_presets ||--o{ preset_items : "구성"
+    restriction_items ||--o{ preset_items : "참조"
     foods ||--o{ food_ingredients : "재료"
     ingredients ||--o{ food_ingredients : "참조"
+    ingredients ||--o{ ingredient_restriction_items : "해당 제한"
+    restriction_items ||--o{ ingredient_restriction_items : "참조"
+    restaurants ||--o{ restaurant_restriction_items : "충족"
+    restriction_items ||--o{ restaurant_restriction_items : "참조"
 
     users {
-        serial id PK "Auto Increment = user_id"
+        bigint id PK "Auto Increment"
         timestamptz created_at
     }
     user_restrictions {
-        integer user_id PK, FK
-        text preset FK "nullable"
-        jsonb toggles "code → boolean"
-        integer version "낙관적 잠금"
+        bigint user_id PK, FK
+        text preset_code FK "nullable"
+        int version
         timestamptz updated_at
     }
-    presets {
-        text code PK "HALAL, VEGETARIAN"
+    user_restriction_items {
+        bigint user_id PK, FK
+        text item_code PK, FK
+        boolean enabled
+    }
+    restriction_presets {
+        text code PK
         text name
-        text_array items "켜지는 restriction_items.code"
-        integer sort_order
     }
     restriction_items {
         text code PK
         text name
-        text parent_code FK "nullable"
-        integer sort_order
+    }
+    preset_items {
+        text preset_code PK, FK
+        text item_code PK, FK
     }
     images {
-        text id PK "img_xxxxxx"
-        bytea data
-        text mime_type
-        integer width
-        integer height
-        text sha256
+        text id PK
+        int width
+        int height
         text source "FILE, DRAG_DROP, CAMERA"
+        text mime_type
         timestamptz uploaded_at
     }
     foods {
-        serial id PK
+        int id PK
         text name UK
-        text_array aliases
-        text source "seed, recipe_search, ai_estimate"
-        timestamptz created_at
+        text source "SEED, RECIPE_SEARCH, AI_ESTIMATE"
     }
     ingredients {
-        serial id PK
+        int id PK
         text name UK
-        text restriction_code FK "nullable"
     }
     food_ingredients {
-        integer food_id PK, FK
-        integer ingredient_id PK, FK
-        boolean confirmed "true=CONFIRMED, false=INFERRED"
-        text confidence "high, medium, low"
+        int food_id PK, FK
+        int ingredient_id PK, FK
+        text evidence "CONFIRMED, INFERRED"
+        text confidence "HIGH, MEDIUM, LOW"
         text basis "DB, NAME_KEYWORD, COOKING_METHOD, RECIPE_SEARCH, AI_ESTIMATE"
     }
+    ingredient_restriction_items {
+        int ingredient_id PK, FK
+        text item_code PK, FK
+    }
     restaurants {
-        serial id PK
+        int id PK
         text name
         text category
         text address
-        text_array excludes "피하는 restriction_items.code"
+    }
+    restaurant_restriction_items {
+        int restaurant_id PK, FK
+        text item_code PK, FK
     }
 ```
 
@@ -85,59 +96,65 @@ erDiagram
 
 ### 사용자와 식단 제한 (REQ-4)
 
-| 테이블 | 설명 |
-| --- | --- |
-| `users` | 회원 정보 없이 사용자를 구분하는 번호. `POST /api/v1/users`가 한 행을 만든다 |
-| `user_restrictions` | 사용자당 한 행. 마지막으로 고른 프리셋, 토글 상태(`toggles` jsonb), 낙관적 잠금용 `version` |
-| `presets` | 프리셋 목록. `items`는 그 프리셋이 켜는 항목 코드 배열 |
-| `restriction_items` | 토글 항목. `parent_code`로 위계를 둔다(`pork`·`beef` → `meat`) |
+| 테이블 | 컬럼 | 설명 |
+| --- | --- | --- |
+| `users` | `id` bigint PK(Auto Increment), `created_at` | 회원 정보 없이 사용자를 구분하는 번호(`user_id`) |
+| `user_restrictions` | `user_id` PK·FK, `preset_code` FK(null 가능), `version` int, `updated_at` | 사용자당 한 행. 마지막으로 고른 프리셋과 낙관적 락용 `version` |
+| `user_restriction_items` | (`user_id`, `item_code`) PK, `enabled` | 토글 하나당 한 행. 프리셋을 고르면 그 프리셋의 항목이 켜진다 |
+| `restriction_presets` | `code` PK, `name` | 프리셋 목록(예: 할랄, 채식). `GET /restrictions/presets`의 `presets` |
+| `restriction_items` | `code` PK, `name` | 개별 토글 항목(예: 돼지고기, 술). `GET /restrictions/presets`의 `items` |
+| `preset_items` | (`preset_code`, `item_code`) PK | 프리셋이 켜는 항목 |
 
-- **동시 요청(REQ-4):** 저장은 `UPDATE ... WHERE version = :요청한 version`으로 하고, 0행이 바뀌면 409를 준다. 처음 저장이 겹쳐 PK가 충돌해도 409를 준다.
-- **사용자 제한 계산:** 프리셋 `items`를 켜고 `toggles`로 덮어쓴 뒤, 켜진 항목의 하위 항목(`parent_code`)까지 펼친다.
+- **동시 요청(REQ-4):** 저장은 `UPDATE ... WHERE version = :요청한 version`으로 하고, 0행이 바뀌면 409를 준다. 처음 저장(`version` 생략)에서 같은 `user_id`가 동시에 들어오면 PK 충돌을 409로 돌려준다. 409 응답은 `docs/api.md`를 따른다.
 
 ### 사진 (REQ-1, OPT-3)
 
-| 테이블 | 설명 |
-| --- | --- |
-| `images` | 업로드한 사진 본문(`data`)과 메타데이터. OPT-3로 이미 줄어든 상태로 올라온다 |
+| 테이블 | 컬럼 | 설명 |
+| --- | --- | --- |
+| `images` | `id` text PK(예: `img_8f3a2c`), `width`, `height`, `source`, `mime_type`, `uploaded_at` | 업로드한 사진의 메타데이터. 사진 본문을 어디에 두는지는 [열린 질문](#열린-질문) 1번 |
+
+- 사진은 OPT-3에서 이미 긴 변 1400px, JPEG 0.85로 줄어든 상태로 올라온다.
 
 ### 음식 DB와 숨은 성분 (REQ-2, REQ-3, REQ-5, REQ-6, OPT-1)
 
-| 테이블 | 설명 |
-| --- | --- |
-| `foods` | 음식 DB. `aliases`로 표기 차이(`돈까스`/`돈가스`)를 맞춘다. `source`는 시드(`seed`)·만개의 레시피(`recipe_search`)·AI 추정(`ai_estimate`) |
-| `ingredients` | 재료 사전. `restriction_code`는 재료가 걸리는 가장 구체적인 제한 항목(돼지고기 → `pork`), 없으면 null |
-| `food_ingredients` | 음식에 들어 있는 재료. REQ-6의 확인/추정이 `confirmed`, 확신도가 `confidence`, 출처가 `basis` |
+| 테이블 | 컬럼 | 설명 |
+| --- | --- | --- |
+| `foods` | `id` PK, `name` UNIQUE, `source` | 음식 DB. `source`는 시드(`SEED`), 만개의 레시피(`RECIPE_SEARCH`), AI 추정(`AI_ESTIMATE`)을 구분한다 |
+| `ingredients` | `id` PK, `name` UNIQUE | 재료 사전(예: 돼지고기, 계란) |
+| `food_ingredients` | (`food_id`, `ingredient_id`) PK, `evidence`, `confidence`, `basis` | 음식에 들어 있는 재료. REQ-6의 "확인/추정 구분"이 `evidence`, "확신도"가 `confidence`, `docs/api.md`의 `basis`가 `basis`다 |
+| `ingredient_restriction_items` | (`ingredient_id`, `item_code`) PK | 재료가 걸리는 제한 항목 전부. 돼지고기는 `pork`와 `meat`, 소고기는 `beef`와 `meat`에 걸린다. 그래서 "고기"만 켜도, "돼지고기"만 켜도 걸린다 |
 
-- **판정은 코드가 한다.** 규칙은 [api.md](api.md) REQ-3 > 판정 규칙(`R0`~`R4`). 적용된 규칙은 응답에만 담고 저장하지 않는다.
-- **DB에 없는 메뉴:** 만개의 레시피 또는 AI 추정으로 찾은 재료를 `foods`·`food_ingredients`에 저장해 다음 요청부터 DB에서 찾는다. 이때 `confirmed`는 항상 false다.
+- **판정은 코드가 한다.** 사용자가 켠 `item_code`와 음식의 재료가 걸리는 `item_code`를 맞대어 판정 규칙 R0~R4([api.md](api.md) REQ-3)를 적용한다. 적용된 규칙(REQ-6)은 응답에만 담고 저장하지 않는다.
+- **OPT-1과 REQ-5:** 수동 입력 메뉴는 `foods.name`으로 찾는다. 없으면 만개의 레시피(`RECIPE_SEARCH`), 그것도 실패하면 AI 추정(`AI_ESTIMATE`)으로 재료를 찾아 `foods`·`food_ingredients`에 저장하고 다음 요청부터 DB에서 찾는다. 이렇게 찾은 재료의 `evidence`는 항상 `INFERRED`다. 시드 재료는 `evidence = CONFIRMED`, `basis = DB`다.
 
 ### 음식점 추천 (OPT-2)
 
-| 테이블 | 설명 |
-| --- | --- |
-| `restaurants` | 팀이 조사한 학교 주변 음식점. `excludes`는 그 음식점이 쓰지 않는 항목 코드. 사용자 제한 항목을 모두 포함하는 음식점만 추천한다 |
+| 테이블 | 컬럼 | 설명 |
+| --- | --- | --- |
+| `restaurants` | `id` PK, `name`, `category`, `address` | 팀이 조사한 학교 주변 음식점(`R__20_seed_restaurants.sql`) |
+| `restaurant_restriction_items` | (`restaurant_id`, `item_code`) PK | 음식점이 충족하는 제한 항목. 응답의 `matched_restrictions` |
+
+- 추천은 판정 결과에 '안전'이 하나도 없을 때 "다른 식당 보기"로 부르고, 사용자가 켠 항목을 모두 충족하는 음식점만 돌려준다([api.md](api.md) OPT-2).
 
 ## 시드 데이터 최소 요구
 
 E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 시드에 있어야 한다.
 
-- **프리셋:** `HALAL`(할랄: `pork`, `alcohol`), `VEGETARIAN`(채식: `meat`, `seafood`)
-- **토글 항목:** `meat`, `pork`(parent `meat`), `beef`(parent `meat`), `seafood`, `egg`, `dairy`, `peanut`, `alcohol`
-- **음식(역할 ③):** 설렁탕, 콩나물국, 그린샐러드, 버섯리조또, 김치찌개
-- **설렁탕:** 소고기(`beef`, `confirmed = true`). 채식 프리셋과 "고기" 토글 모두에서 "불가"(R1)와 소고기 근거가 나온다.
-- **된장찌개는 넣지 않는다.** `manual-input-unknown-menu`가 DB에 없는 경로를 확인한다.
-- **사진 판독:** 메뉴판 사진에서 읽힌 이름이 `foods.name` 또는 `aliases`와 일치해야 한다.
+- **음식(③, `R__30`):** 설렁탕, 콩나물국, 그린샐러드, 버섯리조또, 김치찌개
+- **프리셋(①, `R__10`):** `HALAL`(할랄), `VEGETARIAN`(채식), `VEGAN`(비건)
+- **토글 항목(①, `R__10`):** `meat`(고기) 등 8개([api.md](api.md) 열거형)
+- **설렁탕:** 소고기(`evidence = CONFIRMED`)가 `beef`·`meat`에 걸려 있어, 채식 프리셋과 "고기" 토글에서 "불가"(R1)와 소고기 근거가 나온다.
+- **된장찌개는 넣지 않는다.** `manual-input-unknown-menu`가 DB에 없는 경로(만개의 레시피 → AI 추정)를 확인한다. AI 추정까지 있으니 외부 사이트가 막혀도 배지가 나온다.
+- **사진 판독:** 메뉴판 사진에서 읽힌 이름이 `foods.name`과 일치해야 한다.
 
-## 스키마에 반영할 것
-
-`feat/base-settings`의 `lib/db/schema.ts`와 시드가 통일된 문서와 다른 곳이다. 역할 ①이 고친다.
-
-1. `users.id`: 클라이언트가 만든 `uuid` → 서버가 발급하는 `serial`(Auto Increment). `user_restrictions.user_id`도 `integer`로 바꾼다. `POST /api/v1/users`를 추가한다.
-2. `restriction_items.parent_code` 컬럼을 추가하고 `pork`·`beef`의 parent를 `meat`로 둔다.
-3. 프리셋 `VEGAN`(비건: `meat`, `seafood`, `egg`, `dairy`) → `VEGETARIAN`(채식: `meat`, `seafood`).
+음식별 재료 값은 ③이 정한다.
 
 ## 열린 질문
 
-1. **메뉴 이름 정규화.** 공백 제거와 `aliases` 외의 규칙(동의어 사전 등)은 역할 ③이 정한다.
-2. **음식점 데이터.** 몇 곳을 넣을지와 조사 범위는 팀이 정한다.
+1. **사진 본문을 어디에 두는가.** 백엔드는 AWS 컨테이너라 재배포하면 컨테이너 디스크가 사라진다. Postgres `bytea`에 넣을지 S3 같은 외부 저장소를 쓸지, 업로드와 판독을 한 요청으로 합칠지 정해야 하고, 보관 기간도 정해야 한다.
+2. ~~**`user_id` 발급 방법.**~~ 잠정: 클라이언트가 `POST /api/v1/users`로 번호를 받아 브라우저에 보관한다([api.md](api.md) REQ-4 사용자 번호 발급).
+3. **로그인.** 회원가입과 로그인을 두지 않기로 했다(`decisions.md`).
+4. ~~**프리셋·항목 코드 목록.**~~ 문서 통일 때 확정했다([api.md](api.md) 열거형). 잠정으로 프리셋 `HALAL`(할랄)·`VEGETARIAN`(채식)·`VEGAN`(비건), 항목 `meat`(고기)·`pork`·`beef`·`seafood`·`egg`·`dairy`·`peanut`·`alcohol`을 시드(`R__10_seed_restrictions.sql`)에 넣었다. 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 쓴다. 전체 목록이 필요하다.
+5. **메뉴 이름 매칭.** 판독으로 읽은 이름이 DB의 이름과 정확히 같아야 하는가? 띄어쓰기, 표기 차이, 동의어(`돈까스`/`돈가스`)를 어떻게 처리할지 정해야 한다.
+6. ~~**외부 검색 결과의 저장.**~~ 저장한다. 만개의 레시피에도 없으면 AI 추정으로 판정한다([decisions.md](decisions.md)).
+7. **음식점 데이터.** 추천 기준은 정했다(OPT-2). 몇 곳을 어디까지 조사할지는 팀이 정한다.

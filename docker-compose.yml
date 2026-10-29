@@ -1,0 +1,42 @@
+# app(화면, Next.js)만 3000 포트를 연다. 백엔드와 DB는 내부 네트워크로만 쓴다.
+services:
+  app:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      BACKEND_URL: http://backend:8080
+      RELEASE_ID: local
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/foodcheck
+      SPRING_DATASOURCE_USERNAME: foodcheck
+      SPRING_DATASOURCE_PASSWORD: foodcheck
+      RELEASE_ID: local
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080'"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+      start_period: 10s
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: foodcheck
+      POSTGRES_USER: foodcheck
+      POSTGRES_PASSWORD: foodcheck
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foodcheck -d foodcheck"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
