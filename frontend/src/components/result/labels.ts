@@ -36,6 +36,6 @@ export const RULE_LABEL: Record<JudgmentResult["rule"], string> = {
   R0: "No diet restrictions set",
   R1: "A confirmed ingredient is restricted",
   R2: "An estimated ingredient may be restricted",
-  R3: "All ingredients are AI estimates",
+  R3: "No ingredients from the food database or 10000recipe",
   R4: "No restricted ingredients found",
 };

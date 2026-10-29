@@ -88,7 +88,7 @@
 | 근거 상세(REQ-6) | 적용 규칙 | Rule |
 | 근거 상세(REQ-6) | 재료 표의 열 이름 | Ingredient · Evidence · Confidence · Source |
 | 근거 상세(REQ-6) | 재료 출처(`basis`) | Food database · Menu name · Cooking method · 10000recipe · AI estimate |
-| 근거 상세(REQ-6) | 적용 규칙 설명(R0~R4 순서) | No diet restrictions set · A confirmed ingredient is restricted · An estimated ingredient may be restricted · All ingredients are AI estimates · No restricted ingredients found |
+| 근거 상세(REQ-6) | 적용 규칙 설명(R0~R4 순서) | No diet restrictions set · A confirmed ingredient is restricted · An estimated ingredient may be restricted · No ingredients from the food database or 10000recipe · No restricted ingredients found |
 | 첫 화면·판정 화면·버튼(OPT-2) | 다른 식당 보기 | Other restaurants |
 | 모든 화면·링크 | 처음으로 | Home |
 | 음식점 추천(OPT-2) | 결과 없음 | No restaurants match your diet yet. |
@@ -425,7 +425,7 @@
 - AI 추정(`AI_ESTIMATE`) 재료는 항상 `INFERRED`다. 그래서 AI 추정만으로는 `BLOCKED`가 나오지 않고, 제한이 있는 사용자에게는 걸리면 `R2`, 걸리지 않으면 `R3`로 늘 `CHECK`가 나온다(REQ-5).
 - REQ-5는 AI 추정 결과에도 이름 단어(`NAME_KEYWORD`)·조리법(`COOKING_METHOD`) 추정을 덧붙인다. 그래서 `R3`는 "모두 `AI_ESTIMATE`"가 아니라 "`DB`·`RECIPE_SEARCH` 재료가 없음"으로 본다. 그렇지 않으면 AI 추정에 조리법 재료 하나만 섞여도 `R4`(`SAFE`)가 나와 위 줄과 어긋난다.
 - 재료를 하나도 찾지 못해 `ingredients`가 비어도 `R3`(`CHECK`)이다. 제한이 없는 사용자는 그보다 먼저 `R0`(`SAFE`)이 된다.
-- `R0`·`R3`의 `reason`은 응답 예시에 없어 지금 구현(`JudgmentRules`) 문구를 적는다. `R0`: `You have no diet restrictions set.` / `R3`(재료 없음): `No ingredients were found. Please check before eating.` / `R3`(DB·레시피 재료 없음): `Ingredients are AI estimates only. Please check before eating.`
+- `R0`·`R3`의 `reason`은 응답 예시에 없어 지금 구현(`JudgmentRules`) 문구를 적는다. `R0`: `You have no diet restrictions set.` / `R3`(재료 없음): `No ingredients were found. Please check before eating.` / `R3`(DB·레시피 재료 없음): `Ingredients are only estimated, not from the food database or 10000recipe. Please check before eating.`
 - 판정은 코드(`backend` `domain/judgment/service`)가 한다. AI는 재료를 찾을 때만 쓴다. 규칙마다 JUnit 테스트를 둔다.
 
 ### 예외 상황
@@ -549,13 +549,13 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
       "name": "OO 할랄 식당",
       "category": "중동식",
       "address": "...",
-      "matched_restrictions": ["pork", "alcohol"]
+      "matched_restrictions": ["alcohol", "pork"]
     }
   ]
 }
 ```
 
-- `matched_restrictions`: 이 음식점이 피하는 항목 전부(`restaurant_restriction_items`, 이름순). 사용자 값을 되돌려 주지 않고 음식점 데이터에서 꺼내므로, 추천된 음식점에는 사용자가 켠 항목이 모두 들어 있다. 화면은 이 값을 "Free of …"로 보여 준다
+- `matched_restrictions`: 이 음식점이 피하는 항목 전부(`restaurant_restriction_items`, `code` 사전순). 사용자 값을 되돌려 주지 않고 음식점 데이터에서 꺼내므로, 추천된 음식점에는 사용자가 켠 항목이 모두 들어 있다. 화면은 이 값을 "Free of …"로 보여 준다
 - 음식점 데이터는 시드(`R__20_seed_restaurants.sql`)다. 목표는 팀이 조사한 학교 주변 음식점이지만, 출처가 정해지지 않아(`erd.md` 열린 질문 7) 지금은 이름에 "(예시)"를 붙인 예시 데이터 5곳만 있다
 - 추천 순서는 음식점 번호 순이다(기준 미정, `RestaurantService`의 `TODO(확인)`)
 

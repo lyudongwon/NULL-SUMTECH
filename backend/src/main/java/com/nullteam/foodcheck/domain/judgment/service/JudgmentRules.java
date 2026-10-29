@@ -60,7 +60,7 @@ public final class JudgmentRules {
 		// 이름 단어·조리법 추정은 AI 추정 결과에도 덧붙는다(IngredientInferenceService). 그래서 "모두 AI 추정"을
 		// "음식 DB나 만개의 레시피로 재료를 하나도 확인하지 못함"으로 본다. 그래야 AI 추정만으로는 늘 CHECK다(REQ-5).
 		if (ingredients.stream().noneMatch(i -> i.basis() == Basis.DB || i.basis() == Basis.RECIPE_SEARCH)) {
-			return result(menuName, Level.CHECK, Rule.R3, "Ingredients are AI estimates only. Please check before eating.", List.of(),
+			return result(menuName, Level.CHECK, Rule.R3, "Ingredients are only estimated, not from the food database or 10000recipe. Please check before eating.", List.of(),
 					ingredients);
 		}
 		return result(menuName, Level.SAFE, Rule.R4, "No ingredients conflict with your diet restrictions.", List.of(),
