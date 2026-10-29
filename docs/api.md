@@ -392,6 +392,7 @@
 
 - Spring AI 구조화 출력으로 `kind`(`MENU_BOARD`·`FOOD`·`NOT_MENU`)와 메뉴 이름 목록을 받는다. `NOT_MENU`는 422다. 이름의 앞뒤 공백은 지우고, 빈 이름은 `null`로 바꾼다. 음식 사진은 첫 이름 1개만, 메뉴판은 최대 30개까지 돌려준다.
 - 모델은 환경변수 `MENU_AI_MODEL`로 바꾼다. 기본값은 `openai/gpt-5-mini`다(잠정, ②가 정함. 코드: `SpringAiMenuReader`).
+- AI 오류는 한 번만 다시 시도한다(`application.yml`의 `spring.ai.retry.max-attempts: 2`). Spring AI 기본값(10번)이면 오류 한 번에 몇 분을 기다린다.
 - E2E에서 판독 응답을 고정하지 않는다. 실제 모델을 부르고, 테스트 사진(`e2e/fixtures/`)은 글자가 크고 또렷하게 만들어 흔들림을 줄인다([tech-stack.md](tech-stack.md) 열린 결정 6).
 - 화면은 판독이 끝나면 `name`이 있는 항목만 순서대로(중복 제외) 모아 `/result?menus=<JSON 배열>`로 이동한다([roles.md](roles.md) 만나는 지점 1).
 
@@ -562,6 +563,7 @@ REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없
 | --- | --- |
 | `menu_name` 누락 또는 빈 문자열 | 400 Bad Request `{ "detail": "Please enter a menu name." }` |
 | 1~4 모두 재료를 찾지 못함 | 200 OK, `ingredients: []` → 판정은 `R3`(`CHECK`). 제한이 없는 사용자는 `R0`(`SAFE`) |
+| AI 추정 오류·시간 초과(20초) | 4를 건너뛴 것으로 보고 위와 같이 처리한다. 모델은 환경변수 `INGREDIENT_AI_MODEL`(기본값 `openai/gpt-5-mini`, 코드: `AiIngredientEstimator`) |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---

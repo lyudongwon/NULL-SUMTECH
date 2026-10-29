@@ -1,13 +1,21 @@
 package com.nullteam.foodcheck.domain.ingredient.service;
 
+import java.time.Duration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,10 +40,25 @@ public class AiIngredientEstimator {
 			- 재료는 많아도 %d개까지입니다.
 			""";
 
-	private final ObjectProvider<ChatClient.Builder> chatClientBuilder;
+	/** 판정 요청 하나가 E2E 제한(120초)을 넘지 않게 끊는다. 메뉴 판독(MenuService)의 45초보다 짧게 둔다. */
+	static final Duration TIMEOUT = Duration.ofSeconds(20);
 
-	public AiIngredientEstimator(ObjectProvider<ChatClient.Builder> chatClientBuilder) {
+	private final ObjectProvider<ChatClient.Builder> chatClientBuilder;
+	private final String model;
+	private final Duration timeout;
+	private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+	@Autowired
+	public AiIngredientEstimator(ObjectProvider<ChatClient.Builder> chatClientBuilder,
+			// AI Gateway는 "제공사/모델" 이름만 받는다. 지정하지 않으면 Spring AI 기본 모델 이름(제공사 없음)이 나가서 실패한다.
+			@Value("${INGREDIENT_AI_MODEL:openai/gpt-5-mini}") String model) {
+		this(chatClientBuilder, model, TIMEOUT);
+	}
+
+	AiIngredientEstimator(ObjectProvider<ChatClient.Builder> chatClientBuilder, String model, Duration timeout) {
 		this.chatClientBuilder = chatClientBuilder;
+		this.model = model;
+		this.timeout = timeout;
 	}
 
 	/** AI 호출이 안 되면(키 미설정·시간 초과·형식 오류) 빈 목록을 돌려준다. 판정은 R3으로 간다. */
@@ -46,10 +69,13 @@ public class AiIngredientEstimator {
 			return List.of();
 		}
 		try {
-			Estimated estimated = builder.build().prompt()
+			Estimated estimated = CompletableFuture.supplyAsync(() -> builder.build().prompt()
+					.options(OpenAiChatOptions.builder().model(model))
 					.user(PROMPT.formatted(menuName, MAX_INGREDIENTS))
 					.call()
-					.entity(Estimated.class);
+					.entity(Estimated.class), executor)
+					.orTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
+					.join();
 			return clean(estimated);
 		} catch (Exception e) {
 			log.warn("AI 재료 추정 실패: menuName={}, cause={}", menuName, e.toString());

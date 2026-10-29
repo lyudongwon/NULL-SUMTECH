@@ -15,7 +15,7 @@
 | DB | PostgreSQL | 사용 | 배포 DB는 Render Postgres(무료, 만든 뒤 30일 만료). 백엔드는 Render가 주는 `DATABASE_URL`을 시작할 때 JDBC 설정으로 바꾼다 |
 | ORM | JPA(Hibernate) | 사용 | |
 | 마이그레이션 | Flyway | 사용 | 앱이 시작할 때 자동으로 돌아서 시작 명령은 서버 실행 하나로 끝남. `ddl-auto`는 `validate` |
-| AI | Spring AI 2.0.1(구조화 출력) + AI Gateway | 사용 | 메뉴 판독(REQ-2, 비전)과 재료 AI 추정(REQ-5)에만 씀. 판정 규칙은 AI가 아니라 코드가 맡음. 키는 `AI_GATEWAY_API_KEY`. Spring AI의 OpenAI 모듈(`spring-ai-starter-model-openai`)에서 base-url만 Gateway(`https://ai-gateway.vercel.sh/v1`)로 바꿔 쓴다. 판독 모델 기본값은 `openai/gpt-5-mini`(`MENU_AI_MODEL`). 사진 판독(비전)은 흐름 E2E(S1·S2)에서 동작한다 |
+| AI | Spring AI 2.0.1(구조화 출력) + AI Gateway | 사용 | 메뉴 판독(REQ-2, 비전)과 재료 AI 추정(REQ-5)에만 씀. 판정 규칙은 AI가 아니라 코드가 맡음. 키는 `AI_GATEWAY_API_KEY`. Spring AI의 OpenAI 모듈(`spring-ai-starter-model-openai`)에서 base-url만 Gateway(`https://ai-gateway.vercel.sh/v1`)로 바꿔 쓴다. 판독 모델 기본값은 `openai/gpt-5-mini`(`MENU_AI_MODEL`), 재료 추정도 같은 기본값(`INGREDIENT_AI_MODEL`, 20초 제한). 다시 시도는 한 번만(`spring.ai.retry.max-attempts: 2`). 사진 판독(비전)은 흐름 E2E(S1·S2)에서 동작한다 |
 | 검증 | Jakarta Bean Validation + Jackson | 사용 | AI 응답과 API 입력의 형식 검사 |
 | API 명세 연동 | springdoc-openapi → TypeScript 타입 생성 | 안 씀 | 두 언어 사이 어긋남을 줄이자는 제안이었고 도입하지 않았다. 화면 타입은 `frontend/src/types`에 [api.md](api.md)를 보고 맞춘다 |
 | 테스트 | JUnit 5(판정 엔진) + Playwright(E2E) | 사용 | Playwright는 화면 쪽 |
