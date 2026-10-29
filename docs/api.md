@@ -1,32 +1,36 @@
 # API 명세
 
-> 2026-10-29 노션 [기능 명세서 > 기능리스트](https://app.notion.com/p/408c4b3d7d9e80c59094ec4995ab33fb)의 10개 항목과 각 항목 상세 페이지(Request / Response / 예외 상황)를 옮긴 것이다. 노션이 원본이고 이 파일은 사본이다. 노션이 바뀌면 이 파일도 같은 커밋에서 고친다.
-> 노션에 없는 값은 지어내지 않고 "미정"으로 두었다. 노션과 `docs/problem.yaml`이 어긋나는 부분은 임의로 맞추지 않고 맨 아래 [열린 질문](#열린-질문)에 모았다.
+> 2026-10-29 노션 [기능 명세서 > 기능리스트](https://app.notion.com/p/408c4b3d7d9e80c59094ec4995ab33fb)를 옮긴 뒤 문서 통일 때 고쳤다. **이 파일이 API의 원본이다.** 노션 통합 페이지는 이 파일을 옮겨 적은 것이고, 바꿀 때는 이 파일을 먼저 고친다.
+> 기능 ID는 [problem.yaml](problem.yaml)의 `features`를 따른다. 통일하면서 정한 값은 [decisions.md](decisions.md)에 있다.
 
 ## 공통
 
 | 항목 | 값 |
 | --- | --- |
-| 기본 경로 | `/api/v1` (OPT-2 예시 `GET /api/v1/restaurants/recommendations?...`에만 나온다. 다른 항목의 EndPoint에는 접두사가 없어 팀 확인이 필요하다) |
-| 인증 | 없다. 로그인 없이 쓰고(`docs/scenarios.yaml` `login: false`), 회원 정보 없이 서버가 Auto Increment로 발급하고 클라이언트가 보관한 `user_id`(숫자)로 구분한다. 처음 발급 방법은 TODO(확인) |
+| 기본 경로 | 모든 API는 `/api/v1`로 시작한다. 예외: `GET /__health`(대회 실행 조건) |
+| 서버 | Next.js Route Handler(`app/api/v1/<도메인>/.../route.ts`). [tech-stack.md](tech-stack.md) |
+| 인증 | 없다. 로그인 없이 쓰고(`scenarios.yaml` `login: false`), 서버가 Auto Increment로 발급한 `user_id`(숫자)로 구분한다. 처음 접속하면 `POST /api/v1/users`로 받아 브라우저 `localStorage`에 보관한다 |
 | 요청 형식 | `application/json`. 사진 업로드(REQ-1)만 `multipart/form-data` |
+| 응답 필드 | snake_case |
 | 에러 본문 | 모든 에러는 `{ "detail": "<사람이 읽는 한국어 문장>" }` |
 | 서버 오류 | 모든 엔드포인트에서 서버 내부 오류는 500 Internal Server Error |
 
 ### 엔드포인트 목록
 
-| 기능 ID | 기능 | 도메인 | 메서드 | 경로 | 구분 | 연관 화면 |
+| 기능 ID | 기능 | 도메인 | 메서드 | 경로 | 담당 | 연관 화면 |
 | --- | --- | --- | --- | --- | --- | --- |
-| REQ-4 | 식단 제한 프리셋 목록 조회 | restriction | GET | `/restrictions/presets` | 주요 | 식단 제한 설정 |
-| REQ-4 | 내 식단 제한 조회 | restriction | GET | `/users/{user_id}/restrictions` | 주요 | 식단 제한 설정 |
-| REQ-4 | 식단 제한 저장 | restriction | PATCH | `/users/{user_id}/restrictions` | 주요 | 식단 제한 설정 |
-| REQ-1 | 사진 업로드 | image | POST | `/images` | 주요 | 사진 업로드 |
-| REQ-2 | 메뉴 판독 | menu | POST | `/menus/recognize` | 주요 | 판독 결과 |
-| REQ-3 | 위험 정도 3단계 판정 | judgment | POST | `/judgments` | 주요 | 판정 결과 |
-| OPT-1 | 수동 입력 판정 | judgment | POST | `/judgments/manual` | 부가 | 수동 입력 |
-| OPT-4 | 숨은 성분 추론 | ingredient | POST | `/ingredients/infer` | 부가 | 판정 결과 |
-| OPT-2 | 음식점 추천 | restaurant | GET | `/restaurants/recommendations` | 부가 | 음식점 추천 |
-| OPT-3 | 이미지 축소 | client | — | 없음 (클라이언트 처리) | 부가 | 사진 업로드 |
+| REQ-4 | 사용자 번호 발급 | user | POST | `/api/v1/users` | ① | 첫 화면 |
+| REQ-4 | 식단 제한 프리셋 목록 조회 | restriction | GET | `/api/v1/restrictions/presets` | ① | 식단 제한 설정 |
+| REQ-4 | 내 식단 제한 조회 | restriction | GET | `/api/v1/users/{user_id}/restrictions` | ① | 식단 제한 설정 |
+| REQ-4 | 식단 제한 저장 | restriction | PATCH | `/api/v1/users/{user_id}/restrictions` | ① | 식단 제한 설정 |
+| REQ-1 | 사진 업로드 | image | POST | `/api/v1/images` | ② | 사진 올리기 |
+| REQ-2 | 메뉴 판독 | menu | POST | `/api/v1/menus/recognize` | ② | 판정 화면 |
+| REQ-3, REQ-6 | 위험 정도 3단계 판정 + 근거 상세 | judgment | POST | `/api/v1/judgments` | ③ | 판정 화면 |
+| OPT-1 | 수동 입력 판정 | judgment | POST | `/api/v1/judgments/manual` | ③ | 메뉴 이름 입력칸 |
+| REQ-5 | 숨은 성분 추론 | ingredient | POST | `/api/v1/ingredients/infer` | ③ | 판정 화면(내부 호출) |
+| OPT-2 | 음식점 추천 | restaurant | GET | `/api/v1/restaurants/recommendations` | ① | 다른 식당 보기 |
+| OPT-3 | 이미지 축소 | client | — | 없음 (브라우저 처리) | ② | 사진 올리기 |
+| REQ-7 | 고지 문구 | client | — | 없음 (공통 레이아웃) | ① | 모든 화면 |
 
 ### 열거형
 
@@ -34,15 +38,46 @@
 | --- | --- | --- |
 | `level` | REQ-3, OPT-1 | `SAFE`(안전) · `CHECK`(확인 필요) · `BLOCKED`(불가) |
 | `image_type` | REQ-2 | `MENU_BOARD`(메뉴판, 메뉴 전부) · `FOOD`(음식 사진, `menus` 1개) |
-| `basis` | OPT-4 | `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정) |
-| `source` | REQ-1 | `FILE` · `DRAG_DROP` · `CAMERA` |
-| `preset` | REQ-4 | `HALAL` · `VEGAN` (REQ-4 프리셋 목록 조회로 받아온다) |
+| `source` (사진) | REQ-1 | `FILE` · `DRAG_DROP` · `CAMERA` |
+| `preset` | REQ-4 | `HALAL`(할랄) · `VEGETARIAN`(채식: 고기·해산물 제외, 계란·유제품 허용) |
+| 제한 항목 `code` | REQ-4, REQ-3, OPT-2 | `meat`(고기) · `pork`(돼지고기) · `beef`(소고기) · `seafood`(해산물) · `egg`(계란) · `dairy`(우유·유제품) · `peanut`(땅콩) · `alcohol`(술) |
+| `evidence` | REQ-5, REQ-6 | `CONFIRMED`(확인: 음식 DB에 등록된 재료) · `INFERRED`(추정) |
+| `confidence` | REQ-5, REQ-6 | `high`(높음) · `medium`(보통) · `low`(낮음) |
+| `basis` | REQ-5, REQ-6 | `DB`(음식 DB) · `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정) · `RECIPE_SEARCH`(만개의 레시피) · `AI_ESTIMATE`(AI 추정) |
+| `rule` | REQ-3, REQ-6 | 아래 [판정 규칙](#판정-규칙)의 `R0`~`R4` |
+
+- 제한 항목은 위계가 있다. `pork`·`beef`는 `meat`에 속한다. `meat`를 켜면 `pork`·`beef` 재료도 걸린다. 재료는 가장 구체적인 항목 하나에 연결한다(돼지고기 → `pork`).
+- 알레르기는 프리셋 없이 `egg`·`dairy`·`peanut`·`seafood` 토글로 고른다.
+
+---
+
+## REQ-4 사용자 번호 발급
+
+`POST /api/v1/users` — 회원 정보 없이 사용자 번호를 하나 발급한다. 클라이언트는 `localStorage`에 `user_id`가 없을 때만 부른다.
+
+### 요청
+
+바디 없다.
+
+### 응답 201 Created
+
+```json
+{
+  "user_id": 1
+}
+```
+
+### 예외 상황
+
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| 서버 내부 오류 | 500 Internal Server Error |
 
 ---
 
 ## REQ-4 식단 제한 프리셋 목록 조회
 
-`GET /restrictions/presets` — 설정 화면에 보여줄 프리셋(할랄, 비건 등)과 개별 토글 항목 목록을 조회한다.
+`GET /api/v1/restrictions/presets` — 설정 화면에 보여줄 프리셋과 개별 토글 항목 목록을 조회한다.
 
 ### 요청
 
@@ -54,20 +89,20 @@
 {
   "presets": [
     { "code": "HALAL", "name": "할랄", "items": ["pork", "alcohol"] },
-    { "code": "VEGAN", "name": "비건", "items": ["meat", "seafood", "egg", "dairy"] }
+    { "code": "VEGETARIAN", "name": "채식", "items": ["meat", "seafood"] }
   ],
   "items": [
-    { "code": "pork", "name": "돼지고기" },
-    { "code": "beef", "name": "소고기" },
-    { "code": "seafood", "name": "해산물" },
-    { "code": "peanut", "name": "땅콩" }
+    { "code": "meat", "name": "고기", "parent": null },
+    { "code": "pork", "name": "돼지고기", "parent": "meat" },
+    { "code": "beef", "name": "소고기", "parent": "meat" },
+    { "code": "seafood", "name": "해산물", "parent": null },
+    { "code": "egg", "name": "계란", "parent": null },
+    { "code": "dairy", "name": "우유·유제품", "parent": null },
+    { "code": "peanut", "name": "땅콩", "parent": null },
+    { "code": "alcohol", "name": "술", "parent": null }
   ]
 }
 ```
-
-### 에러
-
-노션 상세 페이지에 상태 코드 없이 `{ "detail": "..." }`만 적혀 있다. 500 외의 에러 응답은 미정이다.
 
 ### 예외 상황
 
@@ -79,15 +114,13 @@
 
 ## REQ-4 내 식단 제한 조회
 
-`GET /users/{user_id}/restrictions` — 사용자가 저장한 프리셋과 토글 상태를 불러온다.
+`GET /api/v1/users/{user_id}/restrictions` — 사용자가 저장한 프리셋과 토글 상태를 불러온다.
 
 ### 요청
 
 | 위치 | key | 설명 |
 | --- | --- | --- |
-| Path | `user_id` | 서버가 발급하고 클라이언트가 저장한 번호(Auto Increment) |
-
-헤더 없다.
+| Path | `user_id` | `POST /api/v1/users`로 받은 번호 |
 
 ### 응답 200 OK
 
@@ -115,24 +148,16 @@
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| 아직 한 번도 저장하지 않은 `user_id` | 404 Not Found → 클라이언트는 기본값(제한 없음) 표시 |
+| 발급되지 않았거나 아직 한 번도 저장하지 않은 `user_id` | 404 Not Found → 클라이언트는 기본값(제한 없음) 표시 |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
 
 ## REQ-4 식단 제한 저장
 
-`PATCH /users/{user_id}/restrictions` — 프리셋 선택과 토글 on-click으로 바뀐 제한 음식 설정을 저장한다. 처음 저장할 때 `user_id`를 등록한다.
+`PATCH /api/v1/users/{user_id}/restrictions` — 프리셋 선택과 토글로 바뀐 제한 음식 설정을 저장한다. 처음 저장하면 행을 만든다.
 
 ### 요청
-
-헤더
-
-```json
-{
-  "Content-Type": "application/json"
-}
-```
 
 바디
 
@@ -144,7 +169,8 @@
 }
 ```
 
-- `toggles`: 바뀐 항목만 보내도 된다(on-click 단위)
+- `preset`: 고르면 그 프리셋의 `items`가 켜진다. 프리셋을 풀려면 `null`
+- `toggles`: 바뀐 항목만 보내도 된다(on-click 단위). 프리셋으로 켜진 항목도 토글로 끌 수 있다
 - `version`: 마지막으로 조회한 버전. 처음 저장할 때는 생략한다
 
 ### 응답 200 OK
@@ -173,31 +199,24 @@
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| 같은 요청이 동시에 들어옴(`version` 불일치) | 409 Conflict → 클라이언트는 다시 조회한 뒤 재요청 |
+| 같은 사용자의 저장이 동시에 들어옴(`version` 불일치, 처음 저장이 겹침) | 409 Conflict → 클라이언트는 다시 조회한 뒤 재요청 |
 | 존재하지 않는 preset / 토글 코드 | 400 Bad Request |
+| 발급되지 않은 `user_id` | 404 Not Found `{ "detail": "사용자 정보를 찾을 수 없습니다." }` → 클라이언트는 번호를 다시 발급받는다 |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
 
 ## REQ-1 사진 업로드
 
-`POST /images` — 파일 선택, 드래그 앤 드롭, 모바일 카메라 촬영으로 고른 사진을 서버에 올리고 `image_id`를 받는다.
+`POST /api/v1/images` — 파일 선택, 드래그 앤 드롭, 모바일 카메라 촬영으로 고른 사진을 서버에 올리고 `image_id`를 받는다. 사진은 DB(`images.data`, bytea)에 저장한다.
 
 ### 요청
-
-헤더
-
-```json
-{
-  "Content-Type": "multipart/form-data"
-}
-```
 
 바디 (form-data)
 
 | key | type | 필수 | 설명 |
 | --- | --- | --- | --- |
-| `file` | File | O | JPEG / PNG / WEBP 이미지 (클라이언트에서 OPT-3 축소 후 전송) |
+| `file` | File | O | JPEG / PNG / WEBP 이미지 (브라우저에서 OPT-3 축소 후 전송), 최대 10MB |
 | `source` | Text | X | `FILE` · `DRAG_DROP` · `CAMERA` |
 
 ### 응답 201 Created
@@ -211,50 +230,22 @@
 }
 ```
 
-### 에러
-
-400 Bad Request
-
-```json
-{
-  "detail": "업로드할 사진이 없습니다."
-}
-```
-
-415 Unsupported Media Type
-
-```json
-{
-  "detail": "지원하지 않는 이미지 형식입니다."
-}
-```
-
 ### 예외 상황
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| `file` 누락 | 400 Bad Request |
-| 이미지가 아닌 파일 / 지원하지 않는 형식 | 415 Unsupported Media Type |
-| 파일 용량 초과 | 413 Payload Too Large (한도 값과 응답 본문은 미정) |
+| `file` 누락 | 400 Bad Request `{ "detail": "업로드할 사진이 없습니다." }` |
+| 이미지가 아닌 파일 / 지원하지 않는 형식 | 415 Unsupported Media Type `{ "detail": "지원하지 않는 이미지 형식입니다." }` |
+| 10MB 초과 | 413 Payload Too Large `{ "detail": "사진 용량이 너무 큽니다. (최대 10MB)" }` |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
 
 ## REQ-2 메뉴 판독
 
-`POST /menus/recognize` — 메뉴판 사진이면 메뉴 이름을 전부, 음식 사진이면 요리명 1개를 뽑는다.
+`POST /api/v1/menus/recognize` — 메뉴판 사진이면 메뉴 이름을 전부, 음식 사진이면 요리명 1개를 뽑는다. AI 비전 모델을 쓴다.
 
 ### 요청
-
-헤더
-
-```json
-{
-  "Content-Type": "application/json"
-}
-```
-
-바디
 
 ```json
 {
@@ -276,54 +267,27 @@
 }
 ```
 
-- `image_type`: `MENU_BOARD`(메뉴판, 메뉴 전부) · `FOOD`(음식 사진, `menus` 1개)
-- 읽지 못한 항목은 추측하지 않고 `name: null`로 비워 둔다 → 클라이언트에서 OPT-1 수동 입력으로 유도한다
-
-### 에러
-
-404 Not Found
-
-```json
-{
-  "detail": "이미지를 찾을 수 없습니다."
-}
-```
-
-422 Unprocessable Entity
-
-```json
-{
-  "detail": "메뉴판이나 음식 사진이 아닙니다."
-}
-```
+- 읽지 못한 항목은 추측하지 않고 `name: null`로 비워 둔다
+- 클라이언트는 `name`이 null이 아닌 항목만 모아 REQ-3에 보낸다
+- **모든 `name`이 null이거나 `menus`가 비었으면** 판정 화면 대신 메뉴 이름 입력칸(OPT-1)을 보여 준다
 
 ### 예외 상황
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
 | `image_id` 누락 | 400 Bad Request |
-| 존재하지 않는 `image_id` | 404 Not Found |
-| 메뉴판·음식 사진으로 인식되지 않음 | 422 Unprocessable Entity |
+| 존재하지 않는 `image_id` | 404 Not Found `{ "detail": "이미지를 찾을 수 없습니다." }` |
+| 메뉴판·음식 사진으로 인식되지 않음 | 422 Unprocessable Entity `{ "detail": "메뉴판이나 음식 사진이 아닙니다." }` → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
 | 일부 메뉴를 읽지 못함 | 200 OK, 해당 항목 `name: null` |
-| 판독 엔진 오류 | 500 Internal Server Error |
+| 판독 엔진(AI) 오류·시간 초과 | 500 Internal Server Error → 클라이언트는 메뉴 이름 입력칸(OPT-1)을 보여 준다 |
 
 ---
 
-## REQ-3 위험 정도 3단계 판정
+## REQ-3 위험 정도 3단계 판정 (REQ-6 근거 상세 포함)
 
-`POST /judgments` — 메뉴마다 사용자 식단 제한 기준으로 안전 / 확인 필요 / 불가 중 하나의 배지와 판정 근거 한 줄을 붙인다.
+`POST /api/v1/judgments` — 메뉴마다 사용자 식단 제한 기준으로 안전 / 확인 필요 / 불가 중 하나의 배지, 근거 한 줄, 근거 상세(REQ-6)를 돌려준다. 재료는 내부에서 REQ-5 추론으로 찾는다.
 
 ### 요청
-
-헤더
-
-```json
-{
-  "Content-Type": "application/json"
-}
-```
-
-바디
 
 ```json
 {
@@ -332,7 +296,7 @@
 }
 ```
 
-- `menu_names`의 각 값은 null이 아니어야 한다. REQ-2에서 `name: null`인 항목은 빼고 보낸다
+- `menu_names`는 1개 이상이고, 각 값은 비어 있지 않은 문자열이어야 한다
 
 ### 응답 200 OK
 
@@ -344,145 +308,133 @@
       "level": "BLOCKED",
       "reason": "돼지고기가 들어 있어 할랄 기준에 맞지 않습니다.",
       "matched_restrictions": ["pork"],
-      "ingredients": ["돼지고기", "고추장", "양파"]
+      "rule": "R1",
+      "ingredients": [
+        { "name": "돼지고기", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": "pork" },
+        { "name": "고추장", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": null },
+        { "name": "양파", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": null }
+      ]
     },
     {
       "menu_name": "미역국",
       "level": "CHECK",
-      "reason": "육수 재료가 확인되지 않았습니다.",
+      "reason": "맛술이 쓰였을 수 있어 할랄 기준을 확인해야 합니다.",
       "matched_restrictions": [],
-      "ingredients": ["미역", "참기름"]
+      "rule": "R2",
+      "ingredients": [
+        { "name": "미역", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": null },
+        { "name": "소고기", "evidence": "CONFIRMED", "confidence": "high", "basis": "DB", "restriction": "beef" },
+        { "name": "맛술", "evidence": "INFERRED", "confidence": "medium", "basis": "COOKING_METHOD", "restriction": "alcohol" }
+      ]
     }
   ]
 }
 ```
 
-- `level`: `SAFE`(안전) · `CHECK`(확인 필요) · `BLOCKED`(불가)
-- `reason`: 부가 기능. 판정에 따른 근거 한 줄
+- `reason`: 근거 한 줄(배지 옆에 보인다)
+- `matched_restrictions`: **확인된** 재료로 걸린 제한 항목(`BLOCKED`의 근거)
+- `rule`: 적용된 판정 규칙(REQ-6)
+- `ingredients[].restriction`: 그 재료가 연결된 제한 항목 코드(사용자와 상관없이 재료에 정해진 값). 어느 항목에도 걸리지 않는 재료는 `null`
+- 예시는 할랄(`pork`·`alcohol`) 사용자 기준이다
 
-### 에러
+### 판정 규칙
 
-400 Bad Request
+사용자가 켠 제한 항목(위계 포함)과 재료의 `restriction`을 맞대어 위에서부터 처음 맞는 규칙을 쓴다.
 
-```json
-{
-  "detail": "음식 이름이 비어 있습니다."
-}
-```
+| 규칙 | 조건 | `level` |
+| --- | --- | --- |
+| `R0` | 사용자 제한이 하나도 없다(미설정·미등록 `user_id` 포함) | `SAFE` |
+| `R1` | `CONFIRMED` 재료가 제한에 걸린다 | `BLOCKED` |
+| `R2` | `INFERRED` 재료가 제한에 걸린다 | `CHECK` |
+| `R3` | 걸리는 재료는 없지만 재료가 모두 `AI_ESTIMATE`에서 왔다 | `CHECK` |
+| `R4` | 걸리는 재료가 없다 | `SAFE` |
+
+- AI 추정(`AI_ESTIMATE`) 재료는 항상 `INFERRED`다. 그래서 AI 추정만으로는 `BLOCKED`가 나오지 않는다(REQ-5).
+- 판정은 코드(`lib/judge/`)가 한다. AI는 재료를 찾을 때만 쓴다. 규칙마다 단위 테스트를 둔다.
 
 ### 예외 상황
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| `menu_names`가 비었거나 null 값을 포함 | 400 Bad Request → 클라이언트 popup 이벤트 발생 |
-| 미등록 `user_id`(식단 제한 미설정) | 제한 없음 기준으로 판정, 200 OK |
-| DB에 없는 메뉴 | 200 OK, `level: CHECK`, OPT-4 추론 결과 반영 |
+| `menu_names`가 비었거나 빈 값·null을 포함 | 400 Bad Request `{ "detail": "입력 값이 없습니다." }` → 클라이언트는 같은 문구로 팝업 |
+| 미등록 `user_id`(식단 제한 미설정) | `R0`로 판정, 200 OK |
+| 음식 DB에 없는 메뉴 | REQ-5 순서(만개의 레시피 → AI 추정)로 재료를 찾아 판정, 200 OK |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
 
 ## OPT-1 수동 입력 판정
 
-`POST /judgments/manual` — 판독에 실패하면 메뉴 이름을 직접 입력받아 REQ-3과 같은 엔진으로 판정한다.
+`POST /api/v1/judgments/manual` — 판독에 실패하면 메뉴 이름을 직접 입력받아 REQ-3과 같은 엔진으로 판정한다.
 
 ### 요청
-
-헤더
-
-```json
-{
-  "Content-Type": "application/json"
-}
-```
-
-바디
 
 ```json
 {
   "user_id": 1,
-  "menu_name": "돈가스"
+  "menu_name": "된장찌개"
 }
 ```
 
 ### 응답 200 OK
 
-```json
-{
-  "menu_name": "돈가스",
-  "level": "BLOCKED",
-  "reason": "돼지고기가 들어 있어 할랄 기준에 맞지 않습니다.",
-  "matched_restrictions": ["pork"],
-  "ingredients": ["돼지고기", "빵가루", "밀가루", "계란"]
-}
-```
-
-- 응답 형식은 REQ-3 `results`의 한 항목과 같다
-
-### 에러
-
-404 Not Found
+REQ-3 `results`의 한 항목과 같은 형식이다. 예시는 음식 DB에 없어 만개의 레시피에서 재료를 찾은 경우, 할랄 사용자 기준이다.
 
 ```json
 {
-  "detail": "등록되지 않은 메뉴입니다."
-}
-```
-
-### 예외 상황
-
-| 예외 상황 | 처리 방식 |
-| --- | --- |
-| `menu_name` 누락 또는 빈 문자열 | 400 Bad Request |
-| 데이터베이스에 음식 이름이 없음 | 404 Not Found → 클라이언트 popup으로 알림 |
-| 서버 내부 오류 | 500 Internal Server Error |
-
----
-
-## OPT-4 숨은 성분 추론
-
-`POST /ingredients/infer` — 음식 이름에 들어 있는 재료 단어와 조리법으로 겉으로 드러나지 않는 재료를 추정한다.
-
-### 요청
-
-헤더
-
-```json
-{
-  "Content-Type": "application/json"
-}
-```
-
-바디
-
-```json
-{
-  "menu_name": "돈가스"
-}
-```
-
-### 응답 200 OK
-
-```json
-{
-  "menu_name": "돈가스",
-  "inferred_ingredients": [
-    { "name": "돼지고기", "basis": "NAME_KEYWORD" },
-    { "name": "밀가루", "basis": "COOKING_METHOD" },
-    { "name": "계란", "basis": "COOKING_METHOD" }
+  "menu_name": "된장찌개",
+  "level": "SAFE",
+  "reason": "할랄 기준에 걸리는 재료를 찾지 못했습니다.",
+  "matched_restrictions": [],
+  "rule": "R4",
+  "ingredients": [
+    { "name": "된장", "evidence": "INFERRED", "confidence": "high", "basis": "RECIPE_SEARCH", "restriction": null },
+    { "name": "멸치 육수", "evidence": "INFERRED", "confidence": "medium", "basis": "RECIPE_SEARCH", "restriction": "seafood" }
   ]
 }
 ```
 
-- `basis`: `NAME_KEYWORD`(이름 속 재료 단어) · `COOKING_METHOD`(조리법에서 추정)
-- REQ-3 판정 때 내부적으로도 호출되어 `ingredients`에 반영된다
+### 예외 상황
 
-### 에러
+| 예외 상황 | 처리 방식 |
+| --- | --- |
+| `menu_name` 누락 또는 빈 문자열 | 400 Bad Request `{ "detail": "입력 값이 없습니다." }` → 클라이언트 팝업 |
+| 음식 DB에 없는 메뉴 | REQ-5 순서로 재료를 찾아 판정, 200 OK (팝업 없음) |
+| 서버 내부 오류 | 500 Internal Server Error |
 
-404 Not Found
+---
+
+## REQ-5 숨은 성분 추론
+
+`POST /api/v1/ingredients/infer` — 음식 이름으로 재료를 찾는다. REQ-3·OPT-1이 내부에서 같은 함수를 부르고, 이 API는 그 함수를 직접 확인할 때 쓴다.
+
+### 찾는 순서
+
+1. **음식 DB**(`foods`): 등록된 재료는 `CONFIRMED`, `basis: DB`. 시드에 함께 넣은 숨은 재료(육수, 젓갈, 맛술 등)는 `INFERRED`, `basis: COOKING_METHOD`
+2. **이름 속 재료 단어·조리법**: 이름의 재료 단어(예: "돈" → 돼지고기)는 `NAME_KEYWORD`, 조리법(예: "튀김" → 밀가루·계란)은 `COOKING_METHOD`. 모두 `INFERRED`
+3. **만개의 레시피 검색**(1에 없을 때): 찾은 재료는 `INFERRED`, `basis: RECIPE_SEARCH`
+4. **AI 추정**(3이 실패하거나 결과가 없을 때): `INFERRED`, `basis: AI_ESTIMATE`, `confidence`는 최대 `medium`
+
+3·4에서 찾은 재료는 `foods`(`source`가 `recipe_search` 또는 `ai_estimate`)에 저장해 다음 요청부터 1에서 찾는다.
+
+### 요청
 
 ```json
 {
-  "detail": "등록되지 않은 메뉴라 추론을 실행하지 않았습니다."
+  "menu_name": "돈가스"
+}
+```
+
+### 응답 200 OK
+
+```json
+{
+  "menu_name": "돈가스",
+  "ingredients": [
+    { "name": "돼지고기", "evidence": "INFERRED", "confidence": "high", "basis": "NAME_KEYWORD", "restriction": "pork" },
+    { "name": "밀가루", "evidence": "INFERRED", "confidence": "high", "basis": "COOKING_METHOD", "restriction": null },
+    { "name": "계란", "evidence": "INFERRED", "confidence": "medium", "basis": "COOKING_METHOD", "restriction": "egg" }
+  ]
 }
 ```
 
@@ -490,24 +442,22 @@
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
-| `menu_name` 누락 | 400 Bad Request |
-| 데이터베이스에 음식 이름이 없음 | 404 Not Found, 추론 미실행 |
+| `menu_name` 누락 또는 빈 문자열 | 400 Bad Request `{ "detail": "입력 값이 없습니다." }` |
+| 1~4 모두 재료를 찾지 못함 | 200 OK, `ingredients: []` → 판정은 `R3`과 같이 `CHECK` |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
 
 ## OPT-2 음식점 추천
 
-`GET /restaurants/recommendations` — 학식을 이용할 수 없는 경우 사용자 식단 제한에 맞는 다른 음식점을 추천한다.
+`GET /api/v1/restaurants/recommendations` — 판정 결과에 '안전' 메뉴가 하나도 없을 때 "다른 식당 보기"에서 부른다. 사용자가 켠 제한 항목을 모두 피하는 음식점을 돌려준다.
 
 ### 요청
 
 | 위치 | key | 필수 | 설명 |
 | --- | --- | --- | --- |
-| Query | `user_id` | O | 서버가 발급하고 클라이언트가 저장한 번호(Auto Increment) |
+| Query | `user_id` | O | 사용자 번호 |
 | Query | `limit` | X | 추천 개수 (기본 5) |
-
-헤더 없다.
 
 ```text
 GET /api/v1/restaurants/recommendations?user_id=1&limit=5
@@ -529,30 +479,23 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 }
 ```
 
-### 에러
-
-404 Not Found
-
-```json
-{
-  "detail": "사용자 정보를 찾을 수 없습니다."
-}
-```
+- `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
+- 음식점 데이터는 팀이 조사한 학교 주변 음식점 시드(`lib/db/seed/restaurants.ts`)다
 
 ### 예외 상황
 
 | 예외 상황 | 처리 방식 |
 | --- | --- |
 | `user_id` 누락 | 400 Bad Request |
-| `user_id`가 존재하지 않음 | 404 Not Found |
-| 조건에 맞는 음식점 없음 | 200 OK, `restaurants: []` |
+| `user_id`가 존재하지 않음 | 404 Not Found `{ "detail": "사용자 정보를 찾을 수 없습니다." }` |
+| 조건에 맞는 음식점 없음 | 200 OK, `restaurants: []` → 화면에 '조건에 맞는 음식점이 없습니다.' |
 | 서버 내부 오류 | 500 Internal Server Error |
 
 ---
 
-## OPT-3 이미지 축소 (클라이언트 처리)
+## OPT-3 이미지 축소 (브라우저 처리)
 
-별도 API가 없다. 프론트엔드에서 REQ-1 `POST /images`를 호출하기 직전에 처리한다.
+별도 API가 없다. REQ-1 `POST /api/v1/images`를 호출하기 직전에 브라우저에서 처리한다.
 
 | 항목 | 값 |
 | --- | --- |
@@ -560,25 +503,12 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 | 리사이즈 기준 | 긴 변 1400px (비율 유지) |
 | 출력 형식 | JPEG, 품질 0.85 |
 | 출력 | REQ-1 `file` 필드로 전송 |
-
-### 예외 상황
-
-| 예외 상황 | 처리 방식 |
-| --- | --- |
 | 긴 변이 1400px 미만 | 축소하지 않고 원본 그대로 전송 |
 
 ---
 
 ## 열린 질문
 
-노션 기능리스트와 `docs/problem.yaml`을 옮기면서 어긋나거나 비어 있던 것들이다. 임의로 맞추지 않았으니 팀에 확인하고 고친다.
-
-1. **기본 경로.** `/api/v1`은 OPT-2 예시에만 나온다. 나머지 항목의 EndPoint에는 접두사가 없다. 모든 경로에 `/api/v1`을 붙이는가?
-2. **경로 체계가 `problem.yaml`과 다르다.** `problem.yaml`은 F1에 `POST /api/scan`, F6에 `POST /api/judge-names`로 적혀 있고, 노션은 `POST /images` + `POST /menus/recognize` + `POST /judgments`로 나뉘어 있다. 어느 쪽이 최신인가?
-3. **API가 없는 기능.** `problem.yaml`의 F6(프로필 전환), F7(판정 근거 상세), F10(고지 문구)에 해당하는 항목이 노션 기능리스트에 없다. F6은 REQ-3 재호출로, F7은 REQ-3 응답의 `ingredients`·`matched_restrictions`로 덮이는지 확인이 필요하다.
-4. **확신도 필드가 없다.** `problem.yaml`의 출력 스키마에는 `confidence(high|medium|low)`와 `hidden_ingredients`가 있는데, REQ-3·OPT-1 응답 예시에는 `level`·`reason`·`matched_restrictions`·`ingredients`만 있다. 성분별 확인/추정 구분(F4)도 응답에 없다.
-5. **OPT-4와 REQ-3의 예외 처리가 어긋난다.** REQ-3은 "DB에 없는 메뉴 → 200 OK, `level: CHECK`, OPT-4 추론 결과 반영"이라고 하는데, OPT-4는 등록되지 않은 메뉴에 404를 주고 추론을 실행하지 않는다. 반영할 결과가 없다.
-6. **프리셋 목록 조회의 에러.** 상태 코드 없이 `{ "detail": "..." }`만 적혀 있다.
-7. **프리셋·토글 코드 목록이 두 문서에서 다르다.** 노션은 프리셋 `HALAL`·`VEGAN` 2종에 항목 코드 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 나온다. `problem.yaml` F8은 프리셋 3종(알레르기·할랄·채식)과 9개 그룹(계란, 우유, 견과, 돼지고기, 술, 젤라틴, 고기, 생선·해산물, 육수)을 든다. 알레르기 프리셋과 젤라틴·육수 코드가 노션에 없다.
-8. **업로드 용량 한도.** `problem.yaml` F2는 12MB를 넘는 요청을 받지 않는다고 적혀 있고, 노션에는 413을 준다는 말만 있고 한도 값이 없다.
-9. **`user_id` 보호.** 로그인이 없어 `user_id`만 알면 남의 식단 제한을 조회·수정할 수 있다. 그대로 가는가?
+1. **`user_id` 보호.** 로그인이 없어 `user_id`만 알면 남의 식단 제한을 조회·수정할 수 있다. 해커톤 범위에서는 그대로 간다([decisions.md](decisions.md)).
+2. **AI 호출 남용.** 로그인이 없고 팀 AI 예산이 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 2.
+3. **메뉴 이름 표기 차이.** 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)는 `foods.aliases`로 맞춘다. 공백 제거 외의 정규화 규칙은 ③이 정한다.

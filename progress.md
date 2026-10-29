@@ -5,8 +5,8 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 ## 현재 상태
 
 - 실제 서비스 저장소 폴더: `C:\Users\a4710\NULL-SUMTECH` (안내 폴더: `C:\Users\a4710\loopthon-starter`)
-- 현재 단계 / 다음 행동: 2-A 문제 다지기 진행 중 (E1 경험 주체·시점부터)
-- 학생에게 확인할 내용: E1이 누구의 경험인지, 언제 겪었는지
+- 현재 단계 / 다음 행동: 2단계 기획 문서 통일 완료(2026-10-29, `docs/decisions.md`). 다음은 ①이 `feat/base-settings`에 `docs/erd.md > 스키마에 반영할 것`을 고쳐 `main`에 올리고, ②·③이 contracts 파일부터 시작
+- 학생에게 확인할 내용: E1이 언제 겪은 일인지, E2가 누구의 경험인지, 배포 대상(`docs/tech-stack.md > 열린 결정` 1)
 - 참고: 운영진의 검색·AI 사용 허락 받음(학생 확인, 2026-10-29). 조직 이름 `NULL`·`NULL-team`은 이미 다른 계정이 사용 중이고, `NULL-sumtech-team` 조직은 GitHub에서 확인되지 않아 학생 요청으로 개인 계정 레포를 사용함
 
 ## 1. GitHub 준비
@@ -33,15 +33,15 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [ ] 외부 자료는 열리는 URL을 sources에 그대로 적고 원문이 주장을 직접 뒷받침하는지 확인, 출처 없는 수치 없음
 - [ ] 문제가 '우리 기능이 없어서'가 아니라 실제 상황·행동으로 서술됐는지 확인
 - [ ] 2-B 해법 찾기: 학생이 낸 해법과 결정을 solution_paths에, 기존 대안 대신 이 해법이어야 하는 이유를 학생 말로 why_ours에 작성
-- [ ] 2-C features에 학생이 고른 해법의 기능별 입력·결과·완료 조건 작성
+- [x] 2-C features에 학생이 고른 해법의 기능별 입력·결과·완료 조건 작성 (REQ-1~7, OPT-1~3)
 - [ ] YAML 문법 검사, 등록된 레포의 기본 브랜치에 docs/problem.yaml push
 - [x] 학생이 개인 로그인으로 우리 팀 → 문제 정의를 열어 캔버스 표시 확인 (2026-10-29 학생 확인)(Agent는 화면을 열 수 없음, 약 1분 캐시)
 - [ ] 핵심 사용자 흐름·기능별 동작 규칙·완료 조건·제외 범위를 팀과 확인
-- [ ] 로그인 필요 여부와 역할 이름(흐름 account·docker 시드 계정 역할 이름으로 씀) 결정
+- [x] 로그인 필요 여부와 역할 이름(흐름 account·docker 시드 계정 역할 이름으로 씀) 결정 — 로그인 없음, `user_id` 발급
 - [ ] 첫 화면에서 알려 줄 것(로그인하지 않은 사람이 `/`에서 볼 서비스 이름·하는 일)을 학생과 정함
-- [ ] 주 사용 플랫폼(desktop·mobile·both)과 실제 사용 장면에 근거한 platformReason 작성
-- [ ] 사용자 핵심 흐름 3~8개를 scenarios.example.yaml 참고해 docs/scenarios.yaml에 작성(steps는 화면의 메뉴·버튼 이름으로 한 줄에 한 동작, 로그인 흐름은 account 지정), YAML 파서로 형식 확인 후 기본 브랜치 push
-- [ ] 서비스의 AI 호출 필요 여부 확인
+- [x] 주 사용 플랫폼(desktop·mobile·both)과 실제 사용 장면에 근거한 platformReason 작성 — mobile
+- [x] 사용자 핵심 흐름 3~8개를 scenarios.example.yaml 참고해 docs/scenarios.yaml에 작성(steps는 화면의 메뉴·버튼 이름으로 한 줄에 한 동작, 로그인 흐름은 account 지정), YAML 파서로 형식 확인 후 기본 브랜치 push
+- [x] 서비스의 AI 호출 필요 여부 확인 — 필요(메뉴 판독 REQ-2, 재료 AI 추정 REQ-5)
 - [ ] README 등 기존 문서에 확인된 구현 설계 기록, 기본 브랜치 push
 - 문제정의·구현 설계 링크 / commit SHA / 확인할 빈칸:
 
