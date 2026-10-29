@@ -13,6 +13,8 @@ test('할랄 유학생이 "Other restaurants"를 누르면 돼지고기·술을 
   await expect(cards.first()).toBeVisible();
 
   // 음식점마다 이름과 종류가 보이고, 돼지고기·술을 모두 피한다고 적혀 있어야 한다.
+  // "Free of …"는 사용자 설정이 아니라 음식점 데이터(matched_restrictions = 음식점이 피하는 항목 전부)라서,
+  // 돼지고기나 술을 쓰는 음식점이 목록에 섞이면 이 확인이 실패한다.
   const count = await cards.count();
   for (let i = 0; i < count; i++) {
     const card = cards.nth(i);

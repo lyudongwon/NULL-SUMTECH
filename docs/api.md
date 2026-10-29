@@ -555,7 +555,7 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 }
 ```
 
-- `matched_restrictions`: 이 음식점이 피하는 항목 중 사용자 제한과 겹치는 것
+- `matched_restrictions`: 이 음식점이 피하는 항목 전부(`restaurant_restriction_items`, 이름순). 사용자 값을 되돌려 주지 않고 음식점 데이터에서 꺼내므로, 추천된 음식점에는 사용자가 켠 항목이 모두 들어 있다. 화면은 이 값을 "Free of …"로 보여 준다
 - 음식점 데이터는 시드(`R__20_seed_restaurants.sql`)다. 목표는 팀이 조사한 학교 주변 음식점이지만, 출처가 정해지지 않아(`erd.md` 열린 질문 7) 지금은 이름에 "(예시)"를 붙인 예시 데이터 5곳만 있다
 - 추천 순서는 음식점 번호 순이다(기준 미정, `RestaurantService`의 `TODO(확인)`)
 
