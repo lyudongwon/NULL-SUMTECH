@@ -11,7 +11,7 @@ export function RestrictionSettings() {
     useRestrictions();
 
   if (status === "loading") {
-    return <p className="text-neutral-500">불러오는 중…</p>;
+    return <p className="text-neutral-500">Loading…</p>;
   }
   if (status === "error") {
     return (
@@ -20,7 +20,7 @@ export function RestrictionSettings() {
           {message}
         </p>
         <button type="button" onClick={reload} className="self-start rounded-lg border px-4 py-2">
-          다시 시도
+          Try again
         </button>
       </div>
     );
@@ -33,12 +33,12 @@ export function RestrictionSettings() {
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold text-neutral-600">프리셋</h2>
+        <h2 className="text-sm font-semibold text-neutral-600">Presets</h2>
         <PresetPicker presets={presets} selected={preset} onSelect={selectPreset} />
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold text-neutral-600">못 먹는 음식</h2>
+        <h2 className="text-sm font-semibold text-neutral-600">Foods I can&apos;t eat</h2>
         <ToggleList items={items} toggles={toggles} onToggle={toggle} />
       </section>
 
@@ -54,7 +54,7 @@ export function RestrictionSettings() {
         disabled={saving}
         className="rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white disabled:opacity-60"
       >
-        {saving ? "저장 중…" : "저장"}
+        {saving ? "Saving…" : "Save"}
       </button>
     </div>
   );

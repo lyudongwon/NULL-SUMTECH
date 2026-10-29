@@ -27,7 +27,7 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
       ...(hasBody ? { duplex: "half" } : {}),
     } as RequestInit);
   } catch {
-    return Response.json({ detail: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요." }, { status: 502 });
+    return Response.json({ detail: "Can't reach the server. Please try again shortly." }, { status: 502 });
   }
 
   const responseHeaders = new Headers(upstream.headers);

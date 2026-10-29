@@ -40,7 +40,7 @@ export function useScan() {
     try {
       imageId = (await uploadImage(await resizeImage(file), source)).image_id;
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.detail : "사진을 올리지 못했습니다.");
+      setMessage(error instanceof ApiError ? error.detail : "Couldn't upload the photo.");
       setPhase("idle");
       return;
     }
@@ -49,7 +49,7 @@ export function useScan() {
     try {
       const names = menuNames((await recognizeMenus(imageId)).menus);
       if (names.length === 0) {
-        setMessage("사진에서 메뉴를 읽지 못했습니다. 메뉴 이름을 직접 입력해 주세요.");
+        setMessage("We couldn't read the menu. Please type the menu name.");
         setPhase("manual");
         return;
       }
@@ -62,7 +62,7 @@ export function useScan() {
         setPhase("manual");
         return;
       }
-      setMessage(error instanceof ApiError ? error.detail : "메뉴를 읽지 못했습니다.");
+      setMessage(error instanceof ApiError ? error.detail : "Couldn't read the menu.");
       setPhase("idle");
     }
   }

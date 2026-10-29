@@ -33,7 +33,7 @@ public class RestaurantService {
 	@Transactional(readOnly = true)
 	public RecommendationResponse recommend(Long userId, Integer limit) {
 		Set<String> enabled = restrictionService.findEnabledItemCodes(userId)
-				.orElseThrow(() -> ApiException.notFound("사용자 정보를 찾을 수 없습니다."));
+				.orElseThrow(() -> ApiException.notFound("User not found."));
 		int size = limit == null ? DEFAULT_LIMIT : Math.clamp(limit, 1, MAX_LIMIT);
 
 		List<RecommendationResponse.Item> items = restaurantRepository.findAllByOrderByIdAsc().stream()

@@ -2,9 +2,9 @@
 import type { JudgmentIngredient, JudgmentLevel, JudgmentResult } from "@/hooks/useJudgment";
 
 export const LEVEL_LABEL: Record<JudgmentLevel, string> = {
-  SAFE: "안전",
-  CHECK: "확인 필요",
-  BLOCKED: "불가",
+  SAFE: "Safe",
+  CHECK: "Check first",
+  BLOCKED: "Avoid",
 };
 
 export const LEVEL_STYLE: Record<JudgmentLevel, string> = {
@@ -14,28 +14,28 @@ export const LEVEL_STYLE: Record<JudgmentLevel, string> = {
 };
 
 export const EVIDENCE_LABEL: Record<JudgmentIngredient["evidence"], string> = {
-  CONFIRMED: "확인",
-  INFERRED: "추정",
+  CONFIRMED: "Confirmed",
+  INFERRED: "Estimated",
 };
 
 export const CONFIDENCE_LABEL: Record<JudgmentIngredient["confidence"], string> = {
-  HIGH: "높음",
-  MEDIUM: "보통",
-  LOW: "낮음",
+  HIGH: "High",
+  MEDIUM: "Medium",
+  LOW: "Low",
 };
 
 export const BASIS_LABEL: Record<JudgmentIngredient["basis"], string> = {
-  DB: "음식 DB",
-  NAME_KEYWORD: "이름 속 재료",
-  COOKING_METHOD: "조리법에서 추정",
-  RECIPE_SEARCH: "만개의 레시피",
-  AI_ESTIMATE: "AI 추정",
+  DB: "Food database",
+  NAME_KEYWORD: "Menu name",
+  COOKING_METHOD: "Cooking method",
+  RECIPE_SEARCH: "10000recipe",
+  AI_ESTIMATE: "AI estimate",
 };
 
 export const RULE_LABEL: Record<JudgmentResult["rule"], string> = {
-  R0: "식단 제한이 없어 안전",
-  R1: "확인된 재료가 제한에 걸림",
-  R2: "추정 재료가 제한에 걸림",
-  R3: "재료를 모두 AI로 추정해 확인 필요",
-  R4: "제한에 걸리는 재료가 없음",
+  R0: "No diet restrictions set",
+  R1: "A confirmed ingredient is restricted",
+  R2: "An estimated ingredient may be restricted",
+  R3: "All ingredients are AI estimates",
+  R4: "No restricted ingredients found",
 };

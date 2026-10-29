@@ -15,7 +15,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-/** 모든 에러를 api.md 공통 형식 { "detail": "<한국어 문장>" }으로 돌려준다. */
+/** 모든 에러를 api.md 공통 형식 { "detail": "<영어 문장>" }으로 돌려준다. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -32,28 +32,28 @@ public class GlobalExceptionHandler {
 			MethodArgumentTypeMismatchException.class,
 	})
 	public ResponseEntity<Map<String, String>> handleBadRequest(Exception e) {
-		return detail(HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.");
+		return detail(HttpStatus.BAD_REQUEST, "The request is not in a valid format.");
 	}
 
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Map<String, String>> handleMissingParam(MissingServletRequestParameterException e) {
-		return detail(HttpStatus.BAD_REQUEST, e.getParameterName() + " 값이 필요합니다.");
+		return detail(HttpStatus.BAD_REQUEST, e.getParameterName() + " is required.");
 	}
 
 	@ExceptionHandler(MaxUploadSizeExceededException.class)
 	public ResponseEntity<Map<String, String>> handleTooLarge(MaxUploadSizeExceededException e) {
-		return detail(HttpStatus.CONTENT_TOO_LARGE, "사진 용량이 너무 큽니다. (최대 10MB)");
+		return detail(HttpStatus.CONTENT_TOO_LARGE, "The photo is too large (max 10MB).");
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)
 	public ResponseEntity<Map<String, String>> handleNotFound(NoResourceFoundException e) {
-		return detail(HttpStatus.NOT_FOUND, "요청한 주소를 찾을 수 없습니다.");
+		return detail(HttpStatus.NOT_FOUND, "Not found.");
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Map<String, String>> handleUnknown(Exception e) {
 		log.error("처리하지 못한 오류", e);
-		return detail(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
+		return detail(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong on the server.");
 	}
 
 	private static ResponseEntity<Map<String, String>> detail(HttpStatus status, String message) {

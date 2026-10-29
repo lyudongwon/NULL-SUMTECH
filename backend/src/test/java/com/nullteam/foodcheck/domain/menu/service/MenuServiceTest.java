@@ -66,7 +66,7 @@ class MenuServiceTest {
 
 		ApiException e = assertThrows(ApiException.class, () -> service.recognize(new MenuRecognizeRequest("img_1")));
 		assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, e.getStatus());
-		assertEquals("메뉴판이나 음식 사진이 아닙니다.", e.getMessage());
+		assertEquals("This doesn't look like a menu or food photo.", e.getMessage());
 	}
 
 	@Test

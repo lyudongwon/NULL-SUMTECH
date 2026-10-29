@@ -21,8 +21,8 @@ import com.nullteam.foodcheck.domain.judgment.dto.Rule;
 class JudgmentRulesTest {
 
 	private static final Map<String, String> ITEM_NAMES = Map.of(
-			"meat", "고기", "pork", "돼지고기", "beef", "소고기", "seafood", "해산물",
-			"egg", "계란", "dairy", "우유·유제품", "peanut", "땅콩", "alcohol", "술");
+			"meat", "Meat", "pork", "Pork", "beef", "Beef", "seafood", "Seafood",
+			"egg", "Egg", "dairy", "Dairy", "peanut", "Peanut", "alcohol", "Alcohol");
 
 	private static final Set<String> HALAL = Set.of("pork", "alcohol");
 	private static final Set<String> VEGETARIAN = Set.of("meat", "seafood");
@@ -67,7 +67,7 @@ class JudgmentRulesTest {
 		assertEquals(Rule.R1, result.rule());
 		// 걸린 항목만 담는다. 재료의 beef는 사용자가 켜지 않았으므로 빠진다
 		assertEquals(List.of("meat"), result.matchedRestrictions());
-		assertEquals("소고기가 들어 있어 고기 제한에 맞지 않습니다.", result.reason());
+		assertEquals("Contains 소고기, which is not allowed for your Meat restriction.", result.reason());
 	}
 
 	@Test
@@ -91,7 +91,7 @@ class JudgmentRulesTest {
 		assertEquals(Level.CHECK, result.level());
 		assertEquals(Rule.R2, result.rule());
 		assertEquals(List.of(), result.matchedRestrictions());
-		assertEquals("고추장 속 다진 돼지고기가 들어 있을 수 있어 돼지고기 제한을 확인해야 합니다.", result.reason());
+		assertEquals("May contain 고추장 속 다진 돼지고기. Check for Pork before eating.", result.reason());
 	}
 
 	@Test

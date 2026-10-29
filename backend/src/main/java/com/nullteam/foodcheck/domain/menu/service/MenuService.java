@@ -31,7 +31,7 @@ public class MenuService {
 
 	static final Duration TIMEOUT = Duration.ofSeconds(45);
 	static final int MAX_MENUS = 30;
-	static final String READ_FAILED = "메뉴를 읽지 못했습니다. 메뉴 이름을 직접 입력해 주세요.";
+	static final String READ_FAILED = "We couldn't read the menu. Please type the menu name.";
 
 	private static final Logger log = LoggerFactory.getLogger(MenuService.class);
 
@@ -54,7 +54,7 @@ public class MenuService {
 	public MenuRecognizeResponse recognize(MenuRecognizeRequest request) {
 		String imageId = request == null ? null : request.imageId();
 		if (imageId == null || imageId.isBlank()) {
-			throw ApiException.badRequest("image_id 값이 필요합니다.");
+			throw ApiException.badRequest("image_id is required.");
 		}
 		ImageBodyStore.Body body = imageService.loadBody(imageId.trim());
 
@@ -64,7 +64,7 @@ public class MenuService {
 			throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, READ_FAILED);
 		}
 		if (reading.kind() == MenuReading.Kind.NOT_MENU) {
-			throw new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, "메뉴판이나 음식 사진이 아닙니다.");
+			throw new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, "This doesn't look like a menu or food photo.");
 		}
 
 		ImageType type = reading.kind() == MenuReading.Kind.FOOD ? ImageType.FOOD : ImageType.MENU_BOARD;

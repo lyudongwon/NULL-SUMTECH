@@ -87,7 +87,7 @@ public class IngredientInferenceService {
 
 	static void requireMenuName(String menuName) {
 		if (MenuNameNormalizer.normalize(menuName).isEmpty()) {
-			throw ApiException.badRequest("입력 값이 없습니다.");
+			throw ApiException.badRequest("Please enter a menu name.");
 		}
 	}
 
