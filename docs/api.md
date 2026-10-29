@@ -557,6 +557,6 @@ GET /api/v1/restaurants/recommendations?user_id=1&limit=5
 ## 열린 질문
 
 1. `user_id` 보호: 로그인이 없어서 `user_id`만 알면 남의 식단 제한을 보고 고칠 수 있다. 해커톤에서는 이대로 간다([decisions.md](decisions.md)).
-2. AI 호출 남용: 로그인이 없는데 팀 AI 예산은 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 2에서 다룬다.
+2. AI 호출 남용: 로그인이 없는데 팀 AI 예산은 $10이라 호출 제한이 필요하다. 방식은 [tech-stack.md](tech-stack.md) 열린 결정 4에서 다룬다.
 3. 메뉴 이름 표기 차이: 판독한 이름과 DB 이름의 띄어쓰기·동의어(`돈까스`/`돈가스`)를 어떻게 맞출지는 ③이 정한다([erd.md](erd.md) 열린 질문 5).
 4. 사진 본문 저장 위치: `images`에는 메타데이터만 있다. ②가 방식을 정해 ①에게 표 변경을 요청한다([erd.md](erd.md) 열린 질문 1).

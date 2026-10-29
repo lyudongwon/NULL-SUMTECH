@@ -130,5 +130,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - 7회차(2026-10-30) `docs/tech-stack.md`: 머리말·실행 조건·열린 결정 문장을 읽기 쉬운 말투로 고치고 굵은 글씨 13곳을 뺌. 버전·표 13행·환경변수·명령·경로·열린 결정 번호 1~6은 그대로
   - 검사: 고치기 전후 백틱 토큰·링크·REQ/OPT/R 번호·용량·따옴표 문구 목록을 `diff`로 비교함. 다른 점은 열린 결정 1에서 "Next.js가 `app`이다"를 "잠정으로 Next.js입니다"로 줄여 `app` 토큰 하나가 빠진 것뿐(뜻은 그대로). `git diff --word-diff`로 바뀐 줄을 다시 읽음
   - 발견: `docs/api.md` 열린 질문 2가 AI 호출 남용을 "tech-stack.md 열린 결정 2"로 가리키지만 실제로는 4번. 이번엔 고치지 않음
-- 남은 문서: folder-structure.md
-- 다음 행동: docs/folder-structure.md 설명 문장 다듬기(폴더·파일 경로는 그대로), api.md의 열린 결정 번호(2→4) 바로잡기
+- 8회차(2026-10-30) `docs/folder-structure.md`: 머리말·백엔드·프런트엔드 설명 문장을 다듬고 굵은 글씨 9곳을 뺌((제안) 표시는 그대로 둠). 폴더 트리·경로·규칙 표·열린 질문은 그대로. 7회차에 발견한 `docs/api.md` 열린 질문 2의 참조를 "tech-stack.md 열린 결정 2"에서 4로 바로잡음
+  - 검사: 고치기 전후 백틱 토큰·링크·REQ/OPT 번호·(제안) 표시 목록을 `diff`로 비교해 똑같음, `git diff --word-diff`로 바뀐 줄을 다시 읽음. tech-stack.md 열린 결정 4가 "AI 호출 남용 방지"임을 확인함
+- 남은 문서: 없음. 다듬기 대상(problem.yaml, README.md, decisions.md, api.md, scenarios.yaml, erd.md, tech-stack.md, folder-structure.md)을 모두 마침. ai-rules.md·git-convention.md·roles.md는 작업 규칙이라 손대지 않음
+- 다음 행동: 팀원이 `chore/ralph-loop` 변경을 읽어 보고 main으로 PR할지 정함
