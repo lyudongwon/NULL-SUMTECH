@@ -375,3 +375,13 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - (OPT-2 시연 시드) tech-stack.md 열린 결정 8은 음식점과 보고를 시드로 넣어 외부 API가 막혀도 지도가 보이게 한다고 적었다. 실제 가게의 이름·좌표·보고는 루프가 지어낼 수 없어 `R__20`을 바꾸지 않았다(지금 5곳은 좌표가 없어 지도에 나오지 않는다). 제안: 팀이 카카오맵에서 확인한 가게의 `kakao_place_id`·좌표를 시드로 넣는다 → 19회차: 팀이 지도 방식을 하지 않기로 해(decisions.md 2026-10-30) 지도 코드를 지우고 V3로 표를 지움. 이 항목은 끝남
 - (OPT-2 지도 코드 정리) 팀 브랜치 `docs/opt2-back-to-list`는 OPT-2를 목록 방식으로 되돌린다. 합쳐지면 16회차가 더한 `NearbyRestaurantController`(`/restaurants/nearby`·`/restaurants/{id}/reports`)·`NearbyRestaurantService`·`RestaurantReport`와 `V2__restaurant_reports.sql`(이미 적용된 V 파일)은 `features`에 없는 코드가 된다. 루프는 기능을 빼지 않는다. 제안: ①이 두 엔드포인트를 지울지 정한다. 지우면 V2는 고치지 않고 표를 지우는 새 V3를 더하고, `NearbyRestaurantControllerTest`도 함께 지운다. 남겨 둘 거라면 api.md에 "쓰지 않는 실험 API"로 적는다 → 19회차: 팀이 지도 방식을 하지 않기로 해(decisions.md 2026-10-30) 지도 코드를 지우고 V3로 표를 지움. 이 항목은 끝남
 - (V2·V3 정리) 심사는 V2(16회차)가 main에 들어간 적이 없는데 V2 추가 + V3 삭제 쌍을 남겼다고 본다. 이 브랜치를 docker로 띄운 기록이 없으면 두 파일을 함께 지워 main과 같은 V1만 남기는 편이 깔끔하다. 다만 누군가 이 브랜치로 DB를 띄워 V2가 적용됐다면 Flyway 검증이 "적용됐으나 파일 없음"으로 멈춘다. 제안: ①이 이 브랜치로 DB를 띄운 적이 있는지 확인하고, 없으면 V2·V3를 지울지 정한다
+
+## 기획 문서 점검(랄프 루프)
+
+### 회차 기록
+
+- 1회차(2026-10-30) blocked: `git merge origin/main`(5fc1fe9)이 충돌해 `git merge --abort`로 되돌렸다. 충돌 파일: `progress.md`, `docs/api.md`, `e2e/scenarios/S1.spec.ts`, `e2e/scenarios/S2.spec.ts`, `frontend/src/app/page.tsx`, `frontend/src/hooks/useJudgment.ts`. 이 중 `e2e/`·`frontend/`는 이 루프가 고칠 수 없는 파일이고, `progress.md`는 같은 "기획 검토 > 팀 결정 필요" 줄을 양쪽이 다르게 고쳐(main은 흐름 ID S4·S6~S8로, 이 브랜치는 시나리오 이름으로) 생겼다. 문서 점검은 하지 않았다
+
+### 팀 결정 필요
+
+- (병합 충돌) `chore/ralph-loop`과 main이 위 6개 파일에서 갈라졌다. 제안: 팀원이 main 쪽을 기준으로 이 브랜치에 main을 합쳐 충돌을 풀어 주거나(코드·E2E는 main 기준), 이 브랜치를 main에서 다시 따도 되는지 정한다. 풀리면 다음 회차가 문서 점검을 이어 간다
