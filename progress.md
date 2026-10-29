@@ -112,3 +112,10 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - 흐름별 E2E 결과(통과 / 실패 단계와 이유):
 - 배포 URL:
 - 아직 못 한 일 / 제한 / 다음 행동:
+
+## 문서 다듬기(랄프 루프)
+
+- 1회차(2026-10-30) `docs/problem.yaml`: 머리 주석·features 주석을 짧게 묶고, context·measurable·REQ-4 input·REQ-5 output·REQ-6 done 문장을 자연스럽게 고침. 기능 ID·화면 문구·출처·수치·결정 내용은 그대로
+  - 검사: `yaml.safe_load` 통과(features ID 11개 그대로), `git diff`로 바뀐 줄의 ID(REQ/OPT/R/E) 짝이 맞는지 확인
+- 남은 문서(순서대로): README.md → docs/decisions.md → docs/api.md → docs/scenarios.yaml(steps·expected 제외) · erd.md · tech-stack.md · folder-structure.md
+- 다음 행동: README.md 다듬기
