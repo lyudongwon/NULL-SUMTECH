@@ -58,6 +58,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [~] CI 실제 검사: `.github/workflows/scenarios.yml`(키트 복사, releaseId=commit 검사 추가) 추가. 자동 배포 연결은 배포 대상이 정해진 뒤
 - [ ] Agent가 대시보드 배포 URL 저장, UP·배포 commit 일치 확인 — 배포 뒤
 - 로컬 E2E(2026-10-30, 빈 DB docker, AI 키 없음): smoke 4/4·manual-input-fallback·manual-input-unknown-menu 통과, 사진 판독이 필요한 5개 흐름 실패. 원인: 백엔드 로그 `NotFoundException: 404`(Gateway base-url `/v1` 누락, 열린 PR #10이 고침) + 로컬·GitHub Secrets에 AI 키 없음
+- 로컬 E2E 재실행(2026-10-30, PR #10 반영 main, 로컬 .env에 AI 키): smoke 4/4, 흐름 7/7 통과를 2회 연속 확인(사진 판독 비전 호출 포함, 흐름당 4~8초). E1·E2(Check first)도 2회 모두 같은 결과
 - 학생이 할 일(blocked):
   1. 배포 대상 결정(`docs/tech-stack.md > 열린 결정` 1): 화면 Vercel + 백엔드 컨테이너 호스트(AWS 등) + 무료 Postgres(Neon 등) 중 무엇을 쓸지, 무료 등급 확인
   2. 고른 플랫폼에 학생 계정으로 로그인해 GitHub 레포 연결, 배포 환경변수(`BACKEND_URL`, `SPRING_DATASOURCE_*`, `AI_GATEWAY_API_KEY`, `RELEASE_ID`는 플랫폼 commit 변수) 직접 입력
@@ -74,7 +75,7 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 - [ ] 서버가 환경변수 AI_GATEWAY_API_KEY에서 키를 읽음(주최 측 실행도 이 이름으로 키를 넣음), docker-compose.yml app에 `AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}`
 - [ ] 학생이 AI_GATEWAY_API_KEY를 로컬·배포 환경과 GitHub Secrets에 직접 설정, .env.example에는 이름만 기록
 - [ ] 서버에서 Gateway 호출, 접근 제한·예산 부족·지연·실패 처리
-- [ ] 팀 예산 안의 작은 실제 요청으로 연결 확인
+- [x] 팀 예산 안의 작은 실제 요청으로 연결 확인(2026-10-30 로컬 E2E로 텍스트·비전 호출 확인)
 - 키 값을 제외한 설정·연결 확인 결과 / 준비 대기 사항:
 
 ## 5. 핵심 기능 구현
@@ -92,19 +93,23 @@ Agent가 서비스 저장소 루트의 `progress.md`로 복사해 이어 쓴다(
 
 ## 6. 흐름 E2E
 
-- [ ] 키트 e2e/를 저장소 e2e/로 복사, platform에 맞는 project만 남김
-- [ ] 흐름마다 e2e/scenarios/<id>.spec.ts 하나(id와 같은 파일 이름), 파일마다 test 하나
-- [ ] steps를 같은 순서의 화면 조작으로 spec 본문에 옮김(API 호출 없음), 다른 역할 단계는 새 창(context)으로 로그인, 회원가입 이메일은 실행마다 다르게
-- [ ] page.goto는 창마다 처음 한 번만(로그인 화면으로 가는 goto만 예외), 회원가입은 첫 화면에서 눌러 가거나 회원가입 주소 하나만, 도우미 함수는 test보다 위에
-- [ ] 마지막에 expected 결과를 expect로 확인(화면이 열렸는지만 보지 않음)
-- [ ] test.skip·test.fixme·test.only·조건부 return·실패를 삼키는 try/catch 없음
-- [ ] page.route·route.fulfill·routeFromHAR·routeWebSocket·addInitScript·화면 글자를 바꾸는 page.evaluate 없음
-- [ ] 흐름에 필요한 선행 데이터는 앱 시드로, 업로드 자료는 e2e/fixtures/에 커밋, 앞 흐름이 만든 데이터에 기대지 않음
-- [ ] AI 기능은 실제 응답을 기다려 확인, 흐름 하나가 로컬에서 1분 안
-- [ ] viewport를 spec에서 바꾸지 않음, platform의 화면(both면 둘 다)에서 통과
-- [ ] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
-- [ ] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
-- 흐름별 E2E 결과(통과 / 실패 단계와 이유):
+- [x] 키트 e2e/를 저장소 e2e/로 복사, platform에 맞는 project만 남김
+- [x] 흐름마다 e2e/scenarios/<id>.spec.ts 하나(id와 같은 파일 이름), 파일마다 test 하나
+- [x] steps를 같은 순서의 화면 조작으로 spec 본문에 옮김(API 호출 없음), 다른 역할 단계는 새 창(context)으로 로그인, 회원가입 이메일은 실행마다 다르게
+- [x] page.goto는 창마다 처음 한 번만(로그인 화면으로 가는 goto만 예외), 회원가입은 첫 화면에서 눌러 가거나 회원가입 주소 하나만, 도우미 함수는 test보다 위에
+- [x] 마지막에 expected 결과를 expect로 확인(화면이 열렸는지만 보지 않음)
+- [x] test.skip·test.fixme·test.only·조건부 return·실패를 삼키는 try/catch 없음
+- [x] page.route·route.fulfill·routeFromHAR·routeWebSocket·addInitScript·화면 글자를 바꾸는 page.evaluate 없음
+- [x] 흐름에 필요한 선행 데이터는 앱 시드로, 업로드 자료는 e2e/fixtures/에 커밋, 앞 흐름이 만든 데이터에 기대지 않음
+- [x] AI 기능은 실제 응답을 기다려 확인, 흐름 하나가 로컬에서 1분 안
+- [x] viewport를 spec에서 바꾸지 않음, platform의 화면(both면 둘 다)에서 통과
+- [x] globalSetup·storageState 등 playwright.config.ts에만 있는 설정에 기대지 않음
+- [x] `docker compose down -v`, `docker compose up -d --build` 뒤 `npx playwright test`로 모든 흐름 통과
+- 흐름별 E2E 결과(통과 / 실패 단계와 이유): 2026-10-30 로컬, `docker compose down -v` → `RELEASE_ID=da60b58 docker compose up -d --build`(`/__health` releaseId 일치) 뒤 smoke 4/4, 흐름 7/7 통과(흐름당 9~13초). 같은 날 앞선 실행 2회도 7/7
+  - spec 점검: 금지 패턴(skip·only·route·addInitScript·evaluate·viewport·try/catch) 없음, 파일마다 goto·test 1개, Pixel 7 화면만
+  - 약한 확인(통과는 하지만 expected보다 느슨함): `scan-food-photo-single-dish`는 근거 한 줄과 "모두 영어"를 따로 확인하지 않음, `scan-menu-board`는 "소고기"를 근거 칸이 아닌 카드 전체에서 찾음, `diet-toggle-only`는 "소고기" 대신 "고기"로 찾음, `manual-input-fallback` 주석에 옛 한국어 이름("메뉴 이름"·"판정하기")이 남음
+  - 실패 동작: 틀린 AI 키로 백엔드를 띄우면 Gateway 401 → 화면에 "We couldn't read the menu. Please type the menu name."과 "Menu name" 입력칸이 뜸(api.md 판독 오류 행과 같음)
+  - 프로젝트 검사: `./gradlew test` 성공, 화면 `eslint`·`tsc --noEmit`·`next build` 성공, 없는 주소(`/no-such-page`, `/api/v1/no-such`) 404, 추적 파일·커밋 이력에 AI 키 값 없음
 
 ## 7. 최종 검증
 
