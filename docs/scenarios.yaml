@@ -11,7 +11,7 @@ platformReason: |-
   웹 서비스지만 학식당에서 메뉴를 고르는 그 자리에서 휴대폰 브라우저로 열어,
   휴대폰 카메라로 메뉴판이나 음식을 찍어 바로 먹을지 말지 정하기 때문이다.
 
-login: false # 로그인 없이 session_id로 사용자를 구분하고, 식단 제한은 브라우저에 저장한다
+login: false # 회원·로그인 없이 서버가 Auto Increment로 발급한 user_id로 사용자를 구분한다
 
 scenarios:
   - id: scan-menu-board
