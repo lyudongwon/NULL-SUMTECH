@@ -15,7 +15,7 @@
 | DB | PostgreSQL | 사용 | 배포 DB는 Render Postgres(무료, 만든 뒤 30일 만료). 백엔드는 Render가 주는 `DATABASE_URL`을 시작할 때 JDBC 설정으로 바꾼다 |
 | ORM | JPA(Hibernate) | 사용 | |
 | 마이그레이션 | Flyway | 사용 | 앱이 시작할 때 자동으로 돌아서 시작 명령은 서버 실행 하나로 끝남. `ddl-auto`는 `validate` |
-| AI | Spring AI 2.0.1(구조화 출력) + AI Gateway | 미정 | 메뉴 판독(REQ-2, 비전)과 재료 AI 추정(REQ-5)에만 씀. 판정 규칙은 AI가 아니라 코드가 맡음. 키는 `AI_GATEWAY_API_KEY`. Gateway가 OpenAI 호환 엔드포인트를 주면 Spring AI의 OpenAI 모듈에서 base-url만 바꿔 쓰는데, 되는지는 아직 확인 전. 안 되면 모델사 SDK나 키를 직접 씀 |
+| AI | Spring AI 2.0.1(구조화 출력) + AI Gateway | 미정 | 메뉴 판독(REQ-2, 비전)과 재료 AI 추정(REQ-5)에만 씀. 판정 규칙은 AI가 아니라 코드가 맡음. 키는 `AI_GATEWAY_API_KEY`. Gateway가 OpenAI 호환 엔드포인트를 주면 Spring AI의 OpenAI 모듈에서 base-url만 바꿔 쓰는데, 되는지는 아직 확인 전. 안 되면 모델사 SDK나 키를 직접 씀. 재료 추정 모델은 `INGREDIENT_AI_MODEL`(기본값 `openai/gpt-5-mini`, 20초 제한)이고, 다시 시도는 한 번만(`spring.ai.retry.max-attempts: 2`) |
 | 검증 | Jakarta Bean Validation + Jackson | 사용 | AI 응답과 API 입력의 형식 검사 |
 | API 명세 연동 | springdoc-openapi → TypeScript 타입 생성 | 미정 | 두 언어 사이 어긋남을 줄이자는 제안 |
 | 테스트 | JUnit 5(판정 엔진) + Playwright(E2E) | 사용 | Playwright는 화면 쪽 |
