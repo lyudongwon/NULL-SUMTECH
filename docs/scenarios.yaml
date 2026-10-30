@@ -69,7 +69,8 @@ scenarios:
       - '"Upload photo"를 누르고 메뉴가 없는 사진(e2e/fixtures/no-menu.jpg)을 고른다'
       - 나타난 메뉴 이름 입력칸에 "김치찌개"를 입력한다
       - '"Can I eat it?"을 누른다'
-    expected: 사진을 올린 뒤 메뉴 이름 입력칸이 나타난다. 판정 화면에 "김치찌개"와 "Safe", "Check first", "Avoid" 중 하나의 배지, 근거 한 줄이 사진 판정과 같은 형식으로 보인다.
+      - 판정 화면에서 "김치찌개"를 누른다
+    expected: 사진을 올린 뒤 메뉴 이름 입력칸이 나타난다. 판정 화면에 "김치찌개"와 "Avoid" 배지, 근거 한 줄 "Contains 돼지고기, which is not allowed for your Pork restriction."이 사진 판정과 같은 형식으로 보인다. 근거 상세에 "돼지고기"가 "Confirmed"로 표시되고, 적용된 규칙 "R1"이 보인다.
 
   # manual-input-unknown-menu
   - id: S5
@@ -82,7 +83,8 @@ scenarios:
       - '"Upload photo"를 누르고 메뉴가 없는 사진(e2e/fixtures/no-menu.jpg)을 고른다'
       - 나타난 메뉴 이름 입력칸에 음식 DB 시드에 없는 메뉴 "된장찌개"를 입력한다
       - '"Can I eat it?"을 누른다'
-    expected: 데이터베이스에 없는 메뉴라는 팝업 없이 판정 화면으로 넘어간다. 판정 화면에 "된장찌개"와 "Safe", "Check first", "Avoid" 중 하나의 배지, 근거 한 줄이 사진 판정과 같은 형식으로 보인다.
+      - 판정 화면에서 "된장찌개"를 누른다
+    expected: 데이터베이스에 없는 메뉴라는 팝업 없이 판정 화면으로 넘어간다. 판정 화면에 "된장찌개"와 "Safe" 또는 "Check first" 배지, 근거 한 줄이 사진 판정과 같은 형식으로 보인다(밖에서 찾은 재료는 모두 추정이라 "Avoid"는 나오지 않는다). 근거 상세에 재료가 "Estimated"로 표시되고, 출처가 "10000recipe" 또는 "AI estimate"로 보인다.
 
   # halal-bibimbap-gochujang
   - id: S6

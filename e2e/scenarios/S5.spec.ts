@@ -25,7 +25,18 @@ test("음식 DB에 없는 메뉴를 입력하면 만개의 레시피에서 재�
 
   await expect(page).toHaveURL(/\/result/, AI_WAIT);
   await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  // 만개의 레시피·AI 추정에서 찾은 재료는 모두 추정(INFERRED)이라 R1 "Avoid"는 나오지 않는다(docs/api.md > REQ-3 판정 규칙).
+  // 무엇을 찾아오는지는 외부 사이트·AI에 따라 달라서 배지 하나로 못 박지 않고, 밖에서 찾아왔다는 근거를 본다.
   const card = page.getByRole("listitem").filter({ hasText: "된장찌개" });
-  await expect(card.getByText(/^(Safe|Check first|Avoid)$/)).toBeVisible(AI_WAIT);
-  await expect(card.getByTestId("reason")).not.toBeEmpty();
+  await expect(card.getByText(/^(Safe|Check first)$/)).toBeVisible(AI_WAIT);
+  await expect(card.getByTestId("reason")).toHaveText(
+    /^(May contain .+\. Check for .+ before eating\.|No ingredients conflict with your diet restrictions\.|Ingredients are AI estimates only\. Please check before eating\.)$/,
+  );
+
+  await card.getByRole("button", { name: /된장찌개/ }).click();
+  const rows = card.getByRole("row").filter({ has: page.getByRole("cell") });
+  await expect(rows.first()).toBeVisible();
+  await expect(rows.first()).toContainText("Estimated");
+  await expect(rows.first()).toContainText(/10000recipe|AI estimate/);
+  await expect(card).toContainText("Rule");
 });
