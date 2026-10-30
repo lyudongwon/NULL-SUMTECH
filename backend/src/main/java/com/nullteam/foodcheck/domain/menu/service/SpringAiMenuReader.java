@@ -28,7 +28,7 @@ public class SpringAiMenuReader implements MenuReader {
 	private final String model;
 
 	public SpringAiMenuReader(ChatClient.Builder chatClientBuilder,
-			// AI Gateway에서 쓸 비전 모델. 기본값은 openai/gpt-5-mini이고, 팀 예산($10)과 판독 품질을 보고 MENU_AI_MODEL로 바꾼다.
+			// TODO(확인): AI Gateway에서 쓸 비전 모델. 팀 예산($10)과 판독 품질을 보고 정한다.
 			@Value("${MENU_AI_MODEL:openai/gpt-5-mini}") String model) {
 		this.chatClient = chatClientBuilder.build();
 		this.model = model;

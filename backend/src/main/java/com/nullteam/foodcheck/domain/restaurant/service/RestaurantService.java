@@ -19,7 +19,7 @@ import com.nullteam.foodcheck.global.exception.ApiException;
 /**
  * OPT-2 음식점 추천. 사용자가 켠 제한 항목을 모두 충족하는 음식점만 추천한다.
  * OPT-5: 사용자 제보가 HIDE_THRESHOLD명 이상인 (가게, 항목)은 시드가 충족한다고 해도 충족하지 않는 것으로 본다.
- * 추천 순서는 따로 정하지 않아 id 순으로 돌려준다("학식을 이용할 수 없는 경우"의 기준도 따로 두지 않는다).
+ * TODO(확인): "학식을 이용할 수 없는 경우"의 기준과 추천 순서가 정해지지 않아 id 순으로 돌려준다.
  */
 @Service
 public class RestaurantService {
