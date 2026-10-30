@@ -182,10 +182,10 @@ E2E 시나리오([scenarios.yaml](scenarios.yaml))가 돌아가려면 아래가 
 
 ## 열린 질문
 
-1. 사진 본문을 어디에 두는가. 배포 백엔드(Render 웹 서비스)는 재배포하면 디스크가 사라진다. Postgres `bytea`에 넣을지 S3 같은 외부 저장소를 쓸지, 업로드와 판독을 한 요청으로 합칠지 정해야 하고, 보관 기간도 정해야 한다. 지금은 백엔드 메모리(최대 200장, 30분, `ImageBodyStore`)에 두고 `images.data bytea` 컬럼이 생기면 DB로 옮기기로 했다([api.md](api.md) REQ-1 사진 본문 저장). 컬럼은 아직 마이그레이션에 없다.
-2. ~~`user_id` 발급 방법.~~ 정했다: 클라이언트가 `POST /api/v1/users`로 번호를 받아 브라우저에 보관한다([api.md](api.md) REQ-4 사용자 번호 발급).
+1. 사진 본문을 어디에 두는가. 백엔드는 AWS 컨테이너라 재배포하면 컨테이너 디스크가 사라진다. Postgres `bytea`에 넣을지 S3 같은 외부 저장소를 쓸지, 업로드와 판독을 한 요청으로 합칠지 정해야 하고, 보관 기간도 정해야 한다. 잠정: ②가 우선 백엔드 메모리(최대 200장, 30분)에 두고 `images.data bytea` 컬럼이 생기면 DB로 옮기기로 했다([api.md](api.md) REQ-1 사진 본문 저장). 컬럼은 아직 마이그레이션에 없다.
+2. ~~`user_id` 발급 방법.~~ 잠정: 클라이언트가 `POST /api/v1/users`로 번호를 받아 브라우저에 보관한다([api.md](api.md) REQ-4 사용자 번호 발급).
 3. ~~로그인.~~ 2026-10-30에 선택 기능(OPT-4)으로 두기로 했다(`decisions.md`). 비밀번호 재설정·이메일 확인은 없다.
-4. ~~프리셋·항목 코드 목록.~~ 문서 통일 때 확정했다([api.md](api.md) 열거형). 프리셋 `HALAL`(할랄)·`VEGETARIAN`(채식)·`VEGAN`(비건), 항목 `meat`(고기)·`pork`·`beef`·`seafood`·`egg`·`dairy`·`peanut`·`alcohol`을 시드(`R__10_seed_restrictions.sql`)에 넣었다. 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 썼는데, 이 차이를 위 목록으로 정리했다.
-5. 메뉴 이름 매칭. 판독으로 읽은 이름이 DB의 이름과 정확히 같아야 하는가? 띄어쓰기, 표기 차이, 동의어(`돈까스`/`돈가스`)를 어떻게 처리할지 정해야 한다. 지금은 앞뒤·겹친 공백을 정리하고(`MenuNameNormalizer`) 띄어쓰기 차이까지 같은 메뉴로 본다(`FoodRepository.findByCompactName`). 동의어는 맞추지 않는다.
+4. ~~프리셋·항목 코드 목록.~~ 문서 통일 때 확정했다([api.md](api.md) 열거형). 잠정으로 프리셋 `HALAL`(할랄)·`VEGETARIAN`(채식)·`VEGAN`(비건), 항목 `meat`(고기)·`pork`·`beef`·`seafood`·`egg`·`dairy`·`peanut`·`alcohol`을 시드(`R__10_seed_restrictions.sql`)에 넣었다. 노션 API 예시는 `HALAL`·`VEGAN`과 `pork`·`beef`·`seafood`·`peanut`·`alcohol`·`meat`·`egg`·`dairy`가 섞여 있고, 시나리오 화면은 "채식"·"할랄"·"고기"를 썼는데, 이 차이를 위 목록으로 정리했다.
+5. 메뉴 이름 매칭. 판독으로 읽은 이름이 DB의 이름과 정확히 같아야 하는가? 띄어쓰기, 표기 차이, 동의어(`돈까스`/`돈가스`)를 어떻게 처리할지 정해야 한다.
 6. ~~외부 검색 결과의 저장.~~ 저장한다. 만개의 레시피에도 없으면 AI 추정으로 판정한다([decisions.md](decisions.md)).
 7. 음식점 데이터. 추천 기준은 정했다(OPT-2). 몇 곳을 어디까지 조사할지는 팀이 정한다.

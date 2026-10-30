@@ -20,7 +20,7 @@ spring:
       max-request-size: 10MB
   ai:
     openai:
-      # base-url은 /v1까지 적는다. SDK가 뒤에 chat/completions만 붙여서, /v1이 없으면 404가 난다. 텍스트 호출과 이미지(비전) 호출 모두 이 주소로 동작한다(흐름 E2E S1·S2의 사진 판독).
+      # base-url은 /v1까지 적는다. SDK가 뒤에 chat/completions만 붙여서, /v1이 없으면 404가 난다. 텍스트 호출은 확인했고 이미지(비전) 호출은 확인 전이다.
       api-key: ${AI_GATEWAY_API_KEY:unset}
       base-url: ${AI_GATEWAY_BASE_URL:https://ai-gateway.vercel.sh/v1}
     retry:
